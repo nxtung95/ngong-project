@@ -85,8 +85,7 @@ public class PostServiceImpl implements PostService {
 		try {
 			// File path is passed as parameter
 			File file = new File(
-					"sample\\chuyen_cua_ngong.html");
-
+					"sample/chuyen_cua_ngong.html");
 			// Note:  Double backquote is to avoid compiler
 			// interpret words
 			// like \test as \t (ie. as a escape sequence)
@@ -95,8 +94,6 @@ public class PostServiceImpl implements PostService {
 			BufferedReader br
 					= new BufferedReader(new FileReader(file));
 
-			// Declaring a string variable
-			String st;
 			// Condition holds true till
 			// there is character in a string
 			String line = br.readLine();
@@ -106,7 +103,7 @@ public class PostServiceImpl implements PostService {
 			}
 
 		} catch (Exception e) {
-
+			log.error(e.getMessage(), e);
 		}
 
 		// Chuyen Ngong
