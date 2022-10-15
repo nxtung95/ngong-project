@@ -1,6 +1,10 @@
 package vn.ngong.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,15 +14,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import vn.ngong.entity.User;
 import vn.ngong.helper.AuthenticationUtil;
+import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.request.LoginRequest;
 import vn.ngong.request.RegisterRequest;
 import vn.ngong.response.LoginResponse;
 import vn.ngong.response.RegisterResponse;
-import vn.ngong.service.JWTUserDetailsService;
 import vn.ngong.service.UserService;
 
 @RestController
-@CrossOrigin
 @Slf4j
 public class AuthenticationController {
 
@@ -33,20 +36,34 @@ public class AuthenticationController {
 		return ResponseEntity.ok("Service up!!!");
 	}
 
+	@Operation(summary = "API đăng nhập cho cả user/admin",
+			description = "Trường code: \n 00: Thành công, 01: Invalid request, 02: User hoặc password sai")
+	@ApiResponses( value = {
+		@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+		@ApiResponse(responseCode = "400", description = "User hoặc mật khẩu sai", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+		@ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+	})
 	@RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest rq) throws Exception {
 		LoginResponse res = LoginResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPassword(), rq.getUsername())) {
+			res.setCode("01");
+			res.setDesc("Invalid request");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
 		try {
 			UserDetails userDetails = userService.login(rq.getUsername(), rq.getPassword());
 			if (userDetails == null) {
-				res.setCode("01");
+				res.setCode("02");
 				res.setDesc("User hoặc password sai");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
 			final String token = jwtTokenUtil.generateToken(userDetails);
+			User user = User.builder().email(userDetails.getUsername()).type(userDetails.getAuthorities().toString()).build();
+			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {
@@ -55,25 +72,46 @@ public class AuthenticationController {
 		return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
+	@Operation(summary = "API đăng ký cho cả user/admin",
+			description = "Trường code: \n 00: Thành công, 01: Invalid request, 02: Trùng sđt hoặc email, 03: Đăng ký thất bại")
+	@ApiResponses( value = {
+			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+			@ApiResponse(responseCode = "400", description = "Thất bại", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+			@ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+	})
 	@RequestMapping(value = "/register", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<RegisterResponse> regis(@RequestBody RegisterRequest rq) throws Exception {
 		RegisterResponse res = RegisterResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPassword(), rq.getPhone(), rq.getType())) {
+			res.setCode("01");
+			res.setDesc("Invalid request");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
 		try {
 			User user = User.builder()
 					.name(rq.getName())
 					.phone(rq.getPhone())
 					.password(rq.getPassword())
 					.email(rq.getEmail())
+					.type(rq.getType())
 					.build();
+			boolean isExist = userService.checkExist(user);
+			if (isExist) {
+				res.setCode("02");
+				res.setDesc("Số điện thoại hoặc email đã tồn tại");
+				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+			}
+
 			boolean register = userService.register(user);
-//			if (!register) {
-//				res.setCode("01");
-//				res.setDesc("User hoặc password sai");
-//				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
-//			}
+			if (!register) {
+				res.setCode("03");
+				res.setDesc("Đăng ký thất bại");
+				return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
+			}
+			user.setPassword("******");
 			res.setUser(user);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {

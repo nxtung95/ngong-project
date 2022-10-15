@@ -1,38 +1,14 @@
 package vn.ngong.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public class LoginRequest implements Serializable {
-
-	private static final long serialVersionUID = 5926468583005150707L;
-
+	@Schema(required = true, example = "User: user_ngong@gmail.com\n Admin: admin_ngong@gmail.com")
 	private String username;
+	@Schema(required = true, example = "1234")
 	private String password;
-
-	//need default constructor for JSON Parsing
-	public LoginRequest()
-	{
-
-	}
-
-	public LoginRequest(String username, String password) {
-		this.setUsername(username);
-		this.setPassword(password);
-	}
-
-	public String getUsername() {
-		return this.username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
 }

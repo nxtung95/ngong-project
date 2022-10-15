@@ -15,4 +15,5 @@ public class User implements Serializable {
 	private String phone;
 	private String email;
 	private String password;
+	private String type; //0: admin, 1: user bt
 }

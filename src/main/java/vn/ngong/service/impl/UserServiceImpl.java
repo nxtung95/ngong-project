@@ -2,12 +2,10 @@ package vn.ngong.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import vn.ngong.service.JWTUserDetailsService;
+import vn.ngong.entity.User;
 import vn.ngong.service.UserService;
 
 import java.util.ArrayList;
@@ -40,8 +38,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean register(vn.ngong.entity.User user) {
-		userList.add(user);
-		jwtUserDetailsService.add(user);
-		return true;
+		try {
+			userList.add(user);
+			jwtUserDetailsService.add(user);
+			return true;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean checkExist(User user) {
+		return userList.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()) || u.getPhone().equals(user.getPhone()));
 	}
 }
