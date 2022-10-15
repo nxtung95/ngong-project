@@ -13,7 +13,4 @@ public class RegisterRequest {
 	private String email;
 	@Schema(description = "password", required = true)
 	private String password;
-
-	@Schema(description = "0: User, 1: Admin", example = "0")
-	private String type;// 0: user, 1: admin
 }

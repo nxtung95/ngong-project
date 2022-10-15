@@ -4,15 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-public class User implements Serializable {
+public class Menu {
 	private int id;
+	private String code;
 	private String name;
-	private String phone;
-	private String email;
-	private String password;
+
+	private List<Post> postList;
 }

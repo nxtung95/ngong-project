@@ -50,6 +50,22 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean checkExist(User user) {
-		return userList.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()) || u.getPhone().equals(user.getPhone()));
+		return userList.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()));
 	}
+
+	@Override
+	public boolean update(User user) {
+		try {
+			for (int i = 0; i < userList.size(); i++) {
+				User u = userList.get(i);
+				if (u.getEmail().equals(user.getEmail())) {
+					u.setName(user.getName());
+					u.setPhone(user.getPhone());
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return false;	}
 }

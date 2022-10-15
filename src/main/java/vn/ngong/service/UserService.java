@@ -9,4 +9,6 @@ public interface UserService {
 	boolean register(vn.ngong.entity.User user);
 
 	boolean checkExist(User user);
+
+	boolean update(User user);
 }
