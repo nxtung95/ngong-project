@@ -19,11 +19,9 @@ import vn.ngong.request.LoginRequest;
 import vn.ngong.request.RegisterRequest;
 import vn.ngong.response.LoginResponse;
 import vn.ngong.response.RegisterResponse;
-import vn.ngong.service.JWTUserDetailsService;
 import vn.ngong.service.UserService;
 
 @RestController
-@CrossOrigin
 @Slf4j
 public class AuthenticationController {
 
@@ -64,6 +62,8 @@ public class AuthenticationController {
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
 			final String token = jwtTokenUtil.generateToken(userDetails);
+			User user = User.builder().email(userDetails.getUsername()).type(userDetails.getAuthorities().toString()).build();
+			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {
@@ -111,6 +111,7 @@ public class AuthenticationController {
 				res.setDesc("Đăng ký thất bại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 			}
+			user.setPassword("******");
 			res.setUser(user);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {

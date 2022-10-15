@@ -6,8 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.ngong.entity.User;
-import vn.ngong.enums.UserTypeEnum;
-import vn.ngong.service.JWTUserDetailsService;
 import vn.ngong.service.UserService;
 
 import java.util.ArrayList;

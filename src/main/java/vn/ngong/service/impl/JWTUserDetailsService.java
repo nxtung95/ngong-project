@@ -1,4 +1,4 @@
-package vn.ngong.service;
+package vn.ngong.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
