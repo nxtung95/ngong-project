@@ -124,7 +124,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "API cập nhật thông tin user",
-			description = "Trường code: \n 00: Thành công, 01: Invalid request, 02: Trùng sđt hoặc email, 03: Cập nhật thất bại")
+			description = "\nCập nhật thông tin họ tên và số điện thoại. \nTrường code: \n 00: Thành công, 01: Invalid request, 02: Trùng sđt hoặc email, 03: Cập nhật thất bại")
 	@ApiResponses( value = {
 			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
 			@ApiResponse(responseCode = "400", description = "Thất bại", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
