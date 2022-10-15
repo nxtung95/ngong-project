@@ -30,7 +30,7 @@ public class ConfigController {
 	@Autowired
 	private ConfigService configService;
 
-	@Operation(summary = "API Lấy danh sách cấu hình theo key truyền vào",
+	@Operation(summary = "API Lấy danh sách cấu hình theo key truyền vào (phục vụ header/footer/slide)",
 			description = "Trường code: \n 00: Thành công, 01: Invalid request, 02: Trùng sđt hoặc email, 03: Đăng ký thất bại")
 	@ApiResponses( value = {
 			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
