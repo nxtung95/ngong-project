@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import vn.ngong.entity.User;
+import vn.ngong.enums.UserTypeEnum;
 import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.request.LoginRequest;
@@ -62,7 +63,9 @@ public class AuthenticationController {
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
 			final String token = jwtTokenUtil.generateToken(userDetails);
-			User user = User.builder().email(userDetails.getUsername()).type(userDetails.getAuthorities().toString()).build();
+			String userType = userDetails.getAuthorities().toString().contains(UserTypeEnum.ADMIN.label()) ? UserTypeEnum.ADMIN.label() :
+					UserTypeEnum.USER.label();
+			User user = User.builder().email(userDetails.getUsername()).type(userType).build();
 			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
