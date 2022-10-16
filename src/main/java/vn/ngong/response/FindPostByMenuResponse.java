@@ -11,5 +11,5 @@ import java.util.List;
 @Setter
 @SuperBuilder(toBuilder = true)
 public class FindPostByMenuResponse extends BaseResponse {
-	private List<Post> postList;
+	private Post post;
 }
