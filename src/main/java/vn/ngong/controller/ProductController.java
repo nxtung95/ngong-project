@@ -30,7 +30,7 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
-	@Operation(summary = "API lấy chi tiết sản phẩm theo mã sản phẩm")
+	@Operation(summary = "API lấy chi tiết sản phẩm theo mã sản phẩm", description = "Code\n 02:Lỗi truy vấn sản phẩm, \n03: Mã sản phẩm không tồn tại bên KiotViet")
 	@ApiResponses( value = {
 			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
 	})
