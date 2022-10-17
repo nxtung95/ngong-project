@@ -66,7 +66,9 @@ public class UserController {
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
 			final String token = jwtTokenUtil.generateToken(userDetails);
-			User user = User.builder().email(userDetails.getUsername()).build();
+			User user = User.builder()
+					.email(userDetails.getUsername())
+					.build();
 			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
@@ -89,7 +91,7 @@ public class UserController {
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPassword(), rq.getPhone())) {
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPassword(), rq.getPhone(), rq.getAddress())) {
 			res.setCode("01");
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
@@ -100,6 +102,7 @@ public class UserController {
 					.phone(rq.getPhone())
 					.password(rq.getPassword())
 					.email(rq.getEmail())
+					.address(rq.getAddress())
 					.build();
 			boolean isExist = userService.checkExist(user);
 			if (isExist) {
@@ -136,7 +139,7 @@ public class UserController {
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPhone())) {
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPhone(), rq.getAddress())) {
 			res.setCode("01");
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);

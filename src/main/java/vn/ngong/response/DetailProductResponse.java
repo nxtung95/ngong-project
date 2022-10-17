@@ -3,13 +3,11 @@ package vn.ngong.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.ngong.entity.Post;
-
-import java.util.List;
+import vn.ngong.dto.ProductDto;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-public class FindPostByMenuResponse extends BaseResponse {
-	private Post post;
+public class DetailProductResponse extends BaseResponse {
+	private ProductDto detailProduct;
 }
