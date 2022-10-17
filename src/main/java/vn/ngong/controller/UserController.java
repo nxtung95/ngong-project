@@ -5,13 +5,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,16 +57,13 @@ public class UserController {
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			UserDetails userDetails = userService.login(rq.getUsername(), rq.getPassword());
-			if (userDetails == null) {
+			User user = userService.login(rq.getUsername(), rq.getPassword());
+			if (user == null) {
 				res.setCode("02");
 				res.setDesc("User hoặc password sai");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
-			final String token = jwtTokenUtil.generateToken(userDetails);
-			User user = User.builder()
-					.email(userDetails.getUsername())
-					.build();
+			final String token = jwtTokenUtil.generateToken(user);
 			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
@@ -149,6 +144,7 @@ public class UserController {
 					.name(rq.getName())
 					.phone(rq.getPhone())
 					.email(rq.getEmail())
+					.address(rq.getAddress())
 					.build();
 			boolean isExist = userService.checkExist(user);
 			if (isExist) {
