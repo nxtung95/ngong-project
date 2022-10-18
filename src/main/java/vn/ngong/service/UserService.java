@@ -12,5 +12,7 @@ public interface UserService {
 
 	boolean checkExistByPhone(String phone);
 
+	boolean checkExistByEmail(String mail);
+
 	boolean update(User user);
 }
