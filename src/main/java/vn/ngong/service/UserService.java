@@ -4,11 +4,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import vn.ngong.entity.User;
 
 public interface UserService {
-	UserDetails login(String username, String password);
+	User login(String username, String password);
 
 	boolean register(vn.ngong.entity.User user);
 
-	boolean checkExist(User user);
+	boolean checkExistByPhoneOrEmail(User user);
+
+	boolean checkExistByPhone(String phone);
 
 	boolean update(User user);
 }

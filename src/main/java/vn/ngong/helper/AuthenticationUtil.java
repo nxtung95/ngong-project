@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import vn.ngong.entity.User;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -53,9 +54,9 @@ public class AuthenticationUtil implements Serializable {
 	}
 
 	//generate token for user
-	public String generateToken(UserDetails userDetails) {
+	public String generateToken(User user) {
 		Map<String, Object> claims = new HashMap<>();
-		return doGenerateToken(claims, userDetails.getUsername());
+		return doGenerateToken(claims, user.getEmail());
 	}
 
 	//while creating the token -
@@ -72,7 +73,6 @@ public class AuthenticationUtil implements Serializable {
 
 	//validate token
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		System.out.println(passwordEncoder.encode("password"));
 		final String username = getUsernameFromToken(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}

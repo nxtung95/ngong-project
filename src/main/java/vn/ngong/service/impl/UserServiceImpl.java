@@ -2,34 +2,54 @@ package vn.ngong.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.ngong.entity.User;
+import vn.ngong.repository.UserRepository;
 import vn.ngong.service.UserService;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService {
-	@Autowired
-	private JWTUserDetailsService jwtUserDetailsService;
+public class UserServiceImpl implements UserService, UserDetailsService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-
-	private List<vn.ngong.entity.User> userList = new ArrayList<>();
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
-	public UserDetails login(String username, String password) {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Optional<User> optUser = userRepository.findByEmail(username);
+		if (!optUser.isPresent()) {
+			return null;
+		}
+		SimpleGrantedAuthority role = new SimpleGrantedAuthority("user");
+		Collection<SimpleGrantedAuthority> roleList = new ArrayList<>();
+		roleList.add(role);
+		org.springframework.security.core.userdetails.User userDetail = new
+				org.springframework.security.core.userdetails.User(optUser.get().getEmail(), optUser.get().getPassword(), roleList);
+		return userDetail;
+	}
+
+	@Override
+	public User login(String username, String password) {
 		try {
 			log.info("Login with user: " + username);
-			UserDetails user = jwtUserDetailsService.loadUserByUsername(username);
-			if (!passwordEncoder.matches(password, user.getPassword())) {
+			UserDetails userDetails = loadUserByUsername(username);
+			if (userDetails == null) {
 				return null;
 			}
-			return user;
+			if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+				return null;
+			}
+			return userRepository.findByEmail(username).get();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -39,8 +59,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean register(vn.ngong.entity.User user) {
 		try {
-			userList.add(user);
-			jwtUserDetailsService.add(user);
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			userRepository.saveAndFlush(user);
 			return true;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -49,23 +69,27 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean checkExist(User user) {
-		return userList.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()));
+	public boolean checkExistByPhoneOrEmail(User user) {
+		return userRepository.findByEmailOrPhone(user.getEmail(), user.getPhone()).isPresent();
+	}
+
+	@Override
+	public boolean checkExistByPhone(String phone) {
+		return userRepository.findByPhone(phone).isPresent();
 	}
 
 	@Override
 	public boolean update(User user) {
 		try {
-			for (int i = 0; i < userList.size(); i++) {
-				User u = userList.get(i);
-				if (u.getEmail().equals(user.getEmail())) {
-					u.setName(user.getName());
-					u.setPhone(user.getPhone());
-				}
+			User userByEmail = userRepository.findByEmail(user.getEmail()).orElse(null);
+			if (userByEmail == null) {
+				return false;
 			}
+			userRepository.saveAndFlush(userByEmail);
 			return true;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		return false;	}
+		return false;
+	}
 }

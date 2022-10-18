@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
-import vn.ngong.kiotviet.service.GetDetailProductService;
+import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.response.DetailProductResponse;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.request.RegisterRequest;
@@ -34,7 +35,7 @@ import java.util.List;
 @Slf4j
 public class ProductController {
 	@Autowired
-	private GetDetailProductService getDetailProductService;
+	private KiotVietService kiotVietService;
 
 	@Autowired
 	private ProductService productService;
@@ -59,8 +60,8 @@ public class ProductController {
 			@ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
 			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
 	})
-	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<DetailProductResponse> findProductByCode(@Parameter(required = true, example = "SP000001") @RequestParam String productCode) {
+	@RequestMapping(value = "products/{productCode}", method = RequestMethod.GET)
+	public ResponseEntity<DetailProductResponse> findProductByCode(@Parameter(required = true, example = "SP000001") @PathVariable String productCode) {
 		DetailProductResponse res = DetailProductResponse.builder()
 				.code("00")
 				.desc("Success")
@@ -70,7 +71,7 @@ public class ProductController {
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
-		DetailProductKiotVietResponse kiotVietResponse = getDetailProductService.getDetailProductByCode(productCode);
+		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
 		if (kiotVietResponse == null) {
 			res.setCode("02");
 			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");

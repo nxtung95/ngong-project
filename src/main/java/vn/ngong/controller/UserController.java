@@ -5,13 +5,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,22 +51,29 @@ public class UserController {
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getPassword(), rq.getUsername())) {
+		if (ValidtionUtils.checkEmptyOrNull(rq.getUsername())) {
 			res.setCode("01");
-			res.setDesc("Invalid request");
+			res.setDesc("Vui lòng nhập email");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPassword())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập password");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (!ValidtionUtils.validEmail(rq.getUsername())) {
+			res.setCode("01");
+			res.setDesc("Email sai định dạng");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			UserDetails userDetails = userService.login(rq.getUsername(), rq.getPassword());
-			if (userDetails == null) {
+			User user = userService.login(rq.getUsername(), rq.getPassword());
+			if (user == null) {
 				res.setCode("02");
 				res.setDesc("User hoặc password sai");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
-			final String token = jwtTokenUtil.generateToken(userDetails);
-			User user = User.builder()
-					.email(userDetails.getUsername())
-					.build();
+			final String token = jwtTokenUtil.generateToken(user);
 			res.setUser(user);
 			res.setJwttoken(token);
 			return new ResponseEntity<>(res, HttpStatus.OK);
@@ -96,6 +101,41 @@ public class UserController {
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getEmail())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập email");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (!ValidtionUtils.validEmail(rq.getEmail())) {
+			res.setCode("01");
+			res.setDesc("Email sai định dạng");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPassword())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập password");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập tên");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập số điện thoại");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (!ValidtionUtils.validPhoneNumber(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Số điện thoại phải là số có 10 hoặc 11 chữ số. Xin vui lòng nhập lại...");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getAddress())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập địa chỉ");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
 		try {
 			User user = User.builder()
 					.name(rq.getName())
@@ -104,7 +144,7 @@ public class UserController {
 					.email(rq.getEmail())
 					.address(rq.getAddress())
 					.build();
-			boolean isExist = userService.checkExist(user);
+			boolean isExist = userService.checkExistByPhoneOrEmail(user);
 			if (isExist) {
 				res.setCode("02");
 				res.setDesc("Số điện thoại hoặc email đã tồn tại");
@@ -139,24 +179,39 @@ public class UserController {
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getName(), rq.getEmail(), rq.getPhone(), rq.getAddress())) {
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName())) {
 			res.setCode("01");
-			res.setDesc("Invalid request");
+			res.setDesc("Vui lòng nhập tên");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập số điện thoại");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (!ValidtionUtils.validPhoneNumber(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Số điện thoại phải là số có 10 hoặc 11 chữ số. Xin vui lòng nhập lại...");
+			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getAddress())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập địa chỉ");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			User user = User.builder()
-					.name(rq.getName())
-					.phone(rq.getPhone())
-					.email(rq.getEmail())
-					.build();
-			boolean isExist = userService.checkExist(user);
+			boolean isExist = userService.checkExistByPhone(rq.getPhone());
 			if (isExist) {
 				res.setCode("02");
 				res.setDesc("Số điện thoại hoặc email đã tồn tại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
-
+			User user = User.builder()
+					.name(rq.getName())
+					.phone(rq.getPhone())
+					.email(rq.getEmail())
+					.address(rq.getAddress())
+					.build();
 			boolean update = userService.update(user);
 			if (!update) {
 				res.setCode("03");

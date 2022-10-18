@@ -29,7 +29,7 @@ public class DetailProductKiotVietResponse {
 	private boolean hasVariants;
 	private BigDecimal basePrice;
 	private int weight;
-	private int unit;
+	private String unit;
 	private String conversionValue;
 	private String description;
 	private boolean isActive;
