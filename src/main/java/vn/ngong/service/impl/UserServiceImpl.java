@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> optUser = userRepository.findByEmail(username);
+		Optional<User> optUser = userRepository.findByPhone(username);
 		if (!optUser.isPresent()) {
 			return null;
 		}
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		Collection<SimpleGrantedAuthority> roleList = new ArrayList<>();
 		roleList.add(role);
 		org.springframework.security.core.userdetails.User userDetail = new
-				org.springframework.security.core.userdetails.User(optUser.get().getEmail(), optUser.get().getPassword(), roleList);
+				org.springframework.security.core.userdetails.User(optUser.get().getPhone(), optUser.get().getPassword(), roleList);
 		return userDetail;
 	}
 
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			if (!passwordEncoder.matches(password, userDetails.getPassword())) {
 				return null;
 			}
-			return userRepository.findByEmail(username).get();
+			return userRepository.findByPhone(username).get();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -79,13 +79,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 	}
 
 	@Override
+	public boolean checkExistByEmail(String mail) {
+		return userRepository.findByEmail(mail).isPresent();
+	}
+
+	@Override
 	public boolean update(User user) {
 		try {
-			User userByEmail = userRepository.findByEmail(user.getEmail()).orElse(null);
-			if (userByEmail == null) {
+			User userByPhone = userRepository.findByPhone(user.getPhone()).orElse(null);
+			if (userByPhone == null) {
 				return false;
 			}
-			userRepository.saveAndFlush(userByEmail);
+			userRepository.saveAndFlush(userByPhone);
 			return true;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
