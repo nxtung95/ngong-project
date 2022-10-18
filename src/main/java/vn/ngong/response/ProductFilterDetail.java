@@ -1,8 +1,17 @@
 package vn.ngong.response;
 
-public class ProductFilterDetail{
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Builder
+@Getter
+@Setter
+public class ProductFilterDetail {
     private int id;
-    private int name;
-    private double price;
+    private String name;
+    private BigDecimal price;
     private String image;
 }

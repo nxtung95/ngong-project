@@ -39,24 +39,27 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
-    @Operation(summary = "API lấy danh sách sản phẩm",
-            description = "")
-	@Operation(summary = "API lấy chi tiết sản phẩm theo mã sản phẩm", description = "Code\n 02:Lỗi truy vấn sản phẩm, \n03: Mã sản phẩm không tồn tại bên KiotViet")
-	@ApiResponses( value = {
-            @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-            @ApiResponse(responseCode = "400", description = "Thất bại", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-            @ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-	})
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "API lấy danh sách sản phẩm", description = "")
+	@RequestMapping(value = "product", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductFilterResponse> list(@RequestBody ProductFilterRequest rq) throws Exception {
         try {
             ProductFilterResponse products = productService.list(rq);
-
-            return new ResponseEntity<>(products, HttpStatus.OK);
+            return ResponseEntity.ok(products);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-	@RequestMapping(method = RequestMethod.GET)
+			log.error(e.getMessage(), e);
+		}
+
+		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@Operation(summary = "API lấy chi tiết sản phẩm theo mã sản phẩm", description = "Code\n 02:Lỗi truy vấn sản phẩm, \n03: Mã sản phẩm không tồn tại bên KiotViet")
+	@ApiResponses( value = {
+			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+			@ApiResponse(responseCode = "400", description = "Thất bại", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+			@ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+	})
+	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<DetailProductResponse> findProductByCode(@Parameter(required = true, example = "SP000001") @RequestParam String productCode) {
 		DetailProductResponse res = DetailProductResponse.builder()
 				.code("00")
@@ -86,7 +89,6 @@ public class ProductController {
 			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 		}
 
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		res.setDetailProduct(productDto);
 		return ResponseEntity.ok(res);
 	}

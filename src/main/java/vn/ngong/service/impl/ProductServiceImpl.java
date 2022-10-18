@@ -2,20 +2,25 @@ package vn.ngong.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.entity.Product;
 import vn.ngong.helper.FormatUtil;
+import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.obj.Attribute;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.GetDetailProductService;
 import vn.ngong.repository.ProductRepository;
 import vn.ngong.request.ProductFilterRequest;
+import vn.ngong.response.ProductFilterDetail;
 import vn.ngong.response.ProductFilterResponse;
 import vn.ngong.service.ProductService;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +52,85 @@ public class ProductServiceImpl implements ProductService {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+
+		return null;
+	}
+
+	@Override
     public ProductFilterResponse list(ProductFilterRequest request) {
+		try{
+			Pageable pageable = PageRequest.of(request.getPageIndex(), request.getPageSize());
+			if (request.getMaxPrice() < 0) {
+				request.setMinPrice(0);
+				request.setMaxPrice(1000000000);
+			}
+
+			int order = request.getOrderType();
+
+			List<Product> products = null;
+			if (ValidtionUtils.checkEmptyOrNull(request.getBrandName())) {
+				if (order == 0) {
+					products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(
+							"%" + request.getProductName() + "%",
+							BigDecimal.valueOf(request.getMinPrice()),
+							BigDecimal.valueOf(request.getMaxPrice()),
+							1,
+							pageable);
+				} else {
+					products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(
+							"%" + request.getProductName() + "%",
+							BigDecimal.valueOf(request.getMinPrice()),
+							BigDecimal.valueOf(request.getMaxPrice()),
+							1,
+							pageable);
+				}
+
+			} else {
+				if (order == 0) {
+					products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(
+							"%" + request.getProductName() + "%",
+							request.getBrandName(),
+							BigDecimal.valueOf(request.getMinPrice()),
+							BigDecimal.valueOf(request.getMaxPrice()),
+							1,
+							pageable);
+				} else {
+					products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(
+							"%" + request.getProductName() + "%",
+							request.getBrandName(),
+							BigDecimal.valueOf(request.getMinPrice()),
+							BigDecimal.valueOf(request.getMaxPrice()),
+							1,
+							pageable);
+				}
+			}
+
+			List<ProductFilterDetail> filterDetails = new ArrayList<ProductFilterDetail>();
+			for (Product p : products) {
+				ProductFilterDetail item = ProductFilterDetail.builder()
+						.id(p.getId())
+						.image("")
+						.name(p.getName())
+						.price(p.getPrice())
+						.build();
+				filterDetails.add(item);
+			}
+
+			ProductFilterResponse result = ProductFilterResponse.builder()
+					.products(filterDetails)
+					.pageIndex(request.getPageIndex())
+					.pageSize(request.getPageSize())
+					.totalItem(0)
+					.build();
+			result.setCode("200");
+			result.setDesc("00");
+
+			return result;
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
 		return null;
 	}
 }
