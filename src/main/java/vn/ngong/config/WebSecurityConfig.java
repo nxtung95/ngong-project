@@ -20,23 +20,11 @@ import vn.ngong.filter.JwtRequestFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
 	@Autowired
 	private JwtAuthenticationException jwtAuthenticationEntryPoint;
 
 	@Autowired
-	private UserDetailsService jwtUserDetailsService;
-
-	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
-
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth, PasswordEncoder passwordEncoder) throws Exception {
-		// configure AuthenticationManager so that it knows from where to load
-		// user for matching credentials
-		// Use BCryptPasswordEncoder
-		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder);
-	}
 
 	@Bean
 	@Override

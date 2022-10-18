@@ -5,4 +5,6 @@ import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 
 public interface ProductService {
 	ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet);
+
+	boolean checkInventory(String code);
 }

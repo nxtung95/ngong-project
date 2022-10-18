@@ -73,7 +73,6 @@ public class AuthenticationUtil implements Serializable {
 
 	//validate token
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		System.out.println(passwordEncoder.encode("password"));
 		final String username = getUsernameFromToken(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}

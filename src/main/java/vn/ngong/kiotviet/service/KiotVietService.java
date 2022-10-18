@@ -12,7 +12,7 @@ import vn.ngong.kiotviet.response.TokenResponse;
 
 @Slf4j
 @Service
-public class GetDetailProductService {
+public class KiotVietService {
 	@Autowired
 	private OkHttpClient okHttpClient;
 	@Autowired
@@ -62,6 +62,7 @@ public class GetDetailProductService {
 
 			Request request = new Request.Builder()
 					.header("Authorization", "Bearer " + accessKey)
+					.header("Retailer", shareConfig.getRetailerKiotViet())
 					.url(url)
 					.build();
 			Response response = okHttpClient.newCall(request).execute();

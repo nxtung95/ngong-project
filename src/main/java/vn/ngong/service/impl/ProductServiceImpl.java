@@ -8,20 +8,19 @@ import org.springframework.stereotype.Service;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.entity.Product;
 import vn.ngong.helper.FormatUtil;
-import vn.ngong.kiotviet.obj.Attribute;
+import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
-import vn.ngong.kiotviet.service.GetDetailProductService;
+import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.repository.ProductRepository;
 import vn.ngong.service.ProductService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private ProductRepository productRepository;
+	@Autowired
+	private KiotVietService kiotVietService;
 
 	@Override
 	public ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet) {
@@ -46,5 +45,19 @@ public class ProductServiceImpl implements ProductService {
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public boolean checkInventory(String code) {
+		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(code);
+		if (kiotVietResponse == null) {
+			return false;
+		}
+		if (kiotVietResponse.getResponseStatus() != null
+				&& !ValidtionUtils.checkEmptyOrNull(kiotVietResponse.getResponseStatus().getErrorCode())) {
+			return false;
+		}
+		int totalOnHand = kiotVietResponse.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
+		return totalOnHand > 0;
 	}
 }

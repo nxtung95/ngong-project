@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
-import vn.ngong.kiotviet.service.GetDetailProductService;
+import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.response.DetailProductResponse;
 import vn.ngong.service.ProductService;
 
@@ -25,7 +25,7 @@ import vn.ngong.service.ProductService;
 @Slf4j
 public class ProductController {
 	@Autowired
-	private GetDetailProductService getDetailProductService;
+	private KiotVietService kiotVietService;
 
 	@Autowired
 	private ProductService productService;
@@ -45,7 +45,7 @@ public class ProductController {
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
-		DetailProductKiotVietResponse kiotVietResponse = getDetailProductService.getDetailProductByCode(productCode);
+		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
 		if (kiotVietResponse == null) {
 			res.setCode("02");
 			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");

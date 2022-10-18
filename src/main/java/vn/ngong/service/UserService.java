@@ -8,7 +8,9 @@ public interface UserService {
 
 	boolean register(vn.ngong.entity.User user);
 
-	boolean checkExist(User user);
+	boolean checkExistByPhoneOrEmail(User user);
+
+	boolean checkExistByPhone(String phone);
 
 	boolean update(User user);
 }
