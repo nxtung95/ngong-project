@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "products")
+@Table(name = "wp_products")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
