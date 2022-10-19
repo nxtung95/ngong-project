@@ -14,9 +14,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 			"INNER JOIN wp_term_relationships b ON a.ID = b.object_id " +
 			"INNER JOIN wp_term_taxonomy c ON b.term_taxonomy_id = c.term_taxonomy_id " +
 			"INNER JOIN wp_terms d ON c.term_id = d.term_id " +
-			"WHERE d.slug = :menuCode AND c.taxonomy = 'category'", nativeQuery = true)
-	List<Post> findPostByMenuCode(@Param("menuCode") String menuCode);
+			"WHERE d.slug = :menuCode AND c.taxonomy = 'category'" +
+			"ORDER BY a.post_date DESC LIMIT :limit OFFSET :offset", nativeQuery = true)
+	List<Post> findPostByMenuCode(@Param("menuCode") String menuCode, @Param("limit") int limit, @Param("offset") int offset);
 
-	@Query(value = "SELECT * FROM wp_posts WHERE post_parent = :postParent", nativeQuery = true)
+	@Query(value = "SELECT * FROM wp_posts WHERE post_parent = :postParent ORDER BY post_date DESC", nativeQuery = true)
 	List<Post> findAllLastPostByParentPost(@Param("postParent") int parentPostId);
 }

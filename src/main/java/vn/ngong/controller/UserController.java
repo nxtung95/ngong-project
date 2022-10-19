@@ -117,12 +117,6 @@ public class UserController {
 			res.setDesc("Số điện thoại phải là số có 10 hoặc 11 chữ số. Xin vui lòng nhập lại...");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
-
-		if (ValidtionUtils.checkEmptyOrNull(rq.getAddress())) {
-			res.setCode("01");
-			res.setDesc("Vui lòng nhập địa chỉ");
-			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
-		}
 		try {
 			User user = User.builder()
 					.name(rq.getName())

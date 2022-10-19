@@ -16,7 +16,7 @@ public class ValidtionUtils {
 	}
 
 	public static boolean validEmail(String email) {
-		String regexPattern = "^(.+)@(.+)$";
+		String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
 		return Pattern.compile(regexPattern).matcher(email).matches();
 	}
 
