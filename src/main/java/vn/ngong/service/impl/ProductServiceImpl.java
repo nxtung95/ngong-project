@@ -72,14 +72,16 @@ public class ProductServiceImpl implements ProductService {
 			List<Product> products = null;
 			if (ValidtionUtils.checkEmptyOrNull(request.getBrandName())) {
 				if (order == 0) {
-					products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(
+					products = productRepository.findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPrice(
+							request.getCategoryId(),
 							"%" + request.getProductName() + "%",
 							BigDecimal.valueOf(request.getMinPrice()),
 							BigDecimal.valueOf(request.getMaxPrice()),
 							1,
 							pageable);
 				} else {
-					products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(
+					products = productRepository.findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(
+							request.getCategoryId(),
 							"%" + request.getProductName() + "%",
 							BigDecimal.valueOf(request.getMinPrice()),
 							BigDecimal.valueOf(request.getMaxPrice()),
@@ -89,7 +91,8 @@ public class ProductServiceImpl implements ProductService {
 
 			} else {
 				if (order == 0) {
-					products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(
+					products = productRepository.findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(
+							request.getCategoryId(),
 							"%" + request.getProductName() + "%",
 							request.getBrandName(),
 							BigDecimal.valueOf(request.getMinPrice()),
@@ -97,7 +100,8 @@ public class ProductServiceImpl implements ProductService {
 							1,
 							pageable);
 				} else {
-					products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(
+					products = productRepository.findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(
+							request.getCategoryId(),
 							"%" + request.getProductName() + "%",
 							request.getBrandName(),
 							BigDecimal.valueOf(request.getMinPrice()),

@@ -40,7 +40,7 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
-	@Operation(summary = "API lấy danh sách sản phẩm", description = "")
+	@Operation(summary = "API lấy danh sách sản phẩm", description = "brancName: Thương hiệu\nproductName: Tên sản phẩm\ncategoryId: Danh mục sản phẩm\norderType: 0 - giá tăng dần, 1 - giá giảm dần\nminPrice, maxPrice: khoản giá, truyền maxPrice = -1 cho trường hợp tất cả")
 	@RequestMapping(value = "product", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductFilterResponse> list(@RequestBody ProductFilterRequest rq) throws Exception {
         try {

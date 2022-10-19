@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class ProductFilterRequest {
+    private  int categoryId;
     private String brandName;
     private int minPrice;
     private int maxPrice;
