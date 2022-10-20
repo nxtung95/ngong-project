@@ -8,4 +8,9 @@ public class FormatUtil {
 		DecimalFormat formatter = new DecimalFormat("###,###");
 		return formatter.format(data);
 	}
+
+	public static String formatCurrency(long data) {
+		DecimalFormat formatter = new DecimalFormat("###,###");
+		return formatter.format(data);
+	}
 }

@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 public class ProductFilterRequest {
     private  int categoryId;
     private String brandName;
-    private int minPrice;
-    private int maxPrice;
+    private long minPrice;
+    private long maxPrice;
     private String productName;
     private int orderType;
     private int pageIndex;

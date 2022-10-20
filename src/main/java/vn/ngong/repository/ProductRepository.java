@@ -14,8 +14,14 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 	Optional<Product> findByCodeAndStatus(String code, int status);
 	List<Product> findAllByNameLike(String name);
-	List<Product> findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPrice(int categoryId, String name, BigDecimal priceMin, BigDecimal priceMax, int status, Pageable pageable);
-	List<Product> findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(int categoryId, String name, BigDecimal priceMin, BigDecimal priceMax, int status, Pageable pageable);
-	List<Product> findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(int categoryId, String name, String brand, BigDecimal priceMin, BigDecimal priceMax, int status, Pageable pageable);
-	List<Product> findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(int categoryId, String name, String brand, BigDecimal priceMin, BigDecimal priceMax, int status, Pageable pageable);
+
+	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(String name, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(String name, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(String name, String brand, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(String name, String brand, long priceMin, long priceMax, int status, Pageable pageable);
+
+	List<Product> findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPrice(int categoryId, String name, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(int categoryId, String name, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(int categoryId, String name, String brand, long priceMin, long priceMax, int status, Pageable pageable);
+	List<Product> findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(int categoryId, String name, String brand, long priceMin, long priceMax, int status, Pageable pageable);
 }

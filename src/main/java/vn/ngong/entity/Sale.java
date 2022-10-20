@@ -7,17 +7,16 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "wp_product_categories")
+@Table(name = "product_sales")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Sale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -26,8 +25,23 @@ public class Category {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "product_id")
+    private int productId;
+
+    @Column(name = "rate")
+    private double rate ;
+
+    @Column(name = "sale_price")
+    private long salePrice ;
+
+    @Column(name = "start_time")
+    private Timestamp startTime ;
+
+    @Column(name = "end_time")
+    private Timestamp endTime ;
+
     @Column(name = "status")
-    private int status;
+    private int status ;
 
     @Column(name = "created_at")
     private Timestamp createdAt;

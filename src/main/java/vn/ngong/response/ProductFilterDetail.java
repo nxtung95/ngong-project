@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 @Builder
 @Getter
@@ -12,6 +13,11 @@ import java.math.BigDecimal;
 public class ProductFilterDetail {
     private int id;
     private String name;
-    private BigDecimal price;
+    private long price;
     private String image;
+    private int saleRate;
+    private String saleName;
+    private long salePrice;
+    private Timestamp saleStartTime;
+    private Timestamp saleEndTime;
 }

@@ -36,7 +36,7 @@ public class Product {
 	private String brandName;
 
 	@Column(name = "price")
-	private BigDecimal price;
+	private long price;
 
 	@Column(name = "description")
 	private String description;
