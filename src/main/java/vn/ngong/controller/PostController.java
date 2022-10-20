@@ -35,7 +35,7 @@ public class PostController {
 	})
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ResponseEntity<FindPostByMenuResponse> findPostByMenu(
-			@Parameter(required = true, example = "CHUYEN_NGONG", description = "Menu dạng slug") @RequestParam(name = "menuCode") String menuCode,
+			@Parameter(required = true, example = "chuyen-ngong", description = "Menu dạng slug") @RequestParam(name = "menuCode") String menuCode,
 			@Parameter(required = true, description = "curent page") @RequestParam(name = "pageIndex") String pageIndex,
 			@Parameter(required = true, description = "page size") @RequestParam(name = "pageSize") String pageSize) {
 		FindPostByMenuResponse res = FindPostByMenuResponse.builder()
