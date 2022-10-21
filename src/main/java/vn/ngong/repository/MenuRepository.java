@@ -8,7 +8,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Slf4j
@@ -48,5 +50,44 @@ public class MenuRepository {
 			log.error(e.getMessage(), e);
 		}
 		return new ArrayList<>();
+	}
+
+	public Map<Integer, String> findAllImageRepresent() {
+		try {
+			Map<Integer, String> mapImage = new HashMap<>();
+			Query query = entityManager.createNativeQuery("SELECT pm.post_id as parentPostId, p.guid " +
+					" FROM wp_posts p LEFT JOIN wp_postmeta pm ON p.ID = pm.meta_value AND pm.meta_key = '_thumbnail_id'");
+			List<Object[]> objects = query.getResultList();
+			for (Object[] obj : objects) {
+				if (obj[0] != null) {
+					int parentPostId = Integer.parseInt(obj[0].toString());
+					String image = obj[1].toString();
+					mapImage.put(parentPostId, image);
+				}
+			}
+			return mapImage;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return new HashMap<>();
+	}
+
+	public Map<Integer, String> findAllDescription() {
+		try {
+			Map<Integer, String> mapDescription = new HashMap<>();
+			Query query = entityManager.createNativeQuery("SELECT post_id as parentPostId, meta_value as description FROM `wp_postmeta` WHERE `meta_key` = 'description'");
+			List<Object[]> objects = query.getResultList();
+			for (Object[] obj : objects) {
+				if (obj[0] != null) {
+					int parentPostId = Integer.parseInt(obj[0].toString());
+					String description = obj[1].toString();
+					mapDescription.put(parentPostId, description);
+				}
+			}
+			return mapDescription;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return new HashMap<>();
 	}
 }

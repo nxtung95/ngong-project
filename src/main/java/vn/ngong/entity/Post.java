@@ -1,5 +1,6 @@
 package vn.ngong.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,9 +32,11 @@ public class Post {
 	@Column(name = "post_date_gmt")
 	private Timestamp postDateGmt;
 
+	@Schema(name = "content", description = "Nội dung chi tiết bài viết")
 	@Column(name = "post_content")
 	private String postContent;
 
+	@Schema(name = "title", description = "Title bài viết")
 	@Column(name = "post_title")
 	private String postTitle;
 
@@ -87,4 +90,12 @@ public class Post {
 
 	@Column(name = "comment_count")
 	private int commentCount;
+	
+	@Transient
+	@Schema(name = "image", description = "Ảnh đại diện 1 bài viết")
+	private String menuImage;
+
+	@Transient
+	@Schema(name = "description", description = "Mô tả tóm tắt 1 bài viết")
+	private String description;
 }
