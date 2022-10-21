@@ -28,7 +28,12 @@ public class PostController {
 					"\n 3. chuyen-ngong" +
 					"\n 4. chuyen-xuong" +
 					"\n 5. chuyen-vuon" +
-					"\n 6. chuyen-tieu-dung")
+					"\n 6. chuyen-tieu-dung" +
+					"\n\n Response:" +
+					"\n1. postContent: Nội dung chi tiết bài viết" +
+					"\n2. postTitle: Title đại diện bài viết" +
+					"\n3. menuImage: Image đại diện bài viết" +
+					"\n4. description: Mô tả đại diện bài viết")
 
 	@ApiResponses( value = {
 			@ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
