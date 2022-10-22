@@ -1,23 +1,25 @@
 package vn.ngong.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
+@Table(name = "customer_receiver")
 @Entity
-@Table(name = "wp_customer_user")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements Serializable {
+public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 
 	@Column(name = "name")
 	private String name;
@@ -28,19 +30,15 @@ public class User implements Serializable {
 	@Column(name = "email")
 	private String email;
 
+	@Column(name = "note")
+	private String note;
+
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "password")
-	private String password;
-
-	@Column(name = "password_plain_text")
-	private String passwordPlainText;
-
-	@Column(name = "actived")
-	private int actived;
-
 	@Column(name = "created_date")
-	@Builder.Default
 	private Timestamp createdDate = new Timestamp(System.currentTimeMillis());
+
+	@Column(name = "created_by")
+	private String createdBy;
 }

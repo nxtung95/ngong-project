@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.Function;
 
 @Component
@@ -75,5 +78,28 @@ public class AuthenticationUtil implements Serializable {
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = getUsernameFromToken(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+	}
+
+	public static String makeDefaultPassword() {
+		int leftLimit = 97; // letter 'a'
+		int rightLimit = 122; // letter 'z'
+		int targetStringLength = 10;
+		Random random = new Random();
+
+		String generatedString = random.ints(leftLimit, rightLimit + 1)
+				.limit(targetStringLength)
+				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+				.toString();
+
+		return generatedString;
+	}
+
+	public String getPhoneLoginName() {
+		String currentPhone = "";
+		if (SecurityContextHolder.getContext().getAuthentication() != null) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			currentPhone = (String) authentication.getPrincipal();
+		}
+		return currentPhone;
 	}
 }

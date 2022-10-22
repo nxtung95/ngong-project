@@ -191,16 +191,17 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public boolean checkInventory(String code) {
-		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(code);
+	public Integer getQuantityStockByProductCode(String productCode) {
+		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
 		if (kiotVietResponse == null) {
-			return false;
+			return null;
 		}
 		if (kiotVietResponse.getResponseStatus() != null
 				&& !ValidtionUtils.checkEmptyOrNull(kiotVietResponse.getResponseStatus().getErrorCode())) {
-			return false;
+			return null;
 		}
 		int totalOnHand = kiotVietResponse.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
-		return totalOnHand > 0;
+
+		return totalOnHand;
 	}
 }

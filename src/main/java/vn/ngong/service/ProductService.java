@@ -9,6 +9,7 @@ import vn.ngong.response.ProductFilterResponse;
 public interface ProductService {
 	ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet);
 
-	boolean checkInventory(String code);
+	Integer getQuantityStockByProductCode(String productCode);
+
     ProductFilterResponse list(ProductFilterRequest request);
 }
