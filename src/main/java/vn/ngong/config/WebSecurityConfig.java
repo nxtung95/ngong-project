@@ -52,7 +52,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						"/menu",
 						"/menu/**",
 						"/payment",
-						"/payment/**"
+						"/payment/**",
+						"/carts",
+						"/carts/**"
 				).permitAll().
 				// all other requests need to be authenticated
 						anyRequest().authenticated().and().
