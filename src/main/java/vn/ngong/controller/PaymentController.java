@@ -31,7 +31,7 @@ public class PaymentController {
 	private ProductService productService;
 
 	@Operation(summary = "API thanh toán sản phẩm trong giỏ hàng",
-			description = "")
+			description = "User đã đăng nhập: Đính kèm token vào header khi gọi API")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PaymentResponse> transaction(@RequestBody PaymentRequest rq) throws Exception {
 		PaymentResponse res = PaymentResponse.builder()
