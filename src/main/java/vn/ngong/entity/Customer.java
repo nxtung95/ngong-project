@@ -1,9 +1,6 @@
 package vn.ngong.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
@@ -37,6 +34,7 @@ public class Customer {
 	private String address;
 
 	@Column(name = "created_date")
+	@Builder.Default
 	private Timestamp createdDate = new Timestamp(System.currentTimeMillis());
 
 	@Column(name = "created_by")

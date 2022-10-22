@@ -68,6 +68,8 @@ public class UserController {
 				res.setDesc("Số điện thoại hoặc password sai");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
+			user.setPasswordPlainText(null);
+			user.setPassword(null);
 			final String token = jwtTokenUtil.generateToken(user);
 			res.setUser(user);
 			res.setJwttoken(token);
