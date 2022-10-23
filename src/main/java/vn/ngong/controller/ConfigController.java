@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import vn.ngong.entity.SystemParameter;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.request.GetConfigRequest;
 import vn.ngong.response.GetConfigResponse;
-import vn.ngong.service.ConfigService;
 
 import java.util.Arrays;
 import java.util.HashMap;

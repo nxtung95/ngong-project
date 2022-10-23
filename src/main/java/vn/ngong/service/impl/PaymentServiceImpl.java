@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.ngong.cache.LocalCacheConfig;
 import vn.ngong.dto.RequestTransProductDto;
 import vn.ngong.entity.*;
 import vn.ngong.enums.TransactionStatusEnum;
@@ -35,6 +36,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private OrderDetailRepository orderDetailRepository;
+	@Autowired
+	private LocalCacheConfig localCacheConfig;
 
 	@Override
 	@Transactional
@@ -172,11 +175,9 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	public List<PaymentMethod> findAllPaymentMethod() {
-		try {
-			return paymentMethodRepository.findAllByStatusOrderByOrderNumberAsc(1);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+		if (localCacheConfig.getPaymentMethodList() == null || localCacheConfig.getPaymentMethodList().isEmpty()) {
+			localCacheConfig.loadPaymentMethodList();
 		}
-		return null;
+		return localCacheConfig.getPaymentMethodList();
 	}
 }
