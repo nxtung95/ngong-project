@@ -59,7 +59,7 @@ public class LocalCacheConfig {
 	public void loadSystemParameterMap() {
 		log.info("--------Start system parameter cache---------");
 		Map<String, String> configMap = new HashMap<>();
-		List<SystemParameter> systemParameters = systemParameterRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		List<SystemParameter> systemParameters = systemParameterRepository.findAllByStatusc(1);
 		for (SystemParameter s : systemParameters) {
 			configMap.put(s.getKey(), s.getValue());
 		}

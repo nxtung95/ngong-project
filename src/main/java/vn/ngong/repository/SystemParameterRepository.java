@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface SystemParameterRepository extends JpaRepository<SystemParameter, Integer> {
-	List<SystemParameter> findAllByStatusOrderByOrderNumberAsc(int status);
+	List<SystemParameter> findAllByStatusc(int status);
 }
