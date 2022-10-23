@@ -1,8 +1,10 @@
 package vn.ngong.helper;
 
+import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class AuthenticationUtil implements Serializable {
 	private static final long serialVersionUID = -2550185165626007488L;
@@ -31,9 +34,14 @@ public class AuthenticationUtil implements Serializable {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
-	//retrieve username from jwt token
-	public String getUsernameFromToken(String token) {
-		return getClaimFromToken(token, Claims::getSubject);
+	@Autowired
+	private Gson gson;
+
+	//retrieve user from jwt token
+	public User getUserFromToken(String token) {
+		String obj = getClaimFromToken(token, Claims::getSubject);
+		User user = gson.fromJson(obj, User.class);
+		return user;
 	}
 
 	//retrieve expiration date from jwt token
@@ -59,7 +67,7 @@ public class AuthenticationUtil implements Serializable {
 	//generate token for user
 	public String generateToken(User user) {
 		Map<String, Object> claims = new HashMap<>();
-		return doGenerateToken(claims, user.getPhone());
+		return doGenerateToken(claims, gson.toJson(user));
 	}
 
 	//while creating the token -
@@ -76,8 +84,10 @@ public class AuthenticationUtil implements Serializable {
 
 	//validate token
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		final String username = getUsernameFromToken(token);
-		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+		String obj = getClaimFromToken(token, Claims::getSubject);
+		User user = gson.fromJson(obj, User.class);
+		log.info("Validate from token: " + gson.toJson(user));
+		return (user.getPhone().equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
 
 	public static String makeDefaultPassword() {
