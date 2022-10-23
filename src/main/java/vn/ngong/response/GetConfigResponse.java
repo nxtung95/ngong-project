@@ -14,5 +14,5 @@ import java.util.Map;
 @SuperBuilder(toBuilder = true)
 public class GetConfigResponse extends BaseResponse {
 	@Schema(required = true, description = "Danh sách cấu hình trả về theo key")
-	private Map<String, List<SystemParameter>> systemParameters;
+	private List<Map<String, String>> systemParameters;
 }

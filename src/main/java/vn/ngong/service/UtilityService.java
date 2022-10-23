@@ -9,7 +9,7 @@ import java.util.List;
 public interface UtilityService {
 	List<City> getAllCityDistrictWard();
 
-	List<SystemParameter> getValue(String key);
+	String getValue(String key);
 
 	ShippingFee getShippingFee(String cityCode, String districtCode, int totalAmount);
 }

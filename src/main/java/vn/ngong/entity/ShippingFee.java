@@ -28,10 +28,10 @@ public class ShippingFee {
 	private int customerType;
 
 	@Column(name = "from_amount")
-	private int fromAmount;
+	private Integer fromAmount;
 
 	@Column(name = "to_amount")
-	private int toAmount;
+	private Integer toAmount;
 
 	@Schema(name = "type", description = "1: Đơn nội thành, 2: Đơn ngoại thành, 3: Đơn huyện tỉnh, 4: Đơn gửi VNPOST")
 	@Column(name = "type")

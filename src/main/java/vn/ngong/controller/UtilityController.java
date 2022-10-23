@@ -23,10 +23,7 @@ import vn.ngong.response.GetConfigResponse;
 import vn.ngong.response.GetShippingFeeResponse;
 import vn.ngong.service.UtilityService;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -55,15 +52,16 @@ public class UtilityController {
 				.desc("Success")
 				.build();
 		List<String> keyList = Arrays.asList(rq.getKeys().split(","));
-		Map<String, List<SystemParameter>> systemParameters = new HashMap<>();
+		Map<String, String> systemParameters = new HashMap<>();
+		List<Map<String, String>> returnConfigList = new ArrayList<>();
 		for (String key : keyList) {
 			if (ValidtionUtils.checkEmptyOrNull(key)) {
 				continue;
 			}
-			List<SystemParameter> parameters = utilityService.getValue(key);
-			systemParameters.put(key, parameters);
+			systemParameters.put(key, utilityService.getValue(key));
+			returnConfigList.add(systemParameters);
 		}
-		res.setSystemParameters(systemParameters);
+		res.setSystemParameters(returnConfigList);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 

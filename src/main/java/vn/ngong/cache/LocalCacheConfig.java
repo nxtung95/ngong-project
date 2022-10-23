@@ -28,7 +28,7 @@ public class LocalCacheConfig {
 	private List<MenuDto> menuList = new ArrayList<>();
 	private Map<Integer, String> imageMap = new HashMap<>();
 	private Map<Integer, String> descriptionMap = new HashMap<>();
-	private Map<String, List<SystemParameter>> configMap = new HashMap<>();
+	private Map<String, String> configMap = new HashMap<>();
 	private List<ShippingFee> shippingFeeList = new ArrayList<>();
 
 	@Autowired
@@ -56,23 +56,15 @@ public class LocalCacheConfig {
 
 	}
 
-	public void loadSystemParameterList() {
+	public void loadSystemParameterMap() {
 		log.info("--------Start system parameter cache---------");
-		Map<String, List<SystemParameter>> configMap = new HashMap<>();
+		Map<String, String> configMap = new HashMap<>();
 		List<SystemParameter> systemParameters = systemParameterRepository.findAllByStatusOrderByOrderNumberAsc(1);
 		for (SystemParameter s : systemParameters) {
-			if (configMap.containsKey(s.getKey())) {
-				List<SystemParameter> listSystem = configMap.get(s.getKey());
-				listSystem.add(s);
-				configMap.put(s.getKey(), listSystem);
-			} else {
-				List<SystemParameter> listSystem = new ArrayList<>();
-				listSystem.add(s);
-				configMap.put(s.getKey(), listSystem);
-			}
+			configMap.put(s.getKey(), s.getValue());
 		}
 		this.configMap = configMap;
-		log.info("--------End load system parameter cache, size: --------- " + systemParameters.size());
+		log.info("--------End load system parameter cache, size: --------- " + configMap.size());
 
 	}
 
@@ -104,10 +96,21 @@ public class LocalCacheConfig {
 
 	}
 
+	public String getConfig(String key, String defaultValue) {
+		String config;
+		if (configMap.containsKey(key)) {
+			config = configMap.get(key);
+		} else {
+			config = defaultValue;
+
+		}
+		return config;
+	}
+
 	@Scheduled(cron = "0 * 0/1 * * ?")
 	public void scheduleReloadCache() {
 		loadPaymentMethodList();
-		loadSystemParameterList();
+		loadSystemParameterMap();
 		loadCityDistrictWardList();
 		loadCacheMenu();
 		loadCacheAllImagePost();

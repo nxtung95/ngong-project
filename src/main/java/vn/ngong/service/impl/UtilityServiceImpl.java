@@ -29,13 +29,12 @@ public class UtilityServiceImpl implements UtilityService {
 	}
 
 	@Override
-	public List<SystemParameter> getValue(String key) {
+	public String getValue(String key) {
 		if (localCacheConfig.getConfigMap().isEmpty()) {
-			localCacheConfig.loadSystemParameterList();
+			localCacheConfig.loadSystemParameterMap();
 		}
-		Map<String, List<SystemParameter>> configMap = localCacheConfig.getConfigMap();
 
-		return configMap.containsKey(key) ? configMap.get(key) : new ArrayList<>();
+		return localCacheConfig.getConfig(key, "");
 	}
 
 	@Override
@@ -45,76 +44,71 @@ public class UtilityServiceImpl implements UtilityService {
 		}
 		List<ShippingFee> shippingFeeList = localCacheConfig.getShippingFeeList();
 		if (localCacheConfig.getConfigMap().isEmpty()) {
-			localCacheConfig.loadSystemParameterList();
-		}
-		Map<String, List<SystemParameter>> configMap = localCacheConfig.getConfigMap();
-		List<SystemParameter> innerDistrictCity;
-		if (configMap.containsKey("INNER_DISTRICT_CITY_SHIP")) {
-			innerDistrictCity = configMap.get("INNER_DISTRICT_CITY_SHIP");
-		} else {
-			innerDistrictCity = new ArrayList<>();
-			innerDistrictCity.add(SystemParameter.builder()
-					.key("INNER_DISTRICT_CITY_SHIP")
-					.value("001,021,005,006,007,002,008,019,003,009")
-					.build());
-
+			localCacheConfig.loadSystemParameterMap();
 		}
 
-		List<SystemParameter> outerDistrictCity;
-		if (configMap.containsKey("INNER_DISTRICT_CITY_SHIP")) {
-			outerDistrictCity = configMap.get("OUTER_DISTRICT_CITY_SHIP");
-		} else {
-			outerDistrictCity = new ArrayList<>();
-			outerDistrictCity.add(SystemParameter.builder()
-					.key("OUTER_DISTRICT_CITY_SHIP")
-					.value("268,004")
-					.build());
+		String innerDistrictCity = localCacheConfig.getConfig("INNER_DISTRICT_CITY_SHIP",
+				"001,021,005,006,007,002,008,019,003,009");
+		String outerDistrictCity = localCacheConfig.getConfig("OUTER_DISTRICT_CITY_SHIP",
+				"268,004");
+		String feeDistrictCity = localCacheConfig.getConfig("DISTRICT_CITY_SHIP",
+				"269,271,277,272,273,017,018,274,250,282,280,275,016,276,278,279,281,020");
 
-		}
+		if (Arrays.asList(innerDistrictCity.split(",")).contains(districtCode)) {
+			// District code for shipping fee discount
+			String discountFeeDistrictCode = localCacheConfig.getConfig("DISCOUNT_DISTRICT_CODE_SHIP_FEE", "005");
+			List<String> discountFeeDistrictCodeList = Arrays.asList(discountFeeDistrictCode.split(","));
+			if (discountFeeDistrictCodeList.contains(districtCode)) {
+				// Cầu giấy giảm phí ship
+				int discountFee = Integer.parseInt(localCacheConfig.getConfig("DISCOUNT_DISTRICT_SHIP_FEE", "20000"));
+				return ShippingFee.builder().fee(discountFee).build();
+			}
 
-		List<SystemParameter> feeDistrictCity;
-		if (configMap.containsKey("DISTRICT_CITY_SHIP")) {
-			feeDistrictCity = configMap.get("DISTRICT_CITY_SHIP");
-		} else {
-			feeDistrictCity = new ArrayList<>();
-			feeDistrictCity.add(SystemParameter.builder()
-					.key("OUTER_DISTRICT_CITY_SHIP")
-					.value("269,271,277,272,273,017,018,274,250,282,280,275,016,276,278,279,281,020")
-					.build());
-
-		}
-
-		if (Arrays.asList(innerDistrictCity.get(0).getValue().split(",")).contains(districtCode)) {
 			ShippingFee shippingFee = shippingFeeList.stream()
-					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount < s.getToAmount())
-							&& s.getType() == 1 && s.getStatus() == 1
+					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount <= s.getToAmount())
+							&& s.getType() == 1
+							&& s.getStatus() == 1
 							&& s.getCustomerType() == 1)
 					.findFirst().orElse(null);
 			if (shippingFee == null) {
-				//Free ship
-				shippingFee.setFee(0);
+				shippingFee = shippingFeeList.stream()
+						.filter(s -> (s.getFromAmount() <= totalAmount && s.getToAmount() == null)
+								&& s.getType() == 1
+								&& s.getStatus() == 1
+								&& s.getCustomerType() == 1)
+						.findFirst().orElse(null);
 			}
 			return shippingFee;
-		} else if (Arrays.asList(outerDistrictCity.get(0).getValue().split(",")).contains(districtCode)) {
+		} else if (Arrays.asList(outerDistrictCity.split(",")).contains(districtCode)) {
 			ShippingFee shippingFee = shippingFeeList.stream()
-					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount < s.getToAmount())
-							&& s.getType() == 2 && s.getStatus() == 1
+					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount <= s.getToAmount())
+							&& s.getType() == 2
+							&& s.getStatus() == 1
 							&& s.getCustomerType() == 1)
 					.findFirst().orElse(null);
 			if (shippingFee == null) {
-				//Free ship
-				shippingFee.setFee(0);
+				shippingFee = shippingFeeList.stream()
+						.filter(s -> (s.getFromAmount() <= totalAmount && s.getToAmount() == null)
+								&& s.getType() == 2
+								&& s.getStatus() == 1
+								&& s.getCustomerType() == 1)
+						.findFirst().orElse(null);
 			}
 			return shippingFee;
-		} else if (Arrays.asList(feeDistrictCity.get(0).getValue().split(",")).contains(districtCode)) {
+		} else if (Arrays.asList(feeDistrictCity.split(",")).contains(districtCode)) {
 			ShippingFee shippingFee = shippingFeeList.stream()
-					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount < s.getToAmount())
-							&& s.getType() == 3 && s.getStatus() == 1
+					.filter(s -> (s.getFromAmount() <= totalAmount && totalAmount <= s.getToAmount())
+							&& s.getType() == 3
+							&& s.getStatus() == 1
 							&& s.getCustomerType() == 1)
 					.findFirst().orElse(null);
 			if (shippingFee == null) {
-				//Free ship
-				shippingFee.setFee(0);
+				shippingFee = shippingFeeList.stream()
+						.filter(s -> (s.getFromAmount() <= totalAmount && s.getToAmount() == null)
+								&& s.getType() == 3
+								&& s.getStatus() == 1
+								&& s.getCustomerType() == 1)
+						.findFirst().orElse(null);
 			}
 			return shippingFee;
 		} else {

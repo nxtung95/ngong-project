@@ -24,9 +24,6 @@ public class SystemParameter {
 	@Column(name = "value")
 	private String value;
 
-	@Column(name = "order_number")
-	private int orderNumber;
-
 	@Column(name = "status")
 	private int status;
 
