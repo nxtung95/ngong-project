@@ -31,4 +31,7 @@ public class ShareConfig {
 
 	@Value("${kiotviet.retailer:rausachviet1808}")
 	private String retailerKiotViet;
+
+	@Value("${jwt-token-validity-time:18000}")
+	private Integer validityTokenTime;
 }
