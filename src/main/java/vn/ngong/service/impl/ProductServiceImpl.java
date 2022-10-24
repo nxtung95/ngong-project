@@ -199,25 +199,21 @@ public class ProductServiceImpl implements ProductService {
 	public ProductFilterResponse getBestSeller(int limit) {
 		List<ProductFilterDetail> products = productNativeRepository.findBestSeller(limit);
 
-//		List<ProductFilterDetail> filterDetails = new ArrayList<ProductFilterDetail>();
-//		for (Product p : products) {
-//			Sale sale = saleRepository.findFirstByProductIdAndStatusOrderByUpdatedAtDesc(p.getId(), 1);
-//			if (sale == null) sale = new Sale();
-//			ProductFilterDetail item = ProductFilterDetail.builder()
-//					.id(p.getId())
-//					.image("")
-//					.name(p.getName())
-//					.code(p.getCode())
-//					.price(p.getPrice())
-//					.saleName(sale.getName())
-//					.saleRate((int)(sale.getRate() * 100))
-//					.salePrice(sale.getSalePrice())
-//					.saleStartTime(sale.getStartTime())
-//					.saleEndTime(sale.getEndTime())
-//					.build();
-//			filterDetails.add(item);
-//		}
+		ProductFilterResponse result = ProductFilterResponse.builder()
+				.products(products)
+				.pageIndex(0)
+				.pageSize(limit)
+				.totalItem(0)
+				.build();
+		result.setCode("200");
+		result.setDesc("00");
 
+		return result;
+	}
+
+	@Override
+	public ProductFilterResponse getNewestSale(int limit) {
+		List<ProductFilterDetail> products = productNativeRepository.findNewestSale(limit);
 		ProductFilterResponse result = ProductFilterResponse.builder()
 				.products(products)
 				.pageIndex(0)

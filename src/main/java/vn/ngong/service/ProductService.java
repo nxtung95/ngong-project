@@ -14,4 +14,6 @@ public interface ProductService {
     ProductFilterResponse list(ProductFilterRequest request);
 
 	ProductFilterResponse getBestSeller(int limit);
+
+	ProductFilterResponse getNewestSale(int limit);
 }

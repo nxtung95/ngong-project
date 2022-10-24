@@ -87,4 +87,17 @@ public class ProductController {
 
 		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+
+	@Operation(summary = "API lấy danh sách sản phẩm khuyến mại mới nhất", description = "limit: số lượng sản phẩm khuyến mại cần lấy")
+	@RequestMapping(value = "/newest-sale", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ProductFilterResponse> getNewestSale(@RequestParam int limit) throws Exception {
+		try {
+			ProductFilterResponse products = productService.getNewestSale(limit);
+			return ResponseEntity.ok(products);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }
