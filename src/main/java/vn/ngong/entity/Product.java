@@ -44,6 +44,9 @@ public class Product {
 	@Column(name = "so_gao_flag")
 	private int soGaoFlag;
 
+	@Column(name = "product_images")
+	private String image;
+
 	@Column(name = "status")
 	private int status;
 

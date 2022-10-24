@@ -12,4 +12,6 @@ public interface ProductService {
 	Integer getQuantityStockByProductCode(String productCode);
 
     ProductFilterResponse list(ProductFilterRequest request);
+
+	ProductFilterResponse getBestSeller(int limit);
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import vn.ngong.entity.Post;
 import vn.ngong.entity.Product;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 	Optional<Product> findByCodeAndStatus(String code, int status);
 	List<Product> findAllByNameLike(String name);
+
+	List<Product> findAllById(Iterable<Integer> ids);
 
 	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(String name, long priceMin, long priceMax, int status, Pageable pageable);
 	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(String name, long priceMin, long priceMax, int status, Pageable pageable);

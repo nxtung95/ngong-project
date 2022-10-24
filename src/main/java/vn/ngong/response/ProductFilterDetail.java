@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 public class ProductFilterDetail {
     private int id;
     private String name;
+    private String code;
     private long price;
     private String image;
     private int saleRate;

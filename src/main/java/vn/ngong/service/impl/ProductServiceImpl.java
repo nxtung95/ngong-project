@@ -15,6 +15,7 @@ import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.obj.Attribute;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
+import vn.ngong.repository.ProductNativeRepository;
 import vn.ngong.repository.ProductRepository;
 import vn.ngong.repository.SaleRepository;
 import vn.ngong.request.ProductFilterRequest;
@@ -31,6 +32,9 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private ProductRepository productRepository;
+
+	@Autowired
+	private ProductNativeRepository productNativeRepository;
 	@Autowired
 	private SaleRepository saleRepository;
 	@Autowired
@@ -162,6 +166,7 @@ public class ProductServiceImpl implements ProductService {
 						.id(p.getId())
 						.image("")
 						.name(p.getName())
+						.code(p.getCode())
 						.price(p.getPrice())
 						.saleName(sale.getName())
 						.saleRate((int)(sale.getRate() * 100))
@@ -188,6 +193,41 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		return null;
+	}
+
+	@Override
+	public ProductFilterResponse getBestSeller(int limit) {
+		List<ProductFilterDetail> products = productNativeRepository.findBestSeller(limit);
+
+//		List<ProductFilterDetail> filterDetails = new ArrayList<ProductFilterDetail>();
+//		for (Product p : products) {
+//			Sale sale = saleRepository.findFirstByProductIdAndStatusOrderByUpdatedAtDesc(p.getId(), 1);
+//			if (sale == null) sale = new Sale();
+//			ProductFilterDetail item = ProductFilterDetail.builder()
+//					.id(p.getId())
+//					.image("")
+//					.name(p.getName())
+//					.code(p.getCode())
+//					.price(p.getPrice())
+//					.saleName(sale.getName())
+//					.saleRate((int)(sale.getRate() * 100))
+//					.salePrice(sale.getSalePrice())
+//					.saleStartTime(sale.getStartTime())
+//					.saleEndTime(sale.getEndTime())
+//					.build();
+//			filterDetails.add(item);
+//		}
+
+		ProductFilterResponse result = ProductFilterResponse.builder()
+				.products(products)
+				.pageIndex(0)
+				.pageSize(limit)
+				.totalItem(0)
+				.build();
+		result.setCode("200");
+		result.setDesc("00");
+
+		return result;
 	}
 
 	@Override

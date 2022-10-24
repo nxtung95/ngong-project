@@ -74,4 +74,17 @@ public class ProductController {
 		res.setDetailProduct(productDto);
 		return ResponseEntity.ok(res);
 	}
+
+	@Operation(summary = "API lấy danh sách sản phẩm bán chạy", description = "limit: số lượng sản phẩm bán chạy cần lấy")
+	@RequestMapping(value = "/best-seller", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ProductFilterResponse> getBestSeller(@RequestParam int limit) throws Exception {
+		try {
+			ProductFilterResponse products = productService.getBestSeller(limit);
+			return ResponseEntity.ok(products);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }
