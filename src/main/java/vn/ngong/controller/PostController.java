@@ -41,7 +41,7 @@ public class PostController {
 					"\n3. menuImage: Image đại diện bài viết" +
 					"\n4. description: Mô tả đại diện bài viết" +
 					"\n\nĐối với lấy 4 tin tức nổi bật:" +
-					"\n - Truyền menuCode=news" +
+					"\n - Truyền menuCode=tin-tuc" +
 					"\n - pageIndex = 1, pageSize = 4")
 
 	@ApiResponses( value = {
