@@ -20,4 +20,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
 	@Query(value = "SELECT * FROM wp_posts WHERE post_parent = :postParent ORDER BY post_date DESC", nativeQuery = true)
 	List<Post> findAllLastPostByParentPost(@Param("postParent") int parentPostId);
+
+	@Query(value = "select a.* from wp_posts a " +
+			"INNER JOIN wp_term_relationships b ON a.ID = b.object_id " +
+			"INNER JOIN wp_term_taxonomy c ON b.term_taxonomy_id = c.term_taxonomy_id " +
+			"INNER JOIN wp_terms d ON c.term_id = d.term_id " +
+			"WHERE c.taxonomy = 'category' " +
+			"ORDER BY a.post_date DESC ", nativeQuery = true)
+	List<Post> findAllNewestPost();
+
 }

@@ -98,4 +98,7 @@ public class Post {
 	@Transient
 	@Schema(name = "description", description = "Mô tả tóm tắt 1 bài viết")
 	private String description;
+
+	@Transient
+	private String slug;
 }
