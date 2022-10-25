@@ -183,8 +183,8 @@ public class ProductServiceImpl implements ProductService {
 					.pageSize(request.getPageSize())
 					.totalItem(0)
 					.build();
-			result.setCode("200");
-			result.setDesc("00");
+			result.setCode("00");
+			result.setDesc("Success");
 
 			return result;
 
@@ -205,8 +205,8 @@ public class ProductServiceImpl implements ProductService {
 				.pageSize(limit)
 				.totalItem(0)
 				.build();
-		result.setCode("200");
-		result.setDesc("00");
+		result.setCode("00");
+		result.setDesc("Success");
 
 		return result;
 	}
@@ -220,8 +220,8 @@ public class ProductServiceImpl implements ProductService {
 				.pageSize(limit)
 				.totalItem(0)
 				.build();
-		result.setCode("200");
-		result.setDesc("00");
+		result.setCode("00");
+		result.setDesc("Success");
 
 		return result;
 	}

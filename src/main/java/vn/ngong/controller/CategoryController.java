@@ -37,8 +37,8 @@ public class CategoryController {
         List<Category> categories = categoryService.list();
         CategoryResponse res = CategoryResponse.builder()
                 .productCategories(categories)
-                .code("200")
-                .desc("00")
+                .code("00")
+                .desc("Success")
                 .build();
         return ResponseEntity.ok(res);
     }

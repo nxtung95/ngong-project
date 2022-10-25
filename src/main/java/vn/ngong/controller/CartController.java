@@ -39,8 +39,8 @@ public class CartController {
                 .userId(entity.getUserId())
                 .productId(entity.getProductId())
                 .quantity(entity.getQuantity())
-                .code("200")
-                .desc("00")
+                .code("00")
+                .desc("Success")
                 .build();
         return ResponseEntity.ok(res);
     }
@@ -59,8 +59,8 @@ public class CartController {
                 .userId(entity.getUserId())
                 .productId(entity.getProductId())
                 .quantity(entity.getQuantity())
-                .code("200")
-                .desc("00")
+                .code("00")
+                .desc("Success")
                 .build();
         return ResponseEntity.ok(res);
     }
