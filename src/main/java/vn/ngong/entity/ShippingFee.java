@@ -21,7 +21,7 @@ public class ShippingFee {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private String id;
+	private int id;
 
 	@Schema(name = "cusType", description = "0: Khách hàng cá nhân")
 	@Column(name = "customer_type")
