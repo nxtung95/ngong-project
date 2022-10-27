@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.ngong.entity.User;
+import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.UserRepository;
+import vn.ngong.request.PaymentRequest;
 import vn.ngong.service.UserService;
 
 import java.util.ArrayList;
@@ -20,60 +22,21 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private UserRepository userRepository;
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> optUser = userRepository.findByPhone(username);
-		if (!optUser.isPresent()) {
-			return null;
-		}
-		User user = optUser.get();
-
-		SimpleGrantedAuthority role = new SimpleGrantedAuthority("user");
-		Collection<SimpleGrantedAuthority> roleList = new ArrayList<>();
-		roleList.add(role);
-		org.springframework.security.core.userdetails.User userDetail;
-		if (!ValidtionUtils.checkEmptyOrNull(optUser.get().getPasswordPlainText())) {
-			// Login qua tạo tài khoản khi thanh toán/ admin
-			String passwordPlainText = user.getPasswordPlainText();
-			String hashPass = passwordEncoder.encode(passwordPlainText);
-			user.setPassword(hashPass);
-			user.setPasswordPlainText("");
-			userRepository.saveAndFlush(user);
-		}
-		try {
-			// Must be called from request filtered by Spring Security, otherwise SecurityContextHolder is not updated
-//			HttpServletRequest request =
-//					((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-//							.getRequest();
-//			UsernamePasswordAuthenticationToken authenticationToken =
-//					new UsernamePasswordAuthenticationToken(user.getPhone(), user.getPassword(), roleList);
-//			authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-////			Authentication authentication = authenticationManager.authenticate(authenticationToken);
-//			// After setting the Authentication in the context, we specify
-//			// that the current user is authenticated. So it passes the
-//			// Spring Security Configurations successfully.
-//			log.info("Principal: " + authenticationToken.getPrincipal());
-//			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-			userDetail = new org.springframework.security.core.userdetails.User(user.getPhone(), user.getPassword(), roleList);
-			return userDetail;
-		} catch (Exception e) {
-			SecurityContextHolder.getContext().setAuthentication(null);
-			log.error("Failure in autoLogin", e);
-		}
-		return null;
-	}
+	@Autowired
+	private LoginServiceImpl loginService;
+	@Autowired
+	private AuthenticationUtil authenticationUtil;
 
 	@Override
 	public User login(String username, String password) {
 		try {
 			log.info("Login with user: " + username);
-			UserDetails userDetails = loadUserByUsername(username);
+			UserDetails userDetails = loginService.loadUserByUsername(username);
 			if (userDetails == null) {
 				return null;
 			}
@@ -147,5 +110,49 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public User makeUserForPayment(PaymentRequest rq) {
+		String currentPhoneUser = authenticationUtil.getPhoneLoginName();
+		log.info("currentPhoneUser: ", currentPhoneUser);
+		User user;
+		// User đặt hàng chưa đăng nhập
+		if (ValidtionUtils.checkEmptyOrNull(currentPhoneUser) || "anonymousUser".equalsIgnoreCase(currentPhoneUser)) {
+			// Kiểm tra có trong hệ thống không?
+			Optional<User> optionalUser = findByPhone(rq.getCustomer().getCusPhone());
+			if (optionalUser == null) {
+				log.info("Lỗi user null");
+				return null;
+			}
+
+			// Đã có trong hệ thống
+			if (optionalUser.isPresent()) {
+				user = optionalUser.get();
+			} else {
+				// Chưa có trong hệ thống
+				String passwordDefault = authenticationUtil.makeDefaultPassword();
+				log.info("passwordDefault: " + passwordDefault);
+				User newUser = User.builder()
+						.name(rq.getCustomer().getCusName())
+						.phone(rq.getCustomer().getCusPhone())
+						.password("")
+						.passwordPlainText(passwordDefault)
+						.email(rq.getCustomer().getCusEmail())
+						.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
+						.actived(0)
+						.build();
+				user = add(newUser);
+			}
+		} else {
+			// Kiểm tra có trong hệ thống không?
+			Optional<User> optionalUser = findByPhone(rq.getCustomer().getCusPhone());
+			if (optionalUser == null) {
+				log.info("Lỗi user null");
+				return null;
+			}
+			user = optionalUser.get();
+		}
+		return user;
 	}
 }

@@ -2,10 +2,13 @@ package vn.ngong.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.ngong.cache.LocalCacheConfig;
 import vn.ngong.dto.RequestTransProductDto;
+import vn.ngong.dto.ResponseTransProductDto;
 import vn.ngong.entity.*;
 import vn.ngong.enums.TransactionStatusEnum;
 import vn.ngong.helper.AuthenticationUtil;
@@ -13,6 +16,7 @@ import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.*;
 import vn.ngong.request.PaymentRequest;
 import vn.ngong.service.PaymentService;
+import vn.ngong.service.ProductService;
 import vn.ngong.service.UserService;
 
 import java.util.ArrayList;
@@ -22,8 +26,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
-	@Autowired
-	private PaymentMethodRepository paymentMethodRepository;
 	@Autowired
 	private CustomerRepository customerRepository;
 	@Autowired
@@ -38,10 +40,12 @@ public class PaymentServiceImpl implements PaymentService {
 	private OrderDetailRepository orderDetailRepository;
 	@Autowired
 	private LocalCacheConfig localCacheConfig;
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	@Transactional
-	public Transaction insert(PaymentRequest rq) {
+	public Transaction paymentWithNoSoGao(PaymentRequest rq) {
 		log.info("--------START TRANSACTION --------");
 		try {
 			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
@@ -66,44 +70,9 @@ public class PaymentServiceImpl implements PaymentService {
 				return null;
 			}
 
-			String currentPhoneUser = authenticationUtil.getPhoneLoginName();
-			log.info("currentPhoneUser: ", currentPhoneUser);
-			User user;
-			// User đặt hàng chưa đăng nhập
-			if (ValidtionUtils.checkEmptyOrNull(currentPhoneUser) || "anonymousUser".equalsIgnoreCase(currentPhoneUser)) {
-				// Kiểm tra có trong hệ thống không?
-				Optional<User> optionalUser = userService.findByPhone(rq.getCustomer().getCusPhone());
-				if (optionalUser == null) {
-					log.info("Lỗi user null");
-					return null;
-				}
-
-				// Đã có trong hệ thống
-				if (optionalUser.isPresent()) {
-					user = optionalUser.get();
-				} else {
-					// Chưa có trong hệ thống
-					String passwordDefault = authenticationUtil.makeDefaultPassword();
-					log.info("passwordDefault: " + passwordDefault);
-					User newUser = User.builder()
-							.name(rq.getCustomer().getCusName())
-							.phone(rq.getCustomer().getCusPhone())
-							.password("")
-							.passwordPlainText(passwordDefault)
-							.email(rq.getCustomer().getCusEmail())
-							.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
-							.actived(1)
-							.build();
-					user = userService.add(newUser);
-				}
-			} else {
-				// Kiểm tra có trong hệ thống không?
-				Optional<User> optionalUser = userService.findByPhone(rq.getCustomer().getCusPhone());
-				if (optionalUser == null) {
-					log.info("Lỗi user null");
-					return null;
-				}
-				user = optionalUser.get();
+			User user = userService.makeUserForPayment(rq);
+			if (user == null) {
+				return null;
 			}
 
 			log.info("--- Start add customer ---");
@@ -179,5 +148,31 @@ public class PaymentServiceImpl implements PaymentService {
 			localCacheConfig.loadPaymentMethodList();
 		}
 		return localCacheConfig.getPaymentMethodList();
+	}
+
+	@Override
+	public boolean isHaveSoGao(List<RequestTransProductDto> products) {
+		return products.stream().anyMatch(p -> p.getIsSoGao() == 1);
+	}
+
+	@Override
+	public List<ResponseTransProductDto> checkInventory(List<RequestTransProductDto> productList) {
+		List<ResponseTransProductDto> responseTransProducts = new ArrayList<>();
+		for (RequestTransProductDto p : productList) {
+			Integer numProductStock = productService.getQuantityStockByProductCode(p.getProductCode());
+			if (numProductStock == null) {
+				return null;
+			}
+			if (numProductStock == 0 || p.getQuantity() > numProductStock) {
+				ResponseTransProductDto responseTransProductDto = ResponseTransProductDto.builder()
+						.productCode(p.getProductCode())
+						.totalCurrentProduct(p.getQuantity())
+						.totalProductStock(numProductStock)
+						.totalMinimumProduct(p.getQuantity() - numProductStock)
+						.build();
+				responseTransProducts.add(responseTransProductDto);
+			}
+		}
+		return responseTransProducts;
 	}
 }

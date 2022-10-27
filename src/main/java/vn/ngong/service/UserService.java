@@ -2,6 +2,7 @@ package vn.ngong.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.ngong.entity.User;
+import vn.ngong.request.PaymentRequest;
 
 import java.util.Optional;
 
@@ -21,4 +22,6 @@ public interface UserService {
 	Optional<User> findByPhone(String phone);
 
 	User add(User user);
+
+	User makeUserForPayment(PaymentRequest rq);
 }
