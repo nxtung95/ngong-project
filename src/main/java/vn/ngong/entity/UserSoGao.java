@@ -39,10 +39,10 @@ public class UserSoGao {
 	private int isAdmin;
 
 	@Column(name = "created_at")
-	private Timestamp createdBy;
+	private Timestamp createdAt;
 
 	@Column(name = "updated_at")
-	private Timestamp updatedBy;
+	private Timestamp updatedAt;
 
 	@Column(name = "created_by")
 	private String createdBy;
