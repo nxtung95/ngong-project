@@ -113,7 +113,7 @@ public class PaymentController {
 				return ResponseEntity.internalServerError().body(res);
 			}
 
-			Transaction transaction = null;
+			Transaction transaction;
 			if (!paymentService.isHaveRiceProduct(rq.getProductList())) {
 				// Đơn hàng không có sản phẩm gạo
 				transaction = paymentService.paymentWithNoRiceProduct(rq, user);
@@ -147,12 +147,17 @@ public class PaymentController {
 				}
 
 			}
+			if (transaction == null) {
+				res.setCode("06");
+				res.setDesc("Giao dịch thất bại");
+				return new ResponseEntity<>(res, HttpStatus.OK);
+			}
 			res.setTransaction(transaction);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@Operation(summary = "API thanh toán khi KH không chọn mua sổ gạo",

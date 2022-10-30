@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -172,7 +173,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start add so gao history ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				addSoGaoHistory(rq, user, trans);
+				addSoGaoHistory(rq.getSoGaoList(), user, trans);
 			}
 			log.info("--- start end so gao history ---");
 
@@ -184,10 +185,10 @@ public class PaymentServiceImpl implements PaymentService {
 		return null;
 	}
 
-	private void addSoGaoHistory(PaymentRequest rq, User user, Transaction transaction) {
+	private void addSoGaoHistory(List<TransSoGaoDto> soGaoList, User user, Transaction transaction) {
 		try {
 			List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
-			for (TransSoGaoDto s : rq.getSoGaoList()) {
+			for (TransSoGaoDto s : soGaoList) {
 				int size = Integer.parseInt(s.getAttribute().getAttributeValue());
 				int quantity = s.getQuantity();
 				int totalSizeGao = size * quantity;
@@ -281,7 +282,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	public Transaction paymentWithRiceProduct(PaymentRequest rq, User user) {
-		log.info("--------START TRANSACTION --------");
+		log.info("----------------------START TRANSACTION ---------------------------");
 		try {
 			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
 			if (paymentMethodList.isEmpty()) {
@@ -376,11 +377,6 @@ public class PaymentServiceImpl implements PaymentService {
 			orderDetailRepository.saveAllAndFlush(orderDetails);
 			log.info("--- end add order_detail ---");
 
-			log.info("--- start tru gao trong so gao ---");
-			subSoGao(rq.getProductList(), user);
-			log.info("--- end tru gao trong so ---");
-
-
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
 					.orderId(addOrder.getId())
@@ -394,13 +390,33 @@ public class PaymentServiceImpl implements PaymentService {
 			Transaction trans = transactionRepository.saveAndFlush(transaction);
 			log.info("--- end add transaction ---");
 
+			log.info("--- start tru gao trong so gao ---");
+			List<TransProductDto> gaoProductList = rq.getProductList().stream()
+					.filter(g -> g.getGaoFlag() == 1)
+					.collect(Collectors.toList());
+			if (!gaoProductList.isEmpty()) {
+				Integer remindGaoProduct = subSoGao(gaoProductList, user, trans);
+				if (remindGaoProduct > 0) {
+					log.info("Số gạo trong sổ không đủ để thanh toán");
+					throw new Exception("Not enough rice to pay");
+				}
+			}
+			log.info("--- end tru gao trong so ---");
+
+			log.info("--- start add so gao ---");
+			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
+				addSoGao(rq, user);
+			}
+			log.info("--- end add so gao ---");
+
 			log.info("--- start add so gao history ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				addSoGaoHistory(rq, user, trans);
+				addSoGaoHistory(rq.getSoGaoList(), user, trans);
 			}
-			log.info("--- start end so gao history ---");
+			log.info("--- end so gao history ---");
 
-			log.info("-------END TRANSACTION -----------");
+
+			log.info("------------------------END TRANSACTION -----------------------------");
 			return trans;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -408,50 +424,63 @@ public class PaymentServiceImpl implements PaymentService {
 		return null;
 	}
 
-	private void subSoGao(List<TransProductDto> productList, User user) {
+	private Integer subSoGao(List<TransProductDto> productList, User user, Transaction trans) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		try {
 			List<UserSoGao> userSoGaoList = userSoGaoRepository
 					.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
-			for (TransProductDto s : productList) {
-				if (s.getGaoFlag() == 0) {
-					continue;
+			long tmpSubTotalGao = productList.stream()
+					.collect(Collectors.summingLong(g -> g.getQuantity() * Long.parseLong(g.getAttribute().getAttributeValue())));
+			Integer subTotalGao = (int) tmpSubTotalGao;
+			UserSoGaoHistory userSoGaoHistory = UserSoGaoHistory.builder()
+					.userSoGaoId(user.getId())
+					.transactionId(trans.getId())
+					.note("")
+					.createdAt(new Timestamp(System.currentTimeMillis()))
+					.createdBy(user.getId())
+					.updatedAt(new Timestamp(System.currentTimeMillis()))
+					.updatedBy(user.getId())
+					.build();
+			List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
+			for (UserSoGao u : userSoGaoList) {
+				int currentGao = u.getSize();
+				int remainGao = currentGao - subTotalGao;
+				if (remainGao > 0) {
+					// Số gạo trong sổ gạo hiện tại đủ để trừ hết
+					u.setSize(remainGao);
+					u.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+					u.setUpdatedBy(u.getId());
+					userSoGaoHistory.setId(u.getProductId());
+					userSoGaoHistory.setUsedNumber(subTotalGao);
+					userSoGaoHistory.setAddedNumber(0);
+					userSoGaoHistory.setRemainingNumber(remainGao);
+					userSoGaoHistoryList.add(userSoGaoHistory);
+					break;
+				} else if (remainGao == 0) {
+					// Số gạo trong sổ gạo hiện tại đủ để trừ hết
+					u.setSize(remainGao);
+					u.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+					u.setUpdatedBy(u.getId());
+					u.setStatus(0);
+					userSoGaoHistory.setId(u.getProductId());
+					userSoGaoHistory.setUsedNumber(subTotalGao);
+					userSoGaoHistory.setAddedNumber(0);
+					userSoGaoHistory.setRemainingNumber(remainGao);
+					userSoGaoHistoryList.add(userSoGaoHistory);
+					break;
+				} else {
+					// Số gạo trong sổ gạo hiện tại chưa đủ để trừ hết
+					subTotalGao = subTotalGao - currentGao;
 				}
-				int size = Integer.parseInt(s.getAttribute().getAttributeValue());
-				int quantity = s.getQuantity();
-				int subGao = size * quantity;
-				for (UserSoGao u : userSoGaoList) {
-					int currentGao = u.getSize();
-					int remainGao = currentGao - subGao;
-					if (remainGao > 0) {
-						// Số gạo sau khi trừ chưa hết
-
-					} else {
-						// Số gạo sau khi trừ đã hết trong sổ
-
-					}
-				}
-//				String soGaoCode = s.getProductCode();
-//				int size = Integer.parseInt(s.getAttribute().getAttributeValue());
-//				int productId = s.getAttribute().getProductId();
-//				UserSoGao userSoGao = UserSoGao.builder()
-//						.userId(user.getId())
-//						.productId(productId)
-//						.soGaoCode(soGaoCode)
-//						.size(size)
-//						.expireDate(expireDate)
-//						.purchaseDate(currentDate)
-//						.status(1)
-//						.createdAt(currentDate)
-//						.createdBy(user.getId())
-//						.updatedAt(currentDate)
-//						.updatedBy(user.getId())
-//						.build();
-//				userSoGaoList.add(userSoGao);
+			}
+			if (subTotalGao > 0) {
+				return subTotalGao;
 			}
 			userSoGaoRepository.saveAllAndFlush(userSoGaoList);
+			userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+		return null;
 	}
 }
