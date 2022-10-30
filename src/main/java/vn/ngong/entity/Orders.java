@@ -30,6 +30,12 @@ public class Orders {
 	@Column(name = "total_amount")
 	private int totalAmount;
 
+	@Column(name = "total_add_gao")
+	private int totalAddGao;
+
+	@Column(name = "total_sub_gao")
+	private int totalSubGao;
+
 	@Column(name = "status")
 	private int status;
 
@@ -39,4 +45,5 @@ public class Orders {
 
 	@Column(name = "created_by")
 	private String createdBy;
+
 }

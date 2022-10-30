@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface UserSoGaoRepository extends JpaRepository<UserSoGao, Integer> {
-	List<UserSoGao> findAllByUserIdAndAndIsActiveAndExpireDateAfter(int userId, int isActive, Timestamp expireDate);
+	List<UserSoGao> findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(int userId, int status, Timestamp expireDate);
 }

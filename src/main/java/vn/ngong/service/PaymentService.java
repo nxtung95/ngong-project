@@ -1,19 +1,23 @@
 package vn.ngong.service;
 
-import vn.ngong.dto.RequestTransProductDto;
+import vn.ngong.dto.TransProductDto;
 import vn.ngong.dto.ResponseTransProductDto;
 import vn.ngong.entity.PaymentMethod;
 import vn.ngong.entity.Transaction;
+import vn.ngong.entity.User;
+import vn.ngong.entity.UserSoGao;
 import vn.ngong.request.PaymentRequest;
 
 import java.util.List;
 
 public interface PaymentService {
-	Transaction paymentWithNoSoGao(PaymentRequest rq);
+	Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user);
 
 	List<PaymentMethod> findAllPaymentMethod();
 
-	boolean isHaveSoGao(List<RequestTransProductDto> products);
+	boolean isHaveRiceProduct(List<TransProductDto> products);
 
-	List<ResponseTransProductDto> checkInventory(List<RequestTransProductDto> productList);
+	List<ResponseTransProductDto> checkInventory(List<TransProductDto> productList);
+
+	Transaction paymentWithRiceProduct(PaymentRequest rq, User user);
 }

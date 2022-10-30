@@ -12,34 +12,31 @@ import java.sql.Timestamp;
 @Setter
 @SuperBuilder(toBuilder = true)
 @Entity
-@Table(name = "user_sogaos")
+@Table(name = "wp_user_sogao_histories")
 @NoArgsConstructor
-public class UserSoGao {
+public class UserSoGaoHistory {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "user_id")
-	private int userId;
+	@Column(name = "user_sogao_id")
+	private int userSoGaoId;
 
-	@Column(name = "sogao_code")
-	private String soGaoCode;
+	@Column(name = "transaction_id")
+	private int transactionId;
 
-	@Column(name = "product_id")
-	private int productId;
+	@Column(name = "used_number")
+	private int usedNumber;
 
-	@Column(name = "size")
-	private int size;
+	@Column(name = "added_number")
+	private int addedNumber;
 
-	@Column(name = "expire_date")
-	private Timestamp expireDate;
+	@Column(name = "remaining_number")
+	private int remainingNumber;
 
-	@Column(name = "purchase_date")
-	private Timestamp purchaseDate;
-
-	@Column(name = "status")
-	private int status;
+	@Column(name = "note")
+	private String note;
 
 	@Column(name = "created_at")
 	private Timestamp createdAt;

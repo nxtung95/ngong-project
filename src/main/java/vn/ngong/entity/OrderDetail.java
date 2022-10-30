@@ -39,4 +39,16 @@ public class OrderDetail {
 
 	@Column(name = "created_by")
 	private String createdBy;
+
+	@Column(name = "add_gao")
+	private int addGao;
+
+	@Column(name = "sub_gao")
+	private int subGao;
+
+	@Column(name = "is_buy_sogao")
+	private int isBuySoGao;
+
+	@Column(name = "is_buy_gao")
+	private int isBuyGao;
 }
