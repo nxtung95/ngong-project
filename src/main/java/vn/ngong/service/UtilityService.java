@@ -1,8 +1,6 @@
 package vn.ngong.service;
 
-import vn.ngong.entity.City;
-import vn.ngong.entity.ShippingFee;
-import vn.ngong.entity.SystemParameter;
+import vn.ngong.entity.*;
 
 import java.util.List;
 
@@ -12,4 +10,12 @@ public interface UtilityService {
 	String getValue(String key);
 
 	ShippingFee getShippingFee(String cityCode, String districtCode, int totalAmount);
+
+	RegisterTrip addTrip(RegisterTrip registerTrip);
+
+	RegisterProject registerProject(RegisterProject registerProject);
+
+	List<Project> findAllProject();
+
+	RegisterAgentCTV registerAgentCTV(RegisterAgentCTV registerAgentCTV);
 }

@@ -4,21 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ngong.cache.LocalCacheConfig;
-import vn.ngong.entity.City;
-import vn.ngong.entity.ShippingFee;
-import vn.ngong.entity.SystemParameter;
+import vn.ngong.entity.*;
+import vn.ngong.repository.ProjectRepository;
+import vn.ngong.repository.RegisterAgentCTVRepository;
+import vn.ngong.repository.RegisterProjectRepository;
+import vn.ngong.repository.RegisterTripRepository;
 import vn.ngong.service.UtilityService;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
 public class UtilityServiceImpl implements UtilityService {
 	@Autowired
 	private LocalCacheConfig localCacheConfig;
+	@Autowired
+	private RegisterTripRepository registerTripRepository;
+	@Autowired
+	private RegisterProjectRepository registerProjectRepository;
+	@Autowired
+	private ProjectRepository projectRepository;
+	@Autowired
+	private RegisterAgentCTVRepository registerAgentCTVRepository;
 
 	@Override
 	public List<City> getAllCityDistrictWard() {
@@ -123,5 +131,40 @@ public class UtilityServiceImpl implements UtilityService {
 			}
 			return shippingFee;
 		}
+	}
+
+	@Override
+	public RegisterTrip addTrip(RegisterTrip registerTrip) {
+		try {
+			return registerTripRepository.saveAndFlush(registerTrip);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	@Override
+	public RegisterProject registerProject(RegisterProject registerProject) {
+		try {
+			return registerProjectRepository.saveAndFlush(registerProject);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	@Override
+	public List<Project> findAllProject() {
+		return projectRepository.findAllByStatusOrderByStartDateAsc(1);
+	}
+
+	@Override
+	public RegisterAgentCTV registerAgentCTV(RegisterAgentCTV registerAgentCTV) {
+		try {
+			return registerAgentCTVRepository.saveAndFlush(registerAgentCTV);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
 	}
 }

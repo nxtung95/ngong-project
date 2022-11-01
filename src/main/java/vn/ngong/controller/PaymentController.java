@@ -26,7 +26,6 @@ import vn.ngong.service.UserService;
 import java.sql.Timestamp;
 import java.util.List;
 
-@RestController
 @Slf4j
 @RequestMapping(value = "/payment")
 public class PaymentController {
@@ -162,7 +161,7 @@ public class PaymentController {
 
 	@Operation(summary = "API thanh toán khi KH không chọn mua sổ gạo",
 			description = "User không chọn mua sổ gạo thì gọi api này")
-	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/again", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<PaymentResponse> paymentAgain(@RequestBody PaymentRequest rq) throws Exception {
 		PaymentResponse res = PaymentResponse.builder()
 				.code("00")
