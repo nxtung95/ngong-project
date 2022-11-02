@@ -15,7 +15,9 @@ import vn.ngong.repository.RegisterTripRepository;
 import vn.ngong.service.UtilityService;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -176,6 +178,8 @@ public class UtilityServiceImpl implements UtilityService {
 	@Override
 	public List<BannerDto> findAllBanner() {
 		String value = getValue("GET_BANNER");
-		return gson.fromJson(value,  new TypeToken<List<BannerDto>>(){}.getType());
+		List<BannerDto> bannerDtoList = gson.fromJson(value,  new TypeToken<List<BannerDto>>(){}.getType());
+
+		return bannerDtoList.stream().sorted(Comparator.comparingInt(b -> b.getOrder())).collect(Collectors.toList());
 	}
 }
