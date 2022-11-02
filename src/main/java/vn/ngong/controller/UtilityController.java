@@ -205,4 +205,15 @@ public class UtilityController {
 		res.setProjectList(utilityService.findAllProject());
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
+
+	@Operation(summary = "API lấy về danh sách banner")
+	@RequestMapping(value = "/banner", method = RequestMethod.GET)
+	public ResponseEntity<GetBannerResponse> getAllBanner() {
+		GetBannerResponse res = GetBannerResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setBannerList(utilityService.findAllBanner());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
 }

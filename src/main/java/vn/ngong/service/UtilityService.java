@@ -1,5 +1,6 @@
 package vn.ngong.service;
 
+import vn.ngong.dto.BannerDto;
 import vn.ngong.entity.*;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface UtilityService {
 	List<Project> findAllProject();
 
 	RegisterAgentCTV registerAgentCTV(RegisterAgentCTV registerAgentCTV);
+
+	List<BannerDto> findAllBanner();
 }

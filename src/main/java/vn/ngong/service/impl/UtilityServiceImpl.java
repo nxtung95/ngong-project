@@ -1,9 +1,12 @@
 package vn.ngong.service.impl;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ngong.cache.LocalCacheConfig;
+import vn.ngong.dto.BannerDto;
 import vn.ngong.entity.*;
 import vn.ngong.repository.ProjectRepository;
 import vn.ngong.repository.RegisterAgentCTVRepository;
@@ -27,6 +30,8 @@ public class UtilityServiceImpl implements UtilityService {
 	private ProjectRepository projectRepository;
 	@Autowired
 	private RegisterAgentCTVRepository registerAgentCTVRepository;
+	@Autowired
+	private Gson gson;
 
 	@Override
 	public List<City> getAllCityDistrictWard() {
@@ -166,5 +171,11 @@ public class UtilityServiceImpl implements UtilityService {
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public List<BannerDto> findAllBanner() {
+		String value = getValue("GET_BANNER");
+		return gson.fromJson(value,  new TypeToken<List<BannerDto>>(){}.getType());
 	}
 }
