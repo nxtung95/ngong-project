@@ -9,7 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 public class BannerDto {
 	private int id;
-	private String image;
+	private String imageUrl;
+	private String targetUrl;
 	private int status;
 	private int order;
 }

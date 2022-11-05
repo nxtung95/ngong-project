@@ -10,6 +10,7 @@ import vn.ngong.entity.User;
 import vn.ngong.entity.ViewCountPost;
 import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
+import vn.ngong.repository.MenuRepository;
 import vn.ngong.repository.PostNativeRepository;
 import vn.ngong.repository.PostRepository;
 import vn.ngong.repository.UpdateViewCountPostRepository;
@@ -36,6 +37,8 @@ public class PostServiceImpl implements PostService {
 	private UpdateViewCountPostRepository updateViewCountPostRepository;
 	@Autowired
 	private AuthenticationUtil authenticationUtil;
+	@Autowired
+	private MenuRepository menuRepository;
 
 	@Override
 	public List<Post> findPostByMenu(String menuCode, int limit, int offset) {
@@ -44,15 +47,8 @@ public class PostServiceImpl implements PostService {
 		if (postList.isEmpty()) {
 			return null;
 		}
-		if (localCacheConfig.getImageMap().isEmpty()) {
-			localCacheConfig.loadCacheAllImagePost();
-		}
-		Map<Integer, String> imageMap = localCacheConfig.getImageMap();
-
-		if (localCacheConfig.getDescriptionMap().isEmpty()) {
-			localCacheConfig.loadCacheAllDescriptionPost();
-		}
-		Map<Integer, String> descriptionMap = localCacheConfig.getDescriptionMap();
+		Map<Integer, String> imageMap = menuRepository.findAllImageRepresent();
+		Map<Integer, String> descriptionMap = menuRepository.findAllDescription();
 
 		for (Post p : postList) {
 			List<Post> lastPostList = postRepository.findAllLastPostByParentPost(p.getId());
@@ -70,6 +66,7 @@ public class PostServiceImpl implements PostService {
 			}
 			post.setMenuImage(image);
 			post.setDescription(description);
+			post.setSlug(p.getPostName());
 			returnPostList.add(post);
 		}
 

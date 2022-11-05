@@ -27,8 +27,8 @@ public class MenuRepository {
 					" LEFT JOIN wp_postmeta as pp ON p.ID = pp.post_id AND pp.meta_key = '_menu_item_menu_item_parent' " +
 					" LEFT JOIN wp_postmeta as pt ON p.ID = pt.post_id AND pt.meta_key = '_menu_item_object' " +
 					" LEFT JOIN wp_posts as n ON pl.meta_value = n.ID WHERE p.post_status='publish' AND p.post_type = 'nav_menu_item' AND m.meta_key = '_menu_item_url') d " +
-					" LEFT JOIN wp_terms as e on d.term_taxonomy_id=e.term_id) i where i.term_taxonomy_id = (SELECT term_id FROM wp_terms where slug = '" +
-					"') ORDER BY i.menu_order ASC");
+					" LEFT JOIN wp_terms as e on d.term_taxonomy_id=e.term_id) i where i.term_taxonomy_id = (SELECT term_id FROM wp_terms where slug = 'main-menu'" +
+					" ) ORDER BY i.menu_order ASC");
 			List<Object[]> objects = query.getResultList();
 			for (Object[] obj : objects) {
 				returnMenus.add(MenuDto.builder()
