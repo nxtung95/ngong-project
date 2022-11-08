@@ -16,7 +16,7 @@ public class SogaoServiceImpl implements SogaoService {
 
     @Override
     public List<Sogao> list() {
-        return soGaoRepository.findAllByStatusByOrderByOrderNumber(1);
+        return soGaoRepository.findAllByStatusOrderByOrderNumber(1);
     }
 
     @Override

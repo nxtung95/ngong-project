@@ -25,16 +25,16 @@ public class CommentServiceImpl implements CommentService {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         Page<Comment> comments = null;
         if (orderType == 0) {
-            comments = commentRepository.findAllByStatusByOrderByUpdatedAtDesc(1, pageable);
+            comments = commentRepository.findAllByStatusOrderByUpdatedAtDesc(1, pageable);
         }
         if (orderType == 1) {
-            comments = commentRepository.findAllByStatusByOrderByUpdatedAt(1, pageable);
+            comments = commentRepository.findAllByStatusOrderByUpdatedAt(1, pageable);
         }
         if (orderType == 2) {
-            comments = commentRepository.findAllByStatusByOrderByRateDesc(1, pageable);
+            comments = commentRepository.findAllByStatusOrderByRateDesc(1, pageable);
         }
         if (orderType == 3) {
-            comments = commentRepository.findAllByStatusByOrderByRate(1, pageable);
+            comments = commentRepository.findAllByStatusOrderByRate(1, pageable);
         }
 
         CommentListResponse res = CommentListResponse

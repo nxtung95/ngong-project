@@ -43,10 +43,10 @@ public class Comment implements Serializable {
     @Column(name = "comment")
     private String comment;
 
-    @Column(name = "code")
+    @Column(name = "video")
     private String video;
 
-    @Column(name = "code")
+    @Column(name = "images")
     private String images;
 
     @Column(name = "status")

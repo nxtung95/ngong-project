@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface SoGaoRepository extends JpaRepository<Sogao, Integer> {
-    List<Sogao> findAllByStatusByOrderByOrderNumber(int status);
+    List<Sogao> findAllByStatusOrderByOrderNumber(int status);
 
     Sogao findById(int id);
 }
