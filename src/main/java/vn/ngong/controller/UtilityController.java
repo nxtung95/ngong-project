@@ -57,23 +57,6 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@Operation(summary = "API Lấy phí ship theo tình thành và tổng tiền")
-	@RequestMapping(value = "/shippingFee", method = RequestMethod.POST)
-	public ResponseEntity<GetShippingFeeResponse> getShippingFee(@RequestBody ShippingFeeRequest rq) throws Exception {
-		GetShippingFeeResponse res = GetShippingFeeResponse.builder()
-				.code("00")
-				.desc("Success")
-				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getCityCode(), rq.getDistrictCode()) || rq.getTotalAmount() <= 0) {
-			res.setCode("01");
-			res.setDesc("Invalid data");
-			return ResponseEntity.ok(res);
-		}
-		ShippingFee shippingFee = utilityService.getShippingFee(rq.getCityCode(), rq.getDistrictCode(), rq.getTotalAmount());
-		res.setShippingFee(shippingFee);
-		return new ResponseEntity<>(res, HttpStatus.OK);
-	}
-
 	@Operation(summary = "API đăng ký chuyến đi")
 	@RequestMapping(value = "/register-trip", method = RequestMethod.POST)
 	public ResponseEntity<RegisterTripResponse> registerTrip(@RequestBody RegisterTripRequest rq) throws Exception {
