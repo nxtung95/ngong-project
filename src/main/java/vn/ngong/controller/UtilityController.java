@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import vn.ngong.entity.RegisterAgentCTV;
-import vn.ngong.entity.RegisterProject;
-import vn.ngong.entity.ShippingFee;
-import vn.ngong.entity.RegisterTrip;
+import vn.ngong.entity.*;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.request.*;
 import vn.ngong.response.*;
@@ -214,6 +211,87 @@ public class UtilityController {
 				.desc("Success")
 				.build();
 		res.setBannerList(utilityService.findAllBanner());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về nội dung bài viết sơ lược về ngỗng")
+	@RequestMapping(value = "/aboutNgong", method = RequestMethod.GET)
+	public ResponseEntity<SoLuocVeNgongResponse> getContentSoLuocVeNgong() {
+		SoLuocVeNgongResponse res = SoLuocVeNgongResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setSoLuocVeNgong(utilityService.getSoLuocVeNgongContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy thành tựu giải thưởng")
+	@RequestMapping(value = "/award", method = RequestMethod.GET)
+	public ResponseEntity<AwardNgongResponse> getAwardNgong() {
+		AwardNgongResponse res = AwardNgongResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setAwards(utilityService.getAwardsNgong());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy nội dung hệ thống sx và quản lý")
+	@RequestMapping(value = "/product-system", method = RequestMethod.GET)
+	public ResponseEntity<ProductSystemResponse> getProductSystem() {
+		ProductSystemResponse res = ProductSystemResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setProductSystem(utilityService.getProductSystemContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy nội dung liên hệ")
+	@RequestMapping(value = "/contact", method = RequestMethod.GET)
+	public ResponseEntity<ContactResponse> getAddress() {
+		ContactResponse res = ContactResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setAddressList(utilityService.getAddress());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API gửi câu hỏi")
+	@RequestMapping(value = "/ask-question", method = RequestMethod.POST)
+	public ResponseEntity<AskQuestionResponse> askQuestion(@RequestBody AskQuestionRequest rq) throws Exception {
+		AskQuestionResponse res = AskQuestionResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		if (ValidtionUtils.checkEmptyOrNull(rq.getName())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập họ tên");
+			return ResponseEntity.ok(res);
+		}
+		if (ValidtionUtils.checkEmptyOrNull(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Vui lòng nhập số điện thoại");
+			return ResponseEntity.ok(res);
+		} else if (!ValidtionUtils.validPhoneNumber(rq.getPhone())) {
+			res.setCode("01");
+			res.setDesc("Số điện thoại sai định dạng");
+			return ResponseEntity.ok(res);
+		}
+		if (!ValidtionUtils.checkEmptyOrNull(rq.getEmail()) && !ValidtionUtils.validEmail(rq.getEmail())) {
+			res.setCode("01");
+			res.setDesc("Email sai định dạng");
+			return ResponseEntity.ok(res);
+		}
+		Question question = Question.builder()
+				.name(rq.getName())
+				.phone(rq.getPhone())
+				.email(rq.getEmail())
+				.content(rq.getContent())
+				.build();
+		Question returnQuestion = utilityService.askQuestion(question);
+		res.setQuestion(returnQuestion);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }

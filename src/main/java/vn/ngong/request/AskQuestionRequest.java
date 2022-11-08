@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterAgentCtvRequest {
+public class AskQuestionRequest {
 	private String name;
 	private String phone;
 	private String email;
-	private String description;
+	private String content;
 }

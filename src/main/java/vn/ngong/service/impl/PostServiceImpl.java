@@ -109,15 +109,8 @@ public class PostServiceImpl implements PostService {
 		List<Post> returnListPost = new ArrayList<>();
 		List<ViewCountPost> viewCountPostList = updateViewCountPostRepository.findAllByOrderByViewCountDescUpdatedDateDesc();
 		List<ViewCountPost> topPostList = viewCountPostList.stream().limit(size).collect(Collectors.toList());
-		if (localCacheConfig.getImageMap().isEmpty()) {
-			localCacheConfig.loadCacheAllImagePost();
-		}
-		Map<Integer, String> imageMap = localCacheConfig.getImageMap();
-
-		if (localCacheConfig.getDescriptionMap().isEmpty()) {
-			localCacheConfig.loadCacheAllDescriptionPost();
-		}
-		Map<Integer, String> descriptionMap = localCacheConfig.getDescriptionMap();
+		Map<Integer, String> imageMap = menuRepository.findAllImageRepresent();
+		Map<Integer, String> descriptionMap = menuRepository.findAllDescription();
 
 		for (ViewCountPost parent : topPostList) {
 			List<Post> lastPostList = postRepository.findAllLastPostByParentPost(parent.getPostId());

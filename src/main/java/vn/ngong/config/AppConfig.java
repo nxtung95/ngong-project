@@ -1,6 +1,7 @@
 package vn.ngong.config;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,8 @@ public class AppConfig {
 
 	@Bean
 	public Gson gson() {
-		return new Gson();
+		return new GsonBuilder()
+				.disableHtmlEscaping()
+				.create();
 	}
 }

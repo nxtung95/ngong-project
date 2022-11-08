@@ -11,6 +11,6 @@ public class BannerDto {
 	private int id;
 	private String imageUrl;
 	private String targetUrl;
-	private int status;
+	private String status;
 	private int order;
 }

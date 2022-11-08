@@ -26,8 +26,6 @@ public class LocalCacheConfig {
 	private List<City> cityList = new ArrayList<>();
 	private List<PaymentMethod> paymentMethodList = new ArrayList<>();
 	private List<MenuDto> menuList = new ArrayList<>();
-	private Map<Integer, String> imageMap = new HashMap<>();
-	private Map<Integer, String> descriptionMap = new HashMap<>();
 	private Map<String, String> configMap = new HashMap<>();
 	private List<ShippingFee> shippingFeeList = new ArrayList<>();
 
@@ -75,20 +73,6 @@ public class LocalCacheConfig {
 
 	}
 
-	public void loadCacheAllImagePost() {
-		log.info("--------Start image post cache---------");
-		imageMap = menuRepository.findAllImageRepresent();
-		log.info("--------End load image post cache, size: --------- " + imageMap.size());
-
-	}
-
-	public void loadCacheAllDescriptionPost() {
-		log.info("--------Start description post cache---------");
-		descriptionMap = menuRepository.findAllDescription();
-		log.info("--------End load description post cache, size: --------- " + descriptionMap.size());
-
-	}
-
 	public void loadCacheAllShippingFee() {
 		log.info("--------Start shipping fee cache---------");
 		shippingFeeList = shippingRepository.findAllByStatus(1);
@@ -113,8 +97,6 @@ public class LocalCacheConfig {
 		loadSystemParameterMap();
 		loadCityDistrictWardList();
 		loadCacheMenu();
-		loadCacheAllImagePost();
-		loadCacheAllDescriptionPost();
 		loadCacheAllShippingFee();
 	}
 }

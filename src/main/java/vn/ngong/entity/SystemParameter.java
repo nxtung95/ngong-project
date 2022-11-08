@@ -41,4 +41,7 @@ public class SystemParameter {
 
 	@Column(name = "updated_by")
 	private String updatedBy;
+
+	@Column(name = "description")
+	private String description;
 }
