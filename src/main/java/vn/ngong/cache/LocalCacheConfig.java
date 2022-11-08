@@ -26,7 +26,6 @@ public class LocalCacheConfig {
 	private List<PaymentMethod> paymentMethodList = new ArrayList<>();
 	private List<MenuDto> menuList = new ArrayList<>();
 	private Map<String, String> configMap = new HashMap<>();
-	private List<ShippingFee> shippingFeeList = new ArrayList<>();
 
 	@Autowired
 	private CityRepository cityRepository;
@@ -36,8 +35,6 @@ public class LocalCacheConfig {
 	private SystemParameterRepository systemParameterRepository;
 	@Autowired
 	private MenuRepository menuRepository;
-	@Autowired
-	private ShippingRepository shippingRepository;
 
 	public void loadCityDistrictWardList() {
 		log.info("--------Start load city cache---------");
@@ -72,13 +69,6 @@ public class LocalCacheConfig {
 
 	}
 
-	public void loadCacheAllShippingFee() {
-		log.info("--------Start shipping fee cache---------");
-		shippingFeeList = shippingRepository.findAllByStatus(1);
-		log.info("--------End load shipping fee cache, size: --------- " + shippingFeeList.size());
-
-	}
-
 	public String getConfig(String key, String defaultValue) {
 		String config;
 		if (configMap.containsKey(key)) {
@@ -96,6 +86,5 @@ public class LocalCacheConfig {
 		loadSystemParameterMap();
 		loadCityDistrictWardList();
 		loadCacheMenu();
-		loadCacheAllShippingFee();
 	}
 }

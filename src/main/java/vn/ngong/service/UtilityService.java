@@ -15,8 +15,6 @@ public interface UtilityService {
 
 	String getValue(String key);
 
-	ShippingFee getShippingFee(String cityCode, String districtCode, int totalAmount);
-
 	RegisterTrip addTrip(RegisterTrip registerTrip);
 
 	RegisterProject registerProject(RegisterProject registerProject);
