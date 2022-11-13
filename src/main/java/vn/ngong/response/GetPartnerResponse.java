@@ -3,15 +3,14 @@ package vn.ngong.response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.ngong.dto.BannerDto;
-import vn.ngong.entity.Project;
+import vn.ngong.dto.PartnerDto;
+import vn.ngong.dto.trangchu.ImageQCSoGao;
 
 import java.util.List;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-public class GetBannerResponse extends BaseResponse {
-	private List<BannerDto> bannerList;
-	private BannerDto banner;
+public class GetPartnerResponse extends BaseResponse {
+	private List<PartnerDto> partnerList;
 }

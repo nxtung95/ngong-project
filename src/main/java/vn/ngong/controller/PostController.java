@@ -13,9 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.ngong.entity.ViewCountPost;
 import vn.ngong.request.UpdateViewCountPostRequest;
-import vn.ngong.response.FindPostByMenuResponse;
-import vn.ngong.response.UpdateViewCountPostResponse;
+import vn.ngong.response.*;
 import vn.ngong.service.PostService;
+import vn.ngong.service.UtilityService;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 public class PostController {
 	@Autowired
 	private PostService postService;
+	@Autowired
+	private UtilityService utilityService;
 
 	@Operation(summary = "API lấy danh sách bài viết của một menu",
 			description = "Trường code: \n 00: Thành công." +
@@ -89,5 +91,60 @@ public class PostController {
 				.build();
 		res.setPostList(postService.findLastTopPost(size));
 		return ResponseEntity.ok(res);
+	}
+
+	@Operation(summary = "API lấy về nội dung bài viết sơ lược về ngỗng")
+	@RequestMapping(value = "/aboutNgong", method = RequestMethod.GET)
+	public ResponseEntity<SoLuocVeNgongResponse> getContentSoLuocVeNgong() {
+		SoLuocVeNgongResponse res = SoLuocVeNgongResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setSoLuocVeNgong(utilityService.getSoLuocVeNgongContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về nội dung dự án chuyến đi của Ngỗng")
+	@RequestMapping(value = "/project/chuyenDiCuaNgong", method = RequestMethod.GET)
+	public ResponseEntity<ChuyenDiCuaNgongResponse> getContentChuyenDiCuaNgong() {
+		ChuyenDiCuaNgongResponse res = ChuyenDiCuaNgongResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setChuyenDiCuaNgong(utilityService.getChuyenDiCuaNgongContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về nội dung trang chủ dự án")
+	@RequestMapping(value = "/project/trangChu", method = RequestMethod.GET)
+	public ResponseEntity<TrangChuDuAnResponse> getContentTrangChuDuAn() {
+		TrangChuDuAnResponse res = TrangChuDuAnResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setTrangChuDuAn(utilityService.getTrangChuDuAnContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về nội dung dự án cánh đồng sẻ chia")
+	@RequestMapping(value = "/project/canhDongSeChia", method = RequestMethod.GET)
+	public ResponseEntity<CanhDongSeChiaResponse> getContentCanhDongSeChia() {
+		CanhDongSeChiaResponse res = CanhDongSeChiaResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setCanhDongSeChia(utilityService.getCanhDongSeChiaContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về nội dung trang tuyển dụng news")
+	@RequestMapping(value = "/tuyenDungNews", method = RequestMethod.GET)
+	public ResponseEntity<TuyenDungNewsResponse> getContentTuyenDungNews() {
+		TuyenDungNewsResponse res = TuyenDungNewsResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setTuyenDungNews(utilityService.getTuyenDungNewsContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }

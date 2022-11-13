@@ -40,4 +40,10 @@ public class Project {
 
 	@Column(name = "updated_at")
 	private Timestamp updatedAt;
+
+	@Column(name = "image_url")
+	private String imageUrl;
+
+	@Column(name = "target_url")
+	private String targetUrl;
 }

@@ -186,7 +186,7 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@Operation(summary = "API lấy về danh sách banner")
+	@Operation(summary = "API lấy về danh sách banner đầu trang chủ")
 	@RequestMapping(value = "/banner", method = RequestMethod.GET)
 	public ResponseEntity<GetBannerResponse> getAllBanner() {
 		GetBannerResponse res = GetBannerResponse.builder()
@@ -197,14 +197,47 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@Operation(summary = "API lấy về nội dung bài viết sơ lược về ngỗng")
-	@RequestMapping(value = "/aboutNgong", method = RequestMethod.GET)
-	public ResponseEntity<SoLuocVeNgongResponse> getContentSoLuocVeNgong() {
-		SoLuocVeNgongResponse res = SoLuocVeNgongResponse.builder()
+	@Operation(summary = "API lấy về banner giữa trang chủ")
+	@RequestMapping(value = "/bannerMiddlePage", method = RequestMethod.GET)
+	public ResponseEntity<GetBannerResponse> getAllBannerMiddlePage() {
+		GetBannerResponse res = GetBannerResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		res.setSoLuocVeNgong(utilityService.getSoLuocVeNgongContent());
+		res.setBanner(utilityService.bannerMiddlePage());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về banner phải dọc trang chi tiết")
+	@RequestMapping(value = "/rightBanner", method = RequestMethod.GET)
+	public ResponseEntity<GetBannerResponse> getRightBanner() {
+		GetBannerResponse res = GetBannerResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setBanner(utilityService.bannerRightPage());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về ảnh quảng cáo sổ gạo giữa trang chủ")
+	@RequestMapping(value = "/imageSoGao", method = RequestMethod.GET)
+	public ResponseEntity<GetImageQCSoGaoResponse> getImageQCSoGao() {
+		GetImageQCSoGaoResponse res = GetImageQCSoGaoResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setImageQCSoGao(utilityService.getImageQCSoGao());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy về đối tác chiến lược của Ngỗng")
+	@RequestMapping(value = "/partner", method = RequestMethod.GET)
+	public ResponseEntity<GetPartnerResponse> getPartnerList() {
+		GetPartnerResponse res = GetPartnerResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setPartnerList(utilityService.getPartner());
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
@@ -277,4 +310,6 @@ public class UtilityController {
 		res.setQuestion(returnQuestion);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
+
+
 }

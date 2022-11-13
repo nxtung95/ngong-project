@@ -1,15 +1,12 @@
-package vn.ngong.dto.hethongsxvaql;
+package vn.ngong.dto.canhdongsechia;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class DoiTacCuaNgong {
-	private String title;
-	private String content;
+public class Banner {
 	private String imageUrl;
 	private String targetUrl;
 	private String status;
-	private int order;
 }

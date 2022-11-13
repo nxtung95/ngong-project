@@ -7,12 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ngong.cache.LocalCacheConfig;
 import vn.ngong.dto.BannerDto;
+import vn.ngong.dto.PartnerDto;
 import vn.ngong.dto.ThanhTuuVaGiaiThuong;
+import vn.ngong.dto.canhdongsechia.CanhDongSeChia;
+import vn.ngong.dto.canhdongsechia.Info;
+import vn.ngong.dto.canhdongsechia.SoGao;
+import vn.ngong.dto.chuyendicuangong.*;
 import vn.ngong.dto.hethongsxvaql.DoiTacCuaNgong;
 import vn.ngong.dto.hethongsxvaql.HTKiemSoatChatLuong;
 import vn.ngong.dto.hethongsxvaql.HeThongSXQL;
 import vn.ngong.dto.lienhe.Address;
 import vn.ngong.dto.soluocvengong.*;
+import vn.ngong.dto.trangchu.ImageQCSoGao;
+import vn.ngong.dto.trangchuduan.TrangChuDuAn;
+import vn.ngong.dto.tuyendungnews.NgongCulture;
+import vn.ngong.dto.tuyendungnews.NgongJourney;
+import vn.ngong.dto.tuyendungnews.TuyenDungNews;
 import vn.ngong.entity.*;
 import vn.ngong.repository.*;
 import vn.ngong.service.UtilityService;
@@ -102,6 +112,19 @@ public class UtilityServiceImpl implements UtilityService {
 	}
 
 	@Override
+	public BannerDto bannerMiddlePage() {
+		String value = getValue("GET_BANNER_GIUA_TRANG");
+		return gson.fromJson(value, BannerDto.class);
+	}
+
+	@Override
+	public BannerDto bannerRightPage() {
+		String value = getValue("BANNER_PHAI_CHI_TIET");
+		return gson.fromJson(value, BannerDto.class);
+	}
+
+
+	@Override
 	public SoLuocVeNgongDto getSoLuocVeNgongContent() {
 		String moDau = getValue("SO_LUOC_VE_NGONG_MO_DAU");
 		TamNhinSuMenhGTCL tamNhinSM = gson.fromJson(getValue("SO_LUOC_VE_NGONG_CONTENT_1"), TamNhinSuMenhGTCL.class);
@@ -152,5 +175,74 @@ public class UtilityServiceImpl implements UtilityService {
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	@Override
+	public ImageQCSoGao getImageQCSoGao() {
+		return gson.fromJson(getValue("QUANG_CAO_SO_GAO"), ImageQCSoGao.class);
+	}
+
+	@Override
+	public List<PartnerDto> getPartner() {
+		List<PartnerDto> partnerList = gson.fromJson(getValue("DOI_TAC_CUA_NGONG"), new TypeToken<List<DoiTacCuaNgong>>(){}.getType());
+		return partnerList;
+	}
+
+	@Override
+	public ChuyenDiCuaNgong getChuyenDiCuaNgongContent() {
+		Banner banner = gson.fromJson(getValue("CHUYEN_DI_CUA_NGONG_BANNER"), Banner.class);
+		String moDau = getValue("CHUYEN_DI_CUA_NGONG_MO_DAU");
+		List<ThongDiep> thongDiepList = gson.fromJson(getValue("CHUYEN_DI_CUA_NGONG_CONTENT_1"), new TypeToken<List<ThongDiep>>(){}.getType());
+		List<KhamPhaTraiNghiem> khamPhaTraiNghiemList = gson.fromJson(getValue("CHUYEN_DI_CUA_NGONG_CONTENT_2"), new TypeToken<List<KhamPhaTraiNghiem>>(){}.getType());
+		List<CustomerSend> customerSendList = gson.fromJson(getValue("CHUYEN_DI_CUA_NGONG_CONTENT_3"), new TypeToken<List<CustomerSend>>(){}.getType());
+		ImageBanner imageBanner = gson.fromJson(getValue("CHUYEN_DI_CUA_NGONG_CONTENT_4"), ImageBanner.class);
+
+		return ChuyenDiCuaNgong.builder()
+				.banner(banner)
+				.moDau(moDau)
+				.thongDiepList(thongDiepList)
+				.khamPhaTraiNghiemList(khamPhaTraiNghiemList)
+				.customerSendList(customerSendList)
+				.imageRegisTrip(imageBanner)
+				.build();
+	}
+
+	@Override
+	public TrangChuDuAn getTrangChuDuAnContent() {
+		ImageBanner banner = gson.fromJson(getValue("TRANG_CHU_DU_AN_BANNER"), ImageBanner.class);
+		String moDau = getValue("TRANG_CHU_DU_AN_MO_DAU");
+		List<Project> projectList = projectRepository.findAllByStatusOrderByStartDateAsc(1);
+		return TrangChuDuAn.builder()
+				.banner(banner)
+				.moDau(moDau)
+				.projectList(projectList)
+				.build();
+	}
+
+	@Override
+	public CanhDongSeChia getCanhDongSeChiaContent() {
+		vn.ngong.dto.canhdongsechia.Banner banner = gson.fromJson(getValue("CANH_DONG_SE_CHIA_BANNER"), vn.ngong.dto.canhdongsechia.Banner.class);
+		List<String> moDau = gson.fromJson(getValue("CANH_DONG_SE_CHIA_MO_DAU"), new TypeToken<List<String>>(){}.getType());
+		List<Info> infos = gson.fromJson(getValue("CANH_DONG_SE_CHIA_CONTENT_1"), new TypeToken<List<Info>>(){}.getType());
+		List<SoGao> soGaos = gson.fromJson(getValue("CANH_DONG_SE_CHIA_CONTENT_2"), new TypeToken<List<SoGao>>(){}.getType());
+		vn.ngong.dto.canhdongsechia.Banner imageTrip = gson.fromJson(getValue("CANH_DONG_SE_CHIA_CONTENT_3"), vn.ngong.dto.canhdongsechia.Banner.class);
+
+		return CanhDongSeChia.builder()
+				.banner(banner)
+				.moDau(moDau)
+				.info(infos)
+				.soGao(soGaos)
+				.imageRegisTrip(imageTrip)
+				.build();
+	}
+
+	@Override
+	public TuyenDungNews getTuyenDungNewsContent() {
+		List<NgongJourney> journeyList = gson.fromJson(getValue("TUYEN_DUNG_NEW_CONTENT_1"), new TypeToken<List<NgongJourney>>(){}.getType());
+		List<NgongCulture> cultureList = gson.fromJson(getValue("TUYEN_DUNG_NEW_CONTENT_2"), new TypeToken<List<NgongCulture>>(){}.getType());
+		return TuyenDungNews.builder()
+				.cultureList(cultureList)
+				.journeyList(journeyList)
+				.build();
 	}
 }
