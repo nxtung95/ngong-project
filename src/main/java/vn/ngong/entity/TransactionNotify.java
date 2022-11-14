@@ -9,32 +9,32 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "transactions")
+@Table(name = "transaction_notify")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Transaction {
+public class TransactionNotify {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "tranx_code")
-	private String tranxCode;
-
-	@Column(name = "order_id")
-	private int orderId;
-
-	@Column(name = "payment_method_id")
-	private String paymentMethodId;
-
 	@Column(name = "user_id")
 	private int userId;
 
-	@Column(name = "total_amount")
-	private int totalAmount;
+	@Column(name = "tranx_id")
+	private int tranxId;
 
-	@Column(name = "status")
-	private int status;
+	@Column(name = "tranx_code")
+	private String tranxCode;
+
+	@Column(name = "title")
+	private String title;
+
+	@Column(name = "image")
+	private String image;
+
+	@Column(name = "content")
+	private String content;
 
 	@Column(name = "created_date")
 	@Builder.Default

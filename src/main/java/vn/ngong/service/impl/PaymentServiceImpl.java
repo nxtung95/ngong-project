@@ -11,6 +11,7 @@ import vn.ngong.dto.TransSoGaoDto;
 import vn.ngong.entity.*;
 import vn.ngong.enums.TransactionStatusEnum;
 import vn.ngong.helper.AuthenticationUtil;
+import vn.ngong.helper.FormatUtil;
 import vn.ngong.repository.*;
 import vn.ngong.request.PaymentRequest;
 import vn.ngong.service.PaymentService;
@@ -48,6 +49,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private UserSoGaoRepository userSoGaoRepository;
 	@Autowired
 	private UserSoGaoHistoryRepository userSoGaoHistoryRepository;
+	@Autowired
+	private TransactionNotifyRepository transactionNotifyRepository;
 
 	@Transactional
 	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user) {
@@ -160,6 +163,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
+					.tranxCode(FormatUtil.makeTranxId())
 					.orderId(addOrder.getId())
 					.paymentMethodId(rq.getPaymentMethodId())
 					.userId(user.getId())
@@ -170,6 +174,22 @@ public class PaymentServiceImpl implements PaymentService {
 					.build();
 			Transaction trans = transactionRepository.saveAndFlush(transaction);
 			log.info("--- end add transaction ---");
+
+			log.info("--- start add transaction_notify default ---");
+			Product firstProduct = productService.findById(rq.getProductList().get(0).getAttribute().getProductId());
+			String image = firstProduct == null ? "" : firstProduct.getImage();
+			TransactionNotify transactionNotify = TransactionNotify.builder()
+					.tranxId(trans.getId())
+					.userId(user.getId())
+					.tranxCode(trans.getTranxCode())
+					.title("Yeah! Đã đặt hàng thành công")
+					.image(image)
+					.content("Bạn đã đặt hàng thành công, đơn hàng của bạn: " + trans.getTranxCode() + ". Thông tin chi tiết, liên hệ: 0945348008")
+					.createdBy(user.getName())
+					.updatedBy(user.getName())
+					.build();
+			transactionNotifyRepository.saveAndFlush(transactionNotify);
+			log.info("--- end add transaction_notify default ---");
 
 			log.info("--- start add so gao history ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {

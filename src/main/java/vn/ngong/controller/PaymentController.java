@@ -28,6 +28,7 @@ import java.util.List;
 
 @Slf4j
 @RequestMapping(value = "/payment")
+@RestController
 public class PaymentController {
 	@Autowired
 	private PaymentService paymentService;
@@ -88,21 +89,21 @@ public class PaymentController {
 		try {
 
 			//Check tồn kho
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				List<TransProductDto> productList = rq.getProductList();
-				List<ResponseTransProductDto> responseTransProducts = paymentService.checkInventory(productList);
-				if (responseTransProducts == null) {
-					res.setCode("02");
-					res.setDesc("Có lỗi kết nối hệ thống tồn kho");
-					return ResponseEntity.internalServerError().body(res);
-				}
-				if (!responseTransProducts.isEmpty()) {
-					res.setCode("03");
-					res.setDesc("Số lượng tồn kho của một trong sản phẩm ở giỏ hàng không đủ, vui lòng kiểm tra lại");
-					res.setProductList(responseTransProducts);
-					return ResponseEntity.badRequest().body(res);
-				}
-			}
+//			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+//				List<TransProductDto> productList = rq.getProductList();
+//				List<ResponseTransProductDto> responseTransProducts = paymentService.checkInventory(productList);
+//				if (responseTransProducts == null) {
+//					res.setCode("02");
+//					res.setDesc("Có lỗi kết nối hệ thống tồn kho");
+//					return ResponseEntity.internalServerError().body(res);
+//				}
+//				if (!responseTransProducts.isEmpty()) {
+//					res.setCode("03");
+//					res.setDesc("Số lượng tồn kho của một trong sản phẩm ở giỏ hàng không đủ, vui lòng kiểm tra lại");
+//					res.setProductList(responseTransProducts);
+//					return ResponseEntity.badRequest().body(res);
+//				}
+//			}
 
 			//Lấy user đặt hàng (chưa có thì tạo)
 			User user = userService.makeUserForPayment(rq);

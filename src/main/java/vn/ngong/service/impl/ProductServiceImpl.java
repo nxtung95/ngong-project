@@ -227,6 +227,11 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public Product findById(int productId) {
+		return productRepository.findById(productId).orElse(null);
+	}
+
+	@Override
 	public Integer getQuantityStockByProductCode(String productCode) {
 		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
 		if (kiotVietResponse == null) {
