@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.ngong.dto.ProductDto;
+import vn.ngong.dto.ProductVariantDto;
 import vn.ngong.entity.Product;
 import vn.ngong.entity.Sale;
 import vn.ngong.helper.FormatUtil;
@@ -17,6 +18,7 @@ import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.repository.ProductNativeRepository;
 import vn.ngong.repository.ProductRepository;
+import vn.ngong.repository.ProductVariantRepository;
 import vn.ngong.repository.SaleRepository;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterDetail;
@@ -32,7 +34,8 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private ProductRepository productRepository;
-
+	@Autowired
+	private ProductVariantRepository productVariantRepository;
 	@Autowired
 	private ProductNativeRepository productNativeRepository;
 	@Autowired
@@ -48,16 +51,17 @@ public class ProductServiceImpl implements ProductService {
 			if (product == null) {
 				return null;
 			}
-
+			List<ProductVariantDto> productVariants = productVariantRepository.findAllByProductIdAndStatus(product.getId(), 1);
 			return ProductDto.builder()
 					.name(product.getName())
 					.brandName(product.getBrandName())
-					.code(code)
-					.price(FormatUtil.formatCurrency(product.getPrice()))
+					//.code(code)
+					//.price(FormatUtil.formatCurrency(product.getPrice()))
 					.description(product.getDescription())
 					.soGaoFlag(product.getSoGaoFlag())
 					.attributeList(detailProductKiotViet.getAttributes())
 					.onHand(totalOnHand)
+					.productVariants(productVariants)
 					.build();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

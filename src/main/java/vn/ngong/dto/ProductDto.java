@@ -23,4 +23,5 @@ public class ProductDto {
 	private List<Attribute> attributeList;
 	@Schema(name = "tồn kho", description = "Số lượng tồn kho của sản phẩm")
 	private int onHand; //ton kho
+	List<ProductVariantDto> productVariants;
 }

@@ -10,8 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    Page<Comment> findAllByStatusOrderByRate(int status, Pageable pageable);
-    Page<Comment> findAllByStatusOrderByRateDesc(int status, Pageable pageable);
-    Page<Comment> findAllByStatusOrderByUpdatedAt(int status, Pageable pageable);
-    Page<Comment> findAllByStatusOrderByUpdatedAtDesc(int status, Pageable pageable);
+    Page<Comment> findAllByProductIdAndStatusOrderByRate(int productId, int status, Pageable pageable);
+    Page<Comment> findAllByProductIdAndStatusOrderByRateDesc(int productId, int status, Pageable pageable);
+    Page<Comment> findAllByProductIdAndStatusOrderByUpdatedAt(int productId, int status, Pageable pageable);
+    Page<Comment> findAllByProductIdAndStatusOrderByUpdatedAtDesc(int productId, int status, Pageable pageable);
 }

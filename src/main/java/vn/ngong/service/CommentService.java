@@ -7,6 +7,6 @@ import vn.ngong.response.CommentListResponse;
 import java.util.List;
 
 public interface CommentService {
-    CommentListResponse list(int orderType, int pageIndex, int pageSize);
+    CommentListResponse list(int productId, int orderType, int pageIndex, int pageSize);
     Comment add(CommentInsertRequest comment);
 }
