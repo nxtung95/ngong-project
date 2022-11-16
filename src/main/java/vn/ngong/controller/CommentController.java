@@ -32,7 +32,7 @@ public class CommentController {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<CommentListResponse> list(@RequestParam int productId, int orderType, int pageIndex, int pageSize) throws Exception {
+    public ResponseEntity<CommentListResponse> list(@RequestParam int productId, @RequestParam int orderType, @RequestParam int pageIndex, @RequestParam int pageSize) throws Exception {
         CommentListResponse res = commentService.list(productId, orderType, pageIndex, pageSize);
         return ResponseEntity.ok(res);
     }

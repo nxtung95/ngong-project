@@ -51,6 +51,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private UserSoGaoHistoryRepository userSoGaoHistoryRepository;
 	@Autowired
 	private TransactionNotifyRepository transactionNotifyRepository;
+	@Autowired
+	private ShipRepository shipRepository;
 
 	@Transactional
 	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user) {
@@ -447,8 +449,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private Integer subSoGao(List<TransProductDto> productList, User user, Transaction trans) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		try {
-			List<UserSoGao> userSoGaoList = userSoGaoRepository
-					.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
+			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndAndIsActiveAndExpireDateAfter(user.getId(), 1, currentDate);
 			long tmpSubTotalGao = productList.stream()
 					.collect(Collectors.summingLong(g -> g.getQuantity() * Long.parseLong(g.getAttribute().getAttributeValue())));
 			Integer subTotalGao = (int) tmpSubTotalGao;
@@ -502,5 +503,8 @@ public class PaymentServiceImpl implements PaymentService {
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+	public int getShipPrice(int cityCode, int districtCode, int weight, int totalPrice){
+		return shipRepository.getShipPrice(cityCode, districtCode, weight, totalPrice);
 	}
 }
