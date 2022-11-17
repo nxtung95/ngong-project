@@ -22,8 +22,6 @@ import java.util.Optional;
 public class LoginServiceImpl implements UserDetailsService {
 	@Autowired
 	private UserRepository userRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -37,14 +35,14 @@ public class LoginServiceImpl implements UserDetailsService {
 		Collection<SimpleGrantedAuthority> roleList = new ArrayList<>();
 		roleList.add(role);
 		org.springframework.security.core.userdetails.User userDetail;
-		if (!ValidtionUtils.checkEmptyOrNull(optUser.get().getPasswordPlainText())) {
-			// Login qua tạo tài khoản khi thanh toán/ admin
-			String passwordPlainText = user.getPasswordPlainText();
-			String hashPass = passwordEncoder.encode(passwordPlainText);
-			user.setPassword(hashPass);
-			user.setPasswordPlainText("");
-			userRepository.saveAndFlush(user);
-		}
+//		if (!ValidtionUtils.checkEmptyOrNull(optUser.get().getPasswordPlainText())) {
+//			// Login qua tạo tài khoản khi thanh toán/ admin
+//			String passwordPlainText = user.getPasswordPlainText();
+//			String hashPass = passwordEncoder.encode(passwordPlainText);
+//			user.setPassword(hashPass);
+//			user.setPasswordPlainText("");
+//			userRepository.saveAndFlush(user);
+//		}
 		try {
 			// Must be called from request filtered by Spring Security, otherwise SecurityContextHolder is not updated
 			//			HttpServletRequest request =
