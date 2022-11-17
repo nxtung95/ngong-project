@@ -126,7 +126,7 @@ public class UserController {
 					.password(rq.getPassword())
 					.email(rq.getEmail())
 					.address(rq.getAddress())
-					.passwordPlainText("")
+					.passwordPlainText(rq.getPassword())
 					.actived(1)
 					.build();
 			boolean isExist = userService.checkExistByPhoneOrEmail(user);

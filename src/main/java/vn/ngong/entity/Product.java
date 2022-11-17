@@ -47,6 +47,12 @@ public class Product {
 	@Column(name = "product_images")
 	private String image;
 
+	@Column(name = "nutrition")
+	private String nutrition;
+
+	@Column(name = "origin")
+	private String origin;
+
 	@Column(name = "status")
 	private int status;
 
@@ -56,7 +62,7 @@ public class Product {
 	@Column(name = "created_by")
 	private int createdBy;
 
-	@Column(name = "updated_at")
+	@Column(name = "updated_at", nullable = true)
 	private Timestamp updatedAt;
 
 	@Column(name = "updated_by")

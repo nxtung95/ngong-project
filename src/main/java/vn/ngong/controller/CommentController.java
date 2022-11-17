@@ -27,13 +27,13 @@ public class CommentController {
     private CommentService commentService;
 
     @Operation(summary = "API Lấy danh sách comment",
-            description = "orderType: 0 - Sắp xếp mới nhất, 1 - Sắp xếp cũ nhất, 2 - Sắp xếp đánh giá cao nhất, 3 - Sắp xếp đánh giá thấp nhất")
+            description = "productId: ID của sản phẩm được comment, orderType: 0 - Sắp xếp mới nhất, 1 - Sắp xếp cũ nhất, 2 - Sắp xếp đánh giá cao nhất, 3 - Sắp xếp đánh giá thấp nhất")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<CommentListResponse> list(@RequestParam int orderType, int pageIndex, int pageSize) throws Exception {
-        CommentListResponse res = commentService.list(orderType, pageIndex, pageSize);
+    public ResponseEntity<CommentListResponse> list(@RequestParam int productId, @RequestParam int orderType, @RequestParam int pageIndex, @RequestParam int pageSize) throws Exception {
+        CommentListResponse res = commentService.list(productId, orderType, pageIndex, pageSize);
         return ResponseEntity.ok(res);
     }
 

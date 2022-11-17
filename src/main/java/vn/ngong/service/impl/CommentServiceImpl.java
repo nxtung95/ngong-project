@@ -21,20 +21,20 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
 
     @Override
-    public CommentListResponse list(int orderType, int pageIndex, int pageSize) {
+    public CommentListResponse list(int productId, int orderType, int pageIndex, int pageSize) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         Page<Comment> comments = null;
         if (orderType == 0) {
-            comments = commentRepository.findAllByStatusOrderByUpdatedAtDesc(1, pageable);
+            comments = commentRepository.findAllByProductIdAndStatusOrderByUpdatedAtDesc(productId,1, pageable);
         }
         if (orderType == 1) {
-            comments = commentRepository.findAllByStatusOrderByUpdatedAt(1, pageable);
+            comments = commentRepository.findAllByProductIdAndStatusOrderByUpdatedAt(productId,1, pageable);
         }
         if (orderType == 2) {
-            comments = commentRepository.findAllByStatusOrderByRateDesc(1, pageable);
+            comments = commentRepository.findAllByProductIdAndStatusOrderByRateDesc(productId,1, pageable);
         }
         if (orderType == 3) {
-            comments = commentRepository.findAllByStatusOrderByRate(1, pageable);
+            comments = commentRepository.findAllByProductIdAndStatusOrderByRate(productId,1, pageable);
         }
 
         CommentListResponse res = CommentListResponse

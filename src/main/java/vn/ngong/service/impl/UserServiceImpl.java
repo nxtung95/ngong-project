@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
 				User newUser = User.builder()
 						.name(rq.getCustomer().getCusName())
 						.phone(rq.getCustomer().getCusPhone())
-						.password("")
+						.password(passwordEncoder.encode(passwordDefault))
 						.passwordPlainText(passwordDefault)
 						.email(rq.getCustomer().getCusEmail())
 						.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())

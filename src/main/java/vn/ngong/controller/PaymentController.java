@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.ngong.dto.TransProductDto;
 import vn.ngong.dto.ResponseTransProductDto;
 import vn.ngong.entity.Transaction;
@@ -20,6 +17,7 @@ import vn.ngong.repository.UserSoGaoRepository;
 import vn.ngong.request.PaymentRequest;
 import vn.ngong.response.PaymentMethodListResponse;
 import vn.ngong.response.PaymentResponse;
+import vn.ngong.response.ShipPriceResponse;
 import vn.ngong.service.PaymentService;
 import vn.ngong.service.UserService;
 
@@ -242,6 +240,14 @@ public class PaymentController {
 	public ResponseEntity<PaymentMethodListResponse> listPaymentMethod() throws Exception {
 		PaymentMethodListResponse res = PaymentMethodListResponse.builder().code("00").desc("Success").build();
 		res.setPaymentMethodList(paymentService.findAllPaymentMethod());
+		return ResponseEntity.ok(res);
+	}
+
+	@Operation(summary = "API giá ship")
+	@RequestMapping(value = "/ship-price", method = RequestMethod.GET)
+	public ResponseEntity<ShipPriceResponse> getShipPrice(@RequestParam int cityCode,@RequestParam int districtCode,@RequestParam int weight,@RequestParam int totalPrice) throws Exception {
+		ShipPriceResponse res = ShipPriceResponse.builder().code("00").desc("Success").build();
+		res.setShipPrice(paymentService.getShipPrice(cityCode, districtCode, weight, totalPrice));
 		return ResponseEntity.ok(res);
 	}
 }

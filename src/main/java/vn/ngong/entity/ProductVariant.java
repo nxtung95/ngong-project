@@ -7,50 +7,47 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "comments")
+@Table(name = "product_variants")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment implements Serializable {
+public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "product_id")
-    private String productId;
+    private int productId;
 
-    @Column(name = "parrent_id")
-    private String parrentId;
+    @Column(name = "code")
+    private int code;
 
-    @Column(name = "user_name")
-    private String userName;
+    @Column(name = "name")
+    private int name;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "size")
+    private int size;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "unit")
+    private String unit;
 
-    @Column(name = "rate")
-    private int rate;
+    @Column(name = "weight")
+    private double weight;
 
-    @Column(name = "title")
-    private String title;
+    @Column(name = "price")
+    private int price;
 
-    @Column(name = "comment")
-    private String comment;
+    @Column(name = "sale_price")
+    private int salePrice;
 
-    @Column(name = "video")
-    private String video;
-
-    @Column(name = "images")
-    private String images;
+    @Column(name = "product_images")
+    private String productImages;
 
     @Column(name = "status")
     private int status;

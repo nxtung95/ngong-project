@@ -20,4 +20,6 @@ public interface PaymentService {
 	List<ResponseTransProductDto> checkInventory(List<TransProductDto> productList);
 
 	Transaction paymentWithRiceProduct(PaymentRequest rq, User user);
+
+	int getShipPrice(int cityCode, int districtCode, int weight, int totalPrice);
 }
