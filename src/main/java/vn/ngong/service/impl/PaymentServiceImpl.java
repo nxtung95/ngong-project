@@ -449,7 +449,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private Integer subSoGao(List<TransProductDto> productList, User user, Transaction trans) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		try {
-			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndAndIsActiveAndExpireDateAfter(user.getId(), 1, currentDate);
+			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
 			long tmpSubTotalGao = productList.stream()
 					.collect(Collectors.summingLong(g -> g.getQuantity() * Long.parseLong(g.getAttribute().getAttributeValue())));
 			Integer subTotalGao = (int) tmpSubTotalGao;
