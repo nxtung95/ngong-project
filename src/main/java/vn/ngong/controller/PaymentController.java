@@ -117,7 +117,7 @@ public class PaymentController {
 				transaction = paymentService.paymentWithNoRiceProduct(rq, user);
 			} else {
 				Timestamp currentDate = new Timestamp(System.currentTimeMillis());
-				List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndAndIsActiveAndExpireDateAfter(
+				List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(
 						user.getId(), 1, currentDate);
 				if (!userSoGaoList.isEmpty()) {
 					// User chưa có sổ gạo
