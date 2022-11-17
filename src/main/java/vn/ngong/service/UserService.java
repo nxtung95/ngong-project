@@ -24,4 +24,6 @@ public interface UserService {
 	User add(User user);
 
 	User makeUserForPayment(PaymentRequest rq);
+
+	User findById(Integer userId);
 }

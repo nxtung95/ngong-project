@@ -31,12 +31,12 @@ public class PostController {
 	@Operation(summary = "API lấy danh sách bài viết của một menu",
 			description = "Trường code: \n 00: Thành công." +
 					"\n Các giá trị menu code:" +
-					"\n 1. chuyen-di-cua-ngong" +
-					"\n 2. du-an-khac" +
-					"\n 3. chuyen-ngong" +
-					"\n 4. chuyen-xuong" +
-					"\n 5. chuyen-vuon" +
-					"\n 6. chuyen-tieu-dung" +
+					"\n 1. tin--tuc" +
+					"\n 2. chuyen-ngong" +
+					"\n 3. chuyen-xuong" +
+					"\n 4. chuyen-vuon" +
+					"\n 5. chuyen-tieu-dung" +
+					"\n 6. chinh-sach-dai-ly-ctv" +
 					"\n\n Response:" +
 					"\n1. postContent: Nội dung chi tiết bài viết" +
 					"\n2. postTitle: Title đại diện bài viết" +

@@ -56,4 +56,6 @@ public interface UtilityService {
 	CanhDongSeChia getCanhDongSeChiaContent();
 
 	TuyenDungNews getTuyenDungNewsContent();
+
+	int getModeRegisterTrip();
 }

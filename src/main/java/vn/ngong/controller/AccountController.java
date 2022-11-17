@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +12,7 @@ import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.TransactionNotifyRepository;
 import vn.ngong.response.NotifyTransactionListResponse;
-import vn.ngong.response.PaymentMethodListResponse;
+import vn.ngong.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,6 +24,8 @@ public class AccountController {
 	private TransactionNotifyRepository transactionNotifyRepository;
 	@Autowired
 	private AuthenticationUtil authenticationUtil;
+	@Autowired
+	private UserService userService;
 
 	@Operation(summary = "API lấy danh sách thông báo của user")
 	@RequestMapping(value = "/notify", method = RequestMethod.GET)

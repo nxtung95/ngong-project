@@ -245,4 +245,10 @@ public class UtilityServiceImpl implements UtilityService {
 				.journeyList(journeyList)
 				.build();
 	}
+
+	@Override
+	public int getModeRegisterTrip() {
+		int mode = Integer.parseInt(getValue("CHINH_SACH_DAI_LY_MODE_REGISTER_TRIP"));
+		return mode;
+	}
 }

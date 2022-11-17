@@ -311,5 +311,14 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-
+	@Operation(summary = "API lấy mode đăng ký chuyển đi ở trang chính sách đại lý")
+	@RequestMapping(value = "/agent/modeRegisterTrip", method = RequestMethod.GET)
+	public ResponseEntity<ModeRegisterTripResponse> getModeRegister() {
+		ModeRegisterTripResponse res = ModeRegisterTripResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setMode(utilityService.getModeRegisterTrip());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
 }

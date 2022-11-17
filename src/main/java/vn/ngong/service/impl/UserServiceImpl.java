@@ -155,4 +155,19 @@ public class UserServiceImpl implements UserService {
 		}
 		return user;
 	}
+
+	@Override
+	public User findById(Integer userId) {
+		try {
+			User user = userRepository.findById(userId).orElse(null);
+			if (user == null) {
+				return null;
+			}
+			user.setPassword(null);
+			return userRepository.findById(userId).orElse(null);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
 }
