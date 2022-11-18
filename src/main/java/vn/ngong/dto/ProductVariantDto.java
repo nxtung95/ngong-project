@@ -1,15 +1,24 @@
 package vn.ngong.dto;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.google.gson.JsonObject;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 
+@Getter
+@Setter
+@Builder(toBuilder = true)
 public class ProductVariantDto {
     private int id;
 
     private int productId;
 
-    private int code;
+    private String code;
 
-    private int name;
+    private String name;
 
     private int size;
 
@@ -22,4 +31,6 @@ public class ProductVariantDto {
     private int salePrice;
 
     private String productImages;
+
+    private JsonObject variantDetail;
 }

@@ -1,5 +1,10 @@
 package vn.ngong.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +15,7 @@ import org.springframework.stereotype.Service;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.dto.ProductVariantDto;
 import vn.ngong.entity.Product;
+import vn.ngong.entity.ProductVariant;
 import vn.ngong.entity.Sale;
 import vn.ngong.helper.FormatUtil;
 import vn.ngong.helper.ValidtionUtils;
@@ -46,12 +52,40 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet) {
 		try {
-			int totalOnHand = detailProductKiotViet.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
+			//int totalOnHand = detailProductKiotViet.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
+			int totalOnHand = 100;
 			Product product = productRepository.findByCodeAndStatus(code, 1).orElse(null);
 			if (product == null) {
 				return null;
 			}
-			List<ProductVariantDto> productVariants = productVariantRepository.findAllByProductIdAndStatus(product.getId(), 1);
+			List<ProductVariant> productVariants = productVariantRepository.findAllByProductIdAndStatus(product.getId(), 1);
+			List<ProductVariantDto> productVariantDtos = new ArrayList<ProductVariantDto>();
+
+			for (ProductVariant p : productVariants) {
+				ProductVariantDto dto = ProductVariantDto
+						.builder()
+						.id(p.getId())
+						.code(p.getCode())
+						.productId(p.getProductId())
+						.name(p.getName())
+						.size(p.getSize())
+						.unit(p.getUnit())
+						.price(p.getPrice())
+						.salePrice(p.getSalePrice())
+						.productImages(p.getProductImages())
+						.variantDetail(new Gson().fromJson(p.getVariantDetail(), JsonObject.class))
+						.weight(p.getWeight())
+						.build();
+
+				productVariantDtos.add(dto);
+			}
+
+			JsonArray arr = new Gson().fromJson(product.getAttributes(), JsonArray.class);
+			List<JsonObject> ls = new ArrayList<>();
+			for (int i = 0; i < arr.size(); i++) {
+				ls.add(arr.get(i).getAsJsonObject());
+			}
+
 			return ProductDto.builder()
 					.name(product.getName())
 					.brandName(product.getBrandName())
@@ -59,9 +93,14 @@ public class ProductServiceImpl implements ProductService {
 					//.price(FormatUtil.formatCurrency(product.getPrice()))
 					.description(product.getDescription())
 					.soGaoFlag(product.getSoGaoFlag())
-					.attributeList(detailProductKiotViet.getAttributes())
+					//.attributeList(detailProductKiotViet.getAttributes())
 					.onHand(totalOnHand)
-					.productVariants(productVariants)
+					.productVariants(productVariantDtos)
+					.productImages(product.getImage())
+					.attributes(ls)
+					.categoryId(product.getCategoryId())
+					.origin(product.getOrigin())
+					.nutrition(product.getNutrition())
 					.build();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "product_variants")
+@Table(name = "wp_product_variants")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,13 +26,16 @@ public class ProductVariant {
     private int productId;
 
     @Column(name = "code")
-    private int code;
+    private String code;
 
     @Column(name = "name")
-    private int name;
+    private String name;
 
     @Column(name = "size")
     private int size;
+
+    @Column(name = "variants_detail")
+    private String variantDetail;
 
     @Column(name = "unit")
     private String unit;
@@ -43,7 +46,7 @@ public class ProductVariant {
     @Column(name = "price")
     private int price;
 
-    @Column(name = "sale_price")
+    @Column(name = "sale_prices")
     private int salePrice;
 
     @Column(name = "product_images")

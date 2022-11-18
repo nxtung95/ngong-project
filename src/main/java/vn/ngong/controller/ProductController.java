@@ -52,19 +52,20 @@ public class ProductController {
 			res.setDesc("Invalid request");
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
-		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
-		if (kiotVietResponse == null) {
-			res.setCode("02");
-			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");
-			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
-		}
-		if (kiotVietResponse.getResponseStatus() != null
-				&& !ValidtionUtils.checkEmptyOrNull(kiotVietResponse.getResponseStatus().getErrorCode())) {
-			res.setCode("03");
-			res.setDesc(kiotVietResponse.getResponseStatus().getMessage());
-			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
-		}
-		ProductDto productDto = productService.getProductDetail(productCode, kiotVietResponse);
+//		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
+//		if (kiotVietResponse == null) {
+//			res.setCode("02");
+//			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");
+//			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
+//		}
+//		if (kiotVietResponse.getResponseStatus() != null
+//				&& !ValidtionUtils.checkEmptyOrNull(kiotVietResponse.getResponseStatus().getErrorCode())) {
+//			res.setCode("03");
+//			res.setDesc(kiotVietResponse.getResponseStatus().getMessage());
+//			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
+//		}
+//		ProductDto productDto = productService.getProductDetail(productCode, kiotVietResponse);
+		ProductDto productDto = productService.getProductDetail(productCode, null);
 		if (productDto == null) {
 			res.setCode("02");
 			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");
