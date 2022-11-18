@@ -129,7 +129,7 @@ public class PaymentController {
 					long currentSizeSoGaoKg = userSoGaoList.stream().map(u -> u.getSize()).count();
 					long paymentSizeSoGaoKg = rq.getProductList().stream()
 							.filter(p -> p.getGaoFlag() == 1)
-							.map(p -> Long.parseLong(p.getAttribute().getAttributeValue()))
+//							.map(p -> Long.parseLong(p.getAttribute().getValue()))
 							.count();
 					log.info("Current size so gao (kg): " + currentSizeSoGaoKg);
 					log.info("Size payment so gao (kg): " + paymentSizeSoGaoKg);

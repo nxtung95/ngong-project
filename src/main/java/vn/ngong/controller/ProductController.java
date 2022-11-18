@@ -41,17 +41,17 @@ public class ProductController {
 	}
 
 	@Operation(summary = "API lấy chi tiết sản phẩm theo mã sản phẩm", description = "Code\n 02:Lỗi truy vấn sản phẩm, \n03: Mã sản phẩm không tồn tại bên KiotViet")
-	@RequestMapping(value = "/{productCode}", method = RequestMethod.GET)
-	public ResponseEntity<DetailProductResponse> findProductByCode(@Parameter(required = true, example = "SP000001") @PathVariable String productCode) {
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<DetailProductResponse> findProductById(@Parameter(required = true, example = "32") @PathVariable int id) {
 		DetailProductResponse res = DetailProductResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(productCode)) {
-			res.setCode("01");
-			res.setDesc("Invalid request");
-			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
-		}
+//		if (ValidtionUtils.checkEmptyOrNull(stringId)) {
+//			res.setCode("01");
+//			res.setDesc("Invalid request");
+//			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+//		}
 //		DetailProductKiotVietResponse kiotVietResponse = kiotVietService.getDetailProductByCode(productCode);
 //		if (kiotVietResponse == null) {
 //			res.setCode("02");
@@ -65,7 +65,7 @@ public class ProductController {
 //			return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 //		}
 //		ProductDto productDto = productService.getProductDetail(productCode, kiotVietResponse);
-		ProductDto productDto = productService.getProductDetail(productCode, null);
+		ProductDto productDto = productService.getProductDetail(id, null);
 		if (productDto == null) {
 			res.setCode("02");
 			res.setDesc("Có lỗi truy vấn sản phẩm, vui lòng thử lại sau...");

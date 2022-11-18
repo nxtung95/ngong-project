@@ -26,11 +26,11 @@ public class ProductDto {
 	private String nutrition;
 	private String origin;
 	private String productImages;
-	private List<JsonObject> attributes;
+	private List<Attribute> attributes;
 	@Schema(name = "soGaoFlag", description = "0: Không phải sổ gạo, 1: Là sổ gạo")
 	private int soGaoFlag;
-	@Schema(name = "attributeList", description = "Danh sách thuộc tính của sản phẩm")
-	private List<Attribute> attributeList;
+//	@Schema(name = "attributeList", description = "Danh sách thuộc tính của sản phẩm")
+//	private List<Attribute> attributeList;
 	@Schema(name = "tồn kho", description = "Số lượng tồn kho của sản phẩm")
 	private int onHand; //ton kho
 	List<ProductVariantDto> productVariants;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import vn.ngong.dto.BannerDto;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.dto.ProductVariantDto;
 import vn.ngong.entity.Product;
@@ -50,11 +52,11 @@ public class ProductServiceImpl implements ProductService {
 	private KiotVietService kiotVietService;
 
 	@Override
-	public ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet) {
+	public ProductDto getProductDetail(int id, DetailProductKiotVietResponse detailProductKiotViet) {
 		try {
 			//int totalOnHand = detailProductKiotViet.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
 			int totalOnHand = 100;
-			Product product = productRepository.findByCodeAndStatus(code, 1).orElse(null);
+			Product product = productRepository.findByIdAndStatus(id, 1).orElse(null);
 			if (product == null) {
 				return null;
 			}
@@ -73,18 +75,18 @@ public class ProductServiceImpl implements ProductService {
 						.price(p.getPrice())
 						.salePrice(p.getSalePrice())
 						.productImages(p.getProductImages())
-						.variantDetail(new Gson().fromJson(p.getVariantDetail(), JsonObject.class))
+						.variantDetail(new Gson().fromJson(p.getVariantDetail(), Object.class))
 						.weight(p.getWeight())
 						.build();
 
 				productVariantDtos.add(dto);
 			}
 
-			JsonArray arr = new Gson().fromJson(product.getAttributes(), JsonArray.class);
-			List<JsonObject> ls = new ArrayList<>();
-			for (int i = 0; i < arr.size(); i++) {
-				ls.add(arr.get(i).getAsJsonObject());
-			}
+//			JsonArray arr = new Gson().fromJson(product.getAttributes(), JsonArray.class);
+//			List<Object> ls = new ArrayList<>();
+//			for (int i = 0; i < arr.size(); i++) {
+//				ls.add(arr.get(i));
+//			}
 
 			return ProductDto.builder()
 					.name(product.getName())
@@ -97,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
 					.onHand(totalOnHand)
 					.productVariants(productVariantDtos)
 					.productImages(product.getImage())
-					.attributes(ls)
+					.attributes((new Gson()).fromJson(product.getAttributes(), new TypeToken<List<Attribute>>(){}.getType()))
 					.categoryId(product.getCategoryId())
 					.origin(product.getOrigin())
 					.nutrition(product.getNutrition())

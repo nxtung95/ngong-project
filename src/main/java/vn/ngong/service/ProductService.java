@@ -8,7 +8,7 @@ import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterResponse;
 
 public interface ProductService {
-	ProductDto getProductDetail(String code, DetailProductKiotVietResponse detailProductKiotViet);
+	ProductDto getProductDetail(int id, DetailProductKiotVietResponse detailProductKiotViet);
 
 	Integer getQuantityStockByProductCode(String productCode);
 

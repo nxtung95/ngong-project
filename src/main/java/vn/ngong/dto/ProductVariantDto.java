@@ -32,5 +32,8 @@ public class ProductVariantDto {
 
     private String productImages;
 
-    private JsonObject variantDetail;
+    private Object variantDetail;
+
+    @Builder.Default
+    private int quantity = 100;
 }

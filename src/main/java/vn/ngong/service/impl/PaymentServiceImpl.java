@@ -96,7 +96,7 @@ public class PaymentServiceImpl implements PaymentService {
 			long totalAddGao = 0;
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
 				totalAddGao = rq.getSoGaoList().stream()
-						.map(p -> Long.parseLong(p.getAttribute().getAttributeValue()))
+//						.map(p -> Long.parseLong(p.getAttribute().getValue()))
 						.count();
 			}
 			Orders order = Orders.builder()
@@ -139,7 +139,7 @@ public class PaymentServiceImpl implements PaymentService {
 					int quantity = s.getQuantity();
 					int amount = quantity * s.getPrice();
 					int amountDiscount = quantity * s.getPriceDiscount();
-					int addGao = s.getAttribute() != null ? Integer.parseInt(s.getAttribute().getAttributeValue()) : 0;
+					int addGao = s.getAttribute() != null ? 0 : 0;
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
 							.productCode(productCode)
@@ -178,7 +178,7 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add transaction ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct = productService.findById(rq.getProductList().get(0).getAttribute().getProductId());
+			Product firstProduct = productService.findById(1);
 			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())
@@ -211,7 +211,7 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
 			for (TransSoGaoDto s : soGaoList) {
-				int size = Integer.parseInt(s.getAttribute().getAttributeValue());
+				int size = Integer.parseInt("0");
 				int quantity = s.getQuantity();
 				int totalSizeGao = size * quantity;
 				UserSoGaoHistory userSoGao = UserSoGaoHistory.builder()
@@ -243,10 +243,10 @@ public class PaymentServiceImpl implements PaymentService {
 			List<UserSoGao> userSoGaoList = new ArrayList<>();
 			for (TransSoGaoDto s : rq.getSoGaoList()) {
 				String soGaoCode = s.getProductCode();
-				int size = Integer.parseInt(s.getAttribute().getAttributeValue());
+				int size = Integer.parseInt("0");
 				int quantity = s.getQuantity();
 				int totalSizeGao = size * quantity;
-				int productId = s.getAttribute().getProductId();
+				int productId = 1;
 				UserSoGao userSoGao = UserSoGao.builder()
 						.userId(user.getId())
 						.productId(productId)
@@ -343,12 +343,12 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- Start add order ---");
 			long totalSubGao = rq.getProductList().stream()
 					.filter(p -> p.getGaoFlag() == 1)
-					.map(p -> Long.parseLong(p.getAttribute().getAttributeValue()))
+					//.map(p -> Long.parseLong(p.getAttribute().getValue()))
 					.count();
 			long totalAddGao = 0;
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
 				totalAddGao = rq.getSoGaoList().stream()
-						.map(p -> Long.parseLong(p.getAttribute().getAttributeValue()))
+						//.map(p -> Long.parseLong(p.getAttribute().getValue()))
 						.count();
 			}
 			Orders order = Orders.builder()
@@ -379,7 +379,7 @@ public class PaymentServiceImpl implements PaymentService {
 				if (p.getGaoFlag() == 1) {
 					amount = 0;
 					amountDiscount = 0;
-					subGao = Integer.parseInt(p.getAttribute().getAttributeValue());
+					subGao = Integer.parseInt("0");
 					isBuyGao = 1;
 				}
 				OrderDetail orderDetail = OrderDetail.builder()
@@ -451,7 +451,7 @@ public class PaymentServiceImpl implements PaymentService {
 		try {
 			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
 			long tmpSubTotalGao = productList.stream()
-					.collect(Collectors.summingLong(g -> g.getQuantity() * Long.parseLong(g.getAttribute().getAttributeValue())));
+					.collect(Collectors.summingLong(g -> g.getQuantity() * Long.parseLong("g.getAttribute().getValue()")));
 			Integer subTotalGao = (int) tmpSubTotalGao;
 			UserSoGaoHistory userSoGaoHistory = UserSoGaoHistory.builder()
 					.userSoGaoId(user.getId())
