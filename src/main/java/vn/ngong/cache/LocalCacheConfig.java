@@ -7,9 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import vn.ngong.dto.MenuDto;
-import vn.ngong.entity.City;
-import vn.ngong.entity.PaymentMethod;
-import vn.ngong.entity.SystemParameter;
+import vn.ngong.entity.*;
 import vn.ngong.repository.*;
 
 import java.util.ArrayList;
@@ -26,6 +24,8 @@ public class LocalCacheConfig {
 	private List<PaymentMethod> paymentMethodList = new ArrayList<>();
 	private List<MenuDto> menuList = new ArrayList<>();
 	private Map<String, String> configMap = new HashMap<>();
+	private List<CityAgentCTV> cityAgentCTVList = new ArrayList<>();
+	private List<AgentCTV> agentCTVList = new ArrayList<>();
 
 	@Autowired
 	private CityRepository cityRepository;
@@ -35,6 +35,24 @@ public class LocalCacheConfig {
 	private SystemParameterRepository systemParameterRepository;
 	@Autowired
 	private MenuRepository menuRepository;
+	@Autowired
+	private CityAgentCTVRepository cityAgentCTVRepository;
+	@Autowired
+	private AgentCTVRepository agentCTVRepository;
+
+	public void loadAgentCTVList() {
+		log.info("--------Start agent ctv cache---------");
+		agentCTVList = agentCTVRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		log.info("--------End load agent ctv cache, size: --------- " + agentCTVList.size());
+
+	}
+
+	public void loadCityAgentCTVList() {
+		log.info("--------Start city agent ctv cache---------");
+		cityAgentCTVList = cityAgentCTVRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		log.info("--------End load city agent ctv cache, size: --------- " + cityAgentCTVList.size());
+
+	}
 
 	public void loadCityDistrictWardList() {
 		log.info("--------Start load city cache---------");
@@ -86,5 +104,7 @@ public class LocalCacheConfig {
 		loadSystemParameterMap();
 		loadCityDistrictWardList();
 		loadCacheMenu();
+		loadCityAgentCTVList();
+		loadAgentCTVList();
 	}
 }

@@ -58,4 +58,8 @@ public interface UtilityService {
 	TuyenDungNews getTuyenDungNewsContent();
 
 	int getModeRegisterTrip();
+
+    List<CityAgentCTV> getAllCityAgentCTV();
+
+	List<AgentCTV> getAgentCTVListByCity(int cityCode);
 }

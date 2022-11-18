@@ -251,4 +251,24 @@ public class UtilityServiceImpl implements UtilityService {
 		int mode = Integer.parseInt(getValue("CHINH_SACH_DAI_LY_MODE_REGISTER_TRIP"));
 		return mode;
 	}
+
+	@Override
+	public List<CityAgentCTV> getAllCityAgentCTV() {
+		if (localCacheConfig.getCityAgentCTVList().isEmpty()) {
+			localCacheConfig.loadCityAgentCTVList();
+		}
+		return localCacheConfig.getCityAgentCTVList();
+	}
+
+	@Override
+	public List<AgentCTV> getAgentCTVListByCity(int cityCode) {
+		if (localCacheConfig.getAgentCTVList().isEmpty()) {
+			localCacheConfig.loadAgentCTVList();
+		}
+		if (cityCode == 0) {
+			return localCacheConfig.getAgentCTVList();
+		}
+		return localCacheConfig.getAgentCTVList().stream()
+				.filter(a -> cityCode == a.getCityAgenCTVId()).collect(Collectors.toList());
+	}
 }

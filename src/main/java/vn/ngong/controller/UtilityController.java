@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.ngong.entity.*;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.request.*;
@@ -319,6 +316,29 @@ public class UtilityController {
 				.desc("Success")
 				.build();
 		res.setMode(utilityService.getModeRegisterTrip());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy danh sách tỉnh thành có đại lý/cộng tác viên")
+	@RequestMapping(value = "/agent/city", method = RequestMethod.GET)
+	public ResponseEntity<GetAllCityAgentCTVResponse> getAllCityAgentCTV() {
+		GetAllCityAgentCTVResponse res = GetAllCityAgentCTVResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setCityAgentCTVList(utilityService.getAllCityAgentCTV());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy danh sách đại lý/ctv theo tỉnh thành\n" +
+			"cityCode = 0: Lấy tất, còn lại đã có cityCode trả về ở danh sách tỉnh thành")
+	@RequestMapping(value = "/agent", method = RequestMethod.GET)
+	public ResponseEntity<GetAgentCTVByCityResponse> getAgentCTVByCity(@RequestParam(name = "cityCode") int cityCode) {
+		GetAgentCTVByCityResponse res = GetAgentCTVByCityResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setAgentCTVList(utilityService.getAgentCTVListByCity(cityCode));
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }
