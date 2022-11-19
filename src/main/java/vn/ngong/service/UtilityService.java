@@ -5,8 +5,10 @@ import vn.ngong.dto.PartnerDto;
 import vn.ngong.dto.ThanhTuuVaGiaiThuong;
 import vn.ngong.dto.canhdongsechia.CanhDongSeChia;
 import vn.ngong.dto.chuyendicuangong.ChuyenDiCuaNgong;
+import vn.ngong.dto.footer.FooterDto;
 import vn.ngong.dto.hethongsxvaql.HeThongSXQL;
 import vn.ngong.dto.lienhe.Address;
+import vn.ngong.dto.muaodau.MuaODauDto;
 import vn.ngong.dto.soluocvengong.SoLuocVeNgongDto;
 import vn.ngong.dto.trangchu.ImageQCSoGao;
 import vn.ngong.dto.trangchuduan.TrangChuDuAn;
@@ -25,7 +27,7 @@ public interface UtilityService {
 
 	RegisterProject registerProject(RegisterProject registerProject);
 
-	List<Project> findAllProject();
+	List<Project> findAllProject(int type);
 
 	RegisterAgentCTV registerAgentCTV(RegisterAgentCTV registerAgentCTV);
 
@@ -62,4 +64,8 @@ public interface UtilityService {
     List<CityAgentCTV> getAllCityAgentCTV();
 
 	List<AgentCTV> getAgentCTVListByCity(int cityCode);
+
+	MuaODauDto getMuaODauContent();
+
+	FooterDto getFooterContent();
 }

@@ -9,6 +9,7 @@ import vn.ngong.entity.Post;
 import vn.ngong.entity.User;
 import vn.ngong.entity.ViewCountPost;
 import vn.ngong.helper.AuthenticationUtil;
+import vn.ngong.helper.FormatUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.MenuRepository;
 import vn.ngong.repository.PostNativeRepository;
@@ -18,10 +19,7 @@ import vn.ngong.service.PostService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -109,6 +107,7 @@ public class PostServiceImpl implements PostService {
 		List<Post> returnListPost = new ArrayList<>();
 		List<ViewCountPost> viewCountPostList = updateViewCountPostRepository.findAllByOrderByViewCountDescUpdatedDateDesc();
 		List<ViewCountPost> topPostList = viewCountPostList.stream().limit(size).collect(Collectors.toList());
+
 		Map<Integer, String> imageMap = menuRepository.findAllImageRepresent();
 		Map<Integer, String> descriptionMap = menuRepository.findAllDescription();
 
@@ -129,6 +128,43 @@ public class PostServiceImpl implements PostService {
 			post.setMenuImage(image);
 			post.setDescription(description);
 			returnListPost.add(post);
+		}
+		return returnListPost;
+	}
+
+	@Override
+	public List<Post> findLastTopPostOrderByMonth(int size, int orderBy) {
+		List<Post> returnListPost = new ArrayList<>();
+		List<ViewCountPost> viewCountPostList = updateViewCountPostRepository.findAllByOrderByViewCountDescUpdatedDateDesc();
+
+		Map<Integer, String> imageMap = menuRepository.findAllImageRepresent();
+		Map<Integer, String> descriptionMap = menuRepository.findAllDescription();
+		Map<String, Post> mapViewPost = new HashMap<>();
+
+		for (ViewCountPost parent : viewCountPostList) {
+			List<Post> lastPostList = postRepository.findAllLastPostByParentPost(parent.getPostId());
+			if (lastPostList.isEmpty()) {
+				continue;
+			}
+			Post post = lastPostList.get(0);
+			String keyPostDate = FormatUtil.formatPostDate(post.getPostModified());
+			if (mapViewPost.containsKey(keyPostDate)) {
+				continue;
+			}
+			String image = "";
+			if (imageMap.containsKey(parent.getPostId())) {
+				image = imageMap.get(parent.getPostId());
+			}
+			String description = "";
+			if (descriptionMap.containsKey(parent.getPostId())) {
+				description = descriptionMap.get(parent.getPostId());
+			}
+			post.setMenuImage(image);
+			post.setDescription(description);
+			if (!mapViewPost.containsKey(keyPostDate)) {
+				mapViewPost.put(keyPostDate, post);
+				returnListPost.add(post);
+			}
 		}
 		return returnListPost;
 	}

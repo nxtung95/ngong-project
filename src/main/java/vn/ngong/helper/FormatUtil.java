@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Random;
 
@@ -57,5 +58,10 @@ public class FormatUtil {
 
 	public static void main(String[] args) {
 		System.out.println(makeTranxId());
+	}
+
+	public static String formatPostDate(Timestamp postModified) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
+		return formatter.format(postModified.toLocalDateTime());
 	}
 }

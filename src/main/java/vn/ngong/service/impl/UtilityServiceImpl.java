@@ -13,10 +13,15 @@ import vn.ngong.dto.canhdongsechia.CanhDongSeChia;
 import vn.ngong.dto.canhdongsechia.Info;
 import vn.ngong.dto.canhdongsechia.SoGao;
 import vn.ngong.dto.chuyendicuangong.*;
+import vn.ngong.dto.footer.*;
 import vn.ngong.dto.hethongsxvaql.DoiTacCuaNgong;
 import vn.ngong.dto.hethongsxvaql.HTKiemSoatChatLuong;
 import vn.ngong.dto.hethongsxvaql.HeThongSXQL;
 import vn.ngong.dto.lienhe.Address;
+import vn.ngong.dto.muaodau.LocationSaleOnline;
+import vn.ngong.dto.muaodau.MuaODauDto;
+import vn.ngong.dto.muaodau.SaleOnline;
+import vn.ngong.dto.muaodau.Stock;
 import vn.ngong.dto.soluocvengong.*;
 import vn.ngong.dto.trangchu.ImageQCSoGao;
 import vn.ngong.dto.trangchuduan.TrangChuDuAn;
@@ -89,8 +94,13 @@ public class UtilityServiceImpl implements UtilityService {
 	}
 
 	@Override
-	public List<Project> findAllProject() {
-		return projectRepository.findAllByStatusOrderByStartDateAsc(1);
+	public List<Project> findAllProject(int type) {
+		List<Project> projectList = projectRepository.findAllByStatusOrderByStartDateAsc(1);
+		if (type == 0) {
+			return projectList;
+		} else {
+			return projectList.stream().filter(p -> !(p.getType() == 1)).collect(Collectors.toList());
+		}
 	}
 
 	@Override
@@ -270,5 +280,41 @@ public class UtilityServiceImpl implements UtilityService {
 		}
 		return localCacheConfig.getAgentCTVList().stream()
 				.filter(a -> cityCode == a.getCityAgenCTVId()).collect(Collectors.toList());
+	}
+
+	@Override
+	public MuaODauDto getMuaODauContent() {
+		String title = getValue("MUA_O_DAU_CONTENT");
+		SaleOnline saleOnline = gson.fromJson(getValue("MUA_O_DAU_CONTENT_2"), SaleOnline.class);
+		List<Stock> stocks = gson.fromJson(getValue("MUA_O_DAU_CONTENT_3"), new TypeToken<List<Stock>>(){}.getType());
+		List<LocationSaleOnline> locationSaleOnlines = gson.fromJson(getValue("MUA_O_DAU_CONTENT_4"),
+				new TypeToken<List<LocationSaleOnline>>(){}.getType());
+		return MuaODauDto.builder()
+				.title(title)
+				.saleOnline(saleOnline)
+				.stocks(stocks)
+				.locationSaleOnline(locationSaleOnlines)
+				.build();
+	}
+
+	@Override
+	public FooterDto getFooterContent() {
+		Logo logo = gson.fromJson(getValue("FOOTER_LOGO"), Logo.class);
+		List<vn.ngong.dto.footer.Info> infos = gson.fromJson(getValue("FOOTER_INFO"), new TypeToken<List<vn.ngong.dto.footer.Info>>(){}.getType());
+		List<Showroom> showrooms = gson.fromJson(getValue("FOOTER_SHOWROOM"), new TypeToken<List<Showroom>>(){}.getType());
+		CSKH cskh = gson.fromJson(getValue("FOOTER_CSKH"), CSKH.class);
+		Introduce introduce = gson.fromJson(getValue("FOOTER_GIOI_THIEU"), Introduce.class);
+		BuyWhere buyWhere = gson.fromJson(getValue("FOOTER_MUA_O_DAU"), BuyWhere.class);
+		String connect = getValue("FOOTER_KET_NOI");
+
+		return FooterDto.builder()
+				.logo(logo)
+				.infos(infos)
+				.showrooms(showrooms)
+				.cskh(cskh)
+				.introduce(introduce)
+				.buyWhere(buyWhere)
+				.fbConnect(connect)
+				.build();
 	}
 }
