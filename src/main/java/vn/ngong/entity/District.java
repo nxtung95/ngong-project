@@ -37,14 +37,14 @@ public class District implements Serializable {
 	private int status;
 
 	@Column(name = "order_number")
-	private int orderNumber;
+	private Integer orderNumber;
 
 	@Column(name = "created_date")
 	private Timestamp createdDate;
 
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = Ward.class)
-	@JoinColumn(name = "district_code", referencedColumnName = "code", insertable = false, updatable = false)
-	@Where(clause = "status = 1")
-	@OrderBy("orderNumber ASC")
+//	@OneToMany(fetch = FetchType.LAZY, targetEntity = Ward.class)
+//	@JoinColumn(name = "district_code", referencedColumnName = "code", insertable = false, updatable = false)
+//	@Where(clause = "status = 1")
+	@Transient
 	private List<Ward> wardList;
 }

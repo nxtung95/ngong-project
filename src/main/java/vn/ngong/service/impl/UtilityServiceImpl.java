@@ -32,10 +32,8 @@ import vn.ngong.entity.*;
 import vn.ngong.repository.*;
 import vn.ngong.service.UtilityService;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -55,13 +53,32 @@ public class UtilityServiceImpl implements UtilityService {
 	private Gson gson;
 	@Autowired
 	private QuestionRepository questionRepository;
+	@Autowired
+	private WardRepository wardRepository;
 
 	@Override
-	public List<City> getAllCityDistrictWard() {
+	public List<City> getAllCity() {
 		if (localCacheConfig.getCityList() == null || localCacheConfig.getCityList().isEmpty()) {
 			localCacheConfig.loadCityDistrictWardList();
 		}
 		return localCacheConfig.getCityList();
+	}
+
+	@Override
+	public List<District> getAllDistrictByCity(String cityCode) {
+		if (localCacheConfig.getCityList().isEmpty() || localCacheConfig.getDistrictList().isEmpty()) {
+			localCacheConfig.loadCityDistrictWardList();
+		}
+		return localCacheConfig.getDistrictList().stream().filter(d -> cityCode.equals(d.getCityCode())).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Ward> getAllWardByDistrict(String districtCode) {
+		if (localCacheConfig.getDistrictList().isEmpty()) {
+			localCacheConfig.loadCityDistrictWardList();
+		}
+		List<Ward> wardList = wardRepository.findAllByStatusAndDistrictCodeOrderByOrderNumberAsc(1, districtCode);
+		return wardList;
 	}
 
 	@Override
