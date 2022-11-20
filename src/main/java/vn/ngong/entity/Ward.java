@@ -35,7 +35,7 @@ public class Ward implements Serializable {
 	private int status;
 
 	@Column(name = "order_number")
-	private int orderNumber;
+	private Integer orderNumber;
 
 	@Column(name = "created_date")
 	private Timestamp createdDate;

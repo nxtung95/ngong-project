@@ -22,14 +22,36 @@ public class UtilityController {
 	private UtilityService utilityService;
 
 
-	@Operation(summary = "API Lấy danh sách tỉnh thành/quận huyện/phường xã")
+	@Operation(summary = "API Lấy danh sách tỉnh thành")
 	@RequestMapping(value = "/city", method = RequestMethod.GET)
-	public ResponseEntity<CityDistrictWardResponse> getCityDistrictWard() throws Exception {
+	public ResponseEntity<CityDistrictWardResponse> getCity() throws Exception {
 		CityDistrictWardResponse res = CityDistrictWardResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		res.setCityList(utilityService.getAllCityDistrictWard());
+		res.setCityList(utilityService.getAllCity());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API Lấy danh sách quận huyện theo tỉnh thành")
+	@RequestMapping(value = "/districts/{cityCode}", method = RequestMethod.GET)
+	public ResponseEntity<CityDistrictWardResponse> getCityDistrictWard(@PathVariable(name = "cityCode") String cityCode) throws Exception {
+		CityDistrictWardResponse res = CityDistrictWardResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setDistrictList(utilityService.getAllDistrictByCity(cityCode));
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API Lấy danh sách phường/xã/thị trấn theo quận huyện")
+	@RequestMapping(value = "/wards/{districtCode}", method = RequestMethod.GET)
+	public ResponseEntity<CityDistrictWardResponse> getDistrictWard(@PathVariable(name = "districtCode") String districtCode) throws Exception {
+		CityDistrictWardResponse res = CityDistrictWardResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setWardList(utilityService.getAllWardByDistrict(districtCode));
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
