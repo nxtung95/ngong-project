@@ -82,14 +82,18 @@ public class PostController {
 		return ResponseEntity.ok(res);
 	}
 
-	@Operation(summary = "API lấy danh sách 10 bài viết có số lượt xem nhiều nhất")
+	@Operation(summary = "API lấy danh sách bài viết có số lượt xem nhiều nhất")
 	@RequestMapping(value = "/topPost", method = RequestMethod.GET)
-	public ResponseEntity<FindPostByMenuResponse> findLastestCountViewPost(@RequestParam(name = "size") int size) {
+	public ResponseEntity<FindPostByMenuResponse> findLastestCountViewPost(@RequestParam(name = "size") int size, @RequestParam(name = "orderBy") int orderBy) {
 		FindPostByMenuResponse res = FindPostByMenuResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		res.setPostList(postService.findLastTopPost(size));
+		if (orderBy != 0) {
+			res.setPostList(postService.findLastTopPostOrderByMonth(size, orderBy));
+		} else {
+			res.setPostList(postService.findLastTopPost(size));
+		}
 		return ResponseEntity.ok(res);
 	}
 
@@ -145,6 +149,39 @@ public class PostController {
 				.desc("Success")
 				.build();
 		res.setTuyenDungNews(utilityService.getTuyenDungNewsContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy nội dung trang liên hệ")
+	@RequestMapping(value = "/contact", method = RequestMethod.GET)
+	public ResponseEntity<ContactResponse> getAddress() {
+		ContactResponse res = ContactResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setAddressList(utilityService.getAddress());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy nội dung trang Mua Ở Đâu")
+	@RequestMapping(value = "/buyWhere", method = RequestMethod.GET)
+	public ResponseEntity<MuaODauContentResponse> getMuaODauContent() {
+		MuaODauContentResponse res = MuaODauContentResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setMuaODau(utilityService.getMuaODauContent());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@Operation(summary = "API lấy nội dung trang Footer")
+	@RequestMapping(value = "/footer", method = RequestMethod.GET)
+	public ResponseEntity<FooterContentResponse> getFooterContent() {
+		FooterContentResponse res = FooterContentResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setFooter(utilityService.getFooterContent());
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }

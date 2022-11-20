@@ -12,4 +12,6 @@ public interface PostService {
 	ViewCountPost updateViewCount(int postId, HttpServletRequest httpServletRequest);
 
 	List<Post> findLastTopPost(int size);
+
+	List<Post> findLastTopPostOrderByMonth(int size, int orderBy);
 }

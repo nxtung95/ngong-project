@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Integer> {
-	List<District> findAllByCityCodeAndStatusOrderByOrderNumberAsc(String cityCode, int status);
+//	List<District> findAllByCityCodeAndStatusOrderByOrderNumberAsc(String cityCode, int status);
 
 	List<District> findAllByStatusOrderByOrderNumberAsc(int status);
 }

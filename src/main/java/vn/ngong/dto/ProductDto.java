@@ -31,7 +31,7 @@ public class ProductDto {
 	private int soGaoFlag;
 //	@Schema(name = "attributeList", description = "Danh sách thuộc tính của sản phẩm")
 //	private List<Attribute> attributeList;
-	@Schema(name = "tồn kho", description = "Số lượng tồn kho của sản phẩm")
-	private int onHand; //ton kho
+//	@Schema(name = "tồn kho", description = "Số lượng tồn kho của sản phẩm")
+//	private int onHand; //ton kho
 	List<ProductVariantDto> productVariants;
 }

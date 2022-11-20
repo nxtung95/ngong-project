@@ -46,4 +46,7 @@ public class Project {
 
 	@Column(name = "target_url")
 	private String targetUrl;
+
+	@Column(name = "type")
+	int type;
 }

@@ -33,7 +33,7 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@Operation(summary = "API Lấy danh sách cấu hình theo key truyền vào (phục vụ header/footer/slide)")
+	@Operation(summary = "API Lấy danh sách cấu hình theo key truyền vào, phục vụ dạng response string đơn giản")
 	@RequestMapping(value = "/config", method = RequestMethod.POST)
 	public ResponseEntity<GetConfigResponse> getConfig(@RequestBody GetConfigRequest rq) throws Exception {
 		GetConfigResponse res = GetConfigResponse.builder()
@@ -174,12 +174,13 @@ public class UtilityController {
 
 	@Operation(summary = "API lấy về danh sách dự án")
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
-	public ResponseEntity<GetProjectResponse> getAllProject() throws Exception {
+	public ResponseEntity<GetProjectResponse> getAllProject(@RequestParam(name = "type") int type) throws Exception {
 		GetProjectResponse res = GetProjectResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		res.setProjectList(utilityService.findAllProject());
+		res.setProjectList(utilityService.
+				findAllProject(type));
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
@@ -260,17 +261,6 @@ public class UtilityController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@Operation(summary = "API lấy nội dung liên hệ")
-	@RequestMapping(value = "/contact", method = RequestMethod.GET)
-	public ResponseEntity<ContactResponse> getAddress() {
-		ContactResponse res = ContactResponse.builder()
-				.code("00")
-				.desc("Success")
-				.build();
-		res.setAddressList(utilityService.getAddress());
-		return new ResponseEntity<>(res, HttpStatus.OK);
-	}
-
 	@Operation(summary = "API gửi câu hỏi")
 	@RequestMapping(value = "/ask-question", method = RequestMethod.POST)
 	public ResponseEntity<AskQuestionResponse> askQuestion(@RequestBody AskQuestionRequest rq) throws Exception {
@@ -331,14 +321,14 @@ public class UtilityController {
 	}
 
 	@Operation(summary = "API lấy danh sách đại lý/ctv theo tỉnh thành\n" +
-			"cityCode = 0: Lấy tất, còn lại đã có cityCode trả về ở danh sách tỉnh thành")
+			"cityCode = 0: Lấy tất, còn lại đã có cityId trả về ở danh sách tỉnh thành")
 	@RequestMapping(value = "/agent", method = RequestMethod.GET)
-	public ResponseEntity<GetAgentCTVByCityResponse> getAgentCTVByCity(@RequestParam(name = "cityCode") int cityCode) {
+	public ResponseEntity<GetAgentCTVByCityResponse> getAgentCTVByCity(@RequestParam(name = "cityId") int cityId) {
 		GetAgentCTVByCityResponse res = GetAgentCTVByCityResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		res.setAgentCTVList(utilityService.getAgentCTVListByCity(cityCode));
+		res.setAgentCTVList(utilityService.getAgentCTVListByCity(cityId));
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }
