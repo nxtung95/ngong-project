@@ -64,4 +64,10 @@ public class FormatUtil {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
 		return formatter.format(postModified.toLocalDateTime());
 	}
+
+	public static String makeSoGaoCode(int nextSoGaoId) {
+		String formatted = String.format("%08d", nextSoGaoId);
+		String prefix = "MSG";
+		return prefix + formatted;
+	}
 }

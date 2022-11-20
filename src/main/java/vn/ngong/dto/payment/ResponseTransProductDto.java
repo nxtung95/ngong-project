@@ -1,4 +1,4 @@
-package vn.ngong.dto;
+package vn.ngong.dto.payment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

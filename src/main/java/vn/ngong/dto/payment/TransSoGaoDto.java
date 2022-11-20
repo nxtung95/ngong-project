@@ -1,4 +1,4 @@
-package vn.ngong.dto;
+package vn.ngong.dto.payment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -10,12 +10,14 @@ import vn.ngong.kiotviet.obj.Attribute;
 @Setter
 @Builder(toBuilder = true)
 public class TransSoGaoDto {
+	@Schema(name = "productId", description = "ID sản phẩm")
+	private int productId;
 	@Schema(name = "productCode", description = "Mã sổ gạo")
 	private String productCode;
 	@Schema(name = "quantity", description = "Số lượng")
 	private int quantity;
-	@Schema(name = "attribute", description = "Size của sổ gạo, value là số kg")
-	private Attribute attribute;
+	@Schema(name = "size", description = "Size của 1 sản phẩm sổ gạo VD: 50 (kg)")
+	private int size;
 	@Schema(name = "price", description = "Giá 1 sản phẩm")
 	private int price;
 	@Schema(name = "priceDiscount", description = "Giá 1 sản phẩm sau khuyến mại")

@@ -1,4 +1,4 @@
-package vn.ngong.dto;
+package vn.ngong.dto.payment;
 
 import lombok.Getter;
 import lombok.Setter;
