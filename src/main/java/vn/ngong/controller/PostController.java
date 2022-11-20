@@ -66,7 +66,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "API cập nhật số lần xem 1 bài viết", description = "")
-	@RequestMapping(value = "/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity<UpdateViewCountPostResponse> updateViewCountPost(@RequestBody UpdateViewCountPostRequest rq, HttpServletRequest httpServletRequest) {
 		UpdateViewCountPostResponse res = UpdateViewCountPostResponse.builder()
 				.code("00")

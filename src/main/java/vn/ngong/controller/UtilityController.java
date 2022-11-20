@@ -64,15 +64,13 @@ public class UtilityController {
 				.build();
 		List<String> keyList = Arrays.asList(rq.getKeys().split(","));
 		Map<String, String> systemParameters = new HashMap<>();
-		List<Map<String, String>> returnConfigList = new ArrayList<>();
 		for (String key : keyList) {
 			if (ValidtionUtils.checkEmptyOrNull(key)) {
 				continue;
 			}
 			systemParameters.put(key, utilityService.getValue(key));
-			returnConfigList.add(systemParameters);
 		}
-		res.setSystemParameters(returnConfigList);
+		res.setSystemParameters(systemParameters);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
