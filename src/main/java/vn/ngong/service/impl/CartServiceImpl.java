@@ -57,16 +57,23 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart insert(CartInsertRequest cart) {
-        Cart entity = new Cart().toBuilder()
-                .userId(cart.getUserId())
-                .productVariantId(cart.getProductVariantId())
-                .quantity(cart.getQuantity())
-                .createdAt(Timestamp.from(Instant.now()))
-                .createdBy(cart.getUserId())
-                .updatedAt(Timestamp.from(Instant.now()))
-                .updatedBy(cart.getUserId())
-                .build();
+        Cart entity = cartRepository.findAllByUserIdAndProductVariantId(cart.getUserId(), cart.getProductVariantId());
 
+        if (entity != null) {
+            entity.setQuantity(cart.getQuantity());
+            entity.setUpdatedAt(Timestamp.from(Instant.now()));
+        }
+        else {
+            entity = new Cart().toBuilder()
+                    .userId(cart.getUserId())
+                    .productVariantId(cart.getProductVariantId())
+                    .quantity(cart.getQuantity())
+                    .createdAt(Timestamp.from(Instant.now()))
+                    .createdBy(cart.getUserId())
+                    .updatedAt(Timestamp.from(Instant.now()))
+                    .updatedBy(cart.getUserId())
+                    .build();
+        }
         return cartRepository.save(entity);
     }
 
