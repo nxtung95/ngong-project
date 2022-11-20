@@ -125,16 +125,27 @@ public class PaymentServiceImpl implements PaymentService {
 				int quantity = p.getQuantity();
 				int amount = quantity * p.getPrice();
 				int amountDiscount = quantity * p.getPriceDiscount();
+				int addGao = 0;
+				int subGao = 0;
+				int isBuySoGao = 0;
+				int isBuyGao = 0;
+				if (p.getGaoFlag() == 1) {
+					amount = 0;
+					amountDiscount = 0;
+					subGao = p.getSize() * quantity;
+					isBuyGao = 1;
+				}
 				OrderDetail orderDetail = OrderDetail.builder()
 						.orderId(addOrder.getId())
 						.productCode(productCode)
 						.quantity(quantity)
 						.amount(amount)
 						.amountDiscount(amountDiscount)
-						.addGao(0)
-						.subGao(0)
-						.isBuyGao(0)
-						.isBuySoGao(0)
+						.addGao(addGao)
+						.subGao(subGao)
+						.isBuySoGao(isBuySoGao)
+						.isBuyGao(isBuyGao)
+						.createdBy(user.getName())
 						.build();
 				orderDetails.add(orderDetail);
 			}
