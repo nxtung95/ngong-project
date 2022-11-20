@@ -24,10 +24,7 @@ import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.obj.Attribute;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
-import vn.ngong.repository.ProductNativeRepository;
-import vn.ngong.repository.ProductRepository;
-import vn.ngong.repository.ProductVariantRepository;
-import vn.ngong.repository.SaleRepository;
+import vn.ngong.repository.*;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterDetail;
 import vn.ngong.response.ProductFilterResponse;
@@ -50,6 +47,8 @@ public class ProductServiceImpl implements ProductService {
 	private SaleRepository saleRepository;
 	@Autowired
 	private KiotVietService kiotVietService;
+	@Autowired
+	private CommentNativeRepository commentNativeRepository;
 	@Autowired
 	private Gson gson;
 
@@ -75,6 +74,7 @@ public class ProductServiceImpl implements ProductService {
 						.unit(p.getUnit())
 						.price(p.getPrice())
 						.salePrice(p.getSalePrice())
+						.saleRate(p.getSalePrice() * 100 / p.getPrice())
 						.productImages(p.getProductImages())
 						.variantDetail(gson.fromJson(p.getVariantDetail(), Object.class))
 						.weight(p.getWeight())
@@ -99,6 +99,7 @@ public class ProductServiceImpl implements ProductService {
 					.categoryId(product.getCategoryId())
 					.origin(product.getOrigin())
 					.nutrition(product.getNutrition())
+					.rate(commentNativeRepository.getAvgRate(product.getId()))
 					.build();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

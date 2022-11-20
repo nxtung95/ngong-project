@@ -27,6 +27,7 @@ public class ProductDto {
 	private String origin;
 	private String productImages;
 	private List<Attribute> attributes;
+	double rate;
 	@Schema(name = "soGaoFlag", description = "0: Không phải sổ gạo, 1: Là sổ gạo")
 	private int soGaoFlag;
 //	@Schema(name = "attributeList", description = "Danh sách thuộc tính của sản phẩm")

@@ -30,6 +30,8 @@ public class ProductVariantDto {
 
     private int salePrice;
 
+    private int saleRate;
+
     private String productImages;
 
     private Object variantDetail;
