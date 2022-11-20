@@ -560,7 +560,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return null;
 	}
 
-	public int getShipPrice(int cityCode, int districtCode, int weight, int totalPrice){
+	public int getShipPrice(int cityCode, int districtCode, double weight, int totalPrice){
 		return shipRepository.getShipPrice(cityCode, districtCode, weight, totalPrice);
 	}
 

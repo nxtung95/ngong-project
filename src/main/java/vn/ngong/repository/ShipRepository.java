@@ -19,7 +19,7 @@ public class ShipRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public int getShipPrice(int cityCode, int districtCode, int weight, int totalPrice) {
+    public int getShipPrice(int cityCode, int districtCode, double weight, int totalPrice) {
         try {
             Query query = entityManager.createNativeQuery("SELECT s.id, s.price" +
                     " FROM ships s " +

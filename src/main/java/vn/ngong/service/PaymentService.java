@@ -20,7 +20,7 @@ public interface PaymentService {
 
 	Transaction paymentWithRiceProduct(PaymentRequest rq, User user);
 
-	int getShipPrice(int cityCode, int districtCode, int weight, int totalPrice);
+	int getShipPrice(int cityCode, int districtCode, double weight, int totalPrice);
 
 	Transaction paymentWithRiceProductAgain(PaymentRequest rq, User user);
 }

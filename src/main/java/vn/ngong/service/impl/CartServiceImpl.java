@@ -46,6 +46,7 @@ public class CartServiceImpl implements CartService {
                     .sale_prices(variant.getSalePrice())
                     .quantity(cart.getQuantity())
                     .images(variant.getProductImages())
+                    .weight(variant.getWeight() * cart.getQuantity())
                     .build();
 
             res.add(dto);

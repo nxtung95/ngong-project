@@ -16,5 +16,6 @@ public class CartDto {
     private int quantity;
     private int price;
     private int sale_prices;
+    private double weight;
     private String images;
 }
