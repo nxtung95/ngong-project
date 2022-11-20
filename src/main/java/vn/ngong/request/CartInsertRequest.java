@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class CartInsertRequest {
     private int userId;
-    private int productId;
+    private int productVariantId;
     private int quantity;
 }

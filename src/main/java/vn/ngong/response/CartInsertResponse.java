@@ -11,6 +11,6 @@ import lombok.experimental.SuperBuilder;
 public class CartInsertResponse extends BaseResponse {
     private int id;
     private int userId;
-    private int productId;
+    private int productVarianrId;
     private int quantity;
 }

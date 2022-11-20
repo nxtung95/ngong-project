@@ -10,6 +10,7 @@ import vn.ngong.service.CartService;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -18,10 +19,15 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Override
+    public List<Cart> list(int userId){
+        return cartRepository.findAllByUserId(userId);
+    }
+
+    @Override
     public Cart insert(CartInsertRequest cart) {
         Cart entity = new Cart().toBuilder()
                 .userId(cart.getUserId())
-                .productId(cart.getProductId())
+                .productVariantId(cart.getProductVariantId())
                 .quantity(cart.getQuantity())
                 .createdAt(Timestamp.from(Instant.now()))
                 .createdBy(cart.getUserId())

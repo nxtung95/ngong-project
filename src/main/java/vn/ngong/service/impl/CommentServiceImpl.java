@@ -53,6 +53,7 @@ public class CommentServiceImpl implements CommentService {
     public Comment add(CommentInsertRequest comment) {
         Comment entity = Comment
                 .builder()
+                .productId(comment.getProductId())
                 .email(comment.getEmail())
                 .rate(comment.getRate())
                 .title(comment.getTitle())

@@ -23,10 +23,10 @@ public class Comment implements Serializable {
     private int id;
 
     @Column(name = "product_id")
-    private String productId;
+    private int productId;
 
     @Column(name = "parrent_id")
-    private String parrentId;
+    private int parrentId;
 
     @Column(name = "user_name")
     private String userName;
