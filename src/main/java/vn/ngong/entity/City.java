@@ -39,9 +39,8 @@ public class City implements Serializable {
 	@Column(name = "created_date")
 	private Timestamp createdDate;
 
-//	@OneToMany(fetch = FetchType.LAZY, targetEntity = District.class)
-//	@JoinColumn(name = "city_code", referencedColumnName = "code", insertable = false, updatable = false)
-//	@Where(clause = "status = 1")
-	@Transient
+	@OneToMany(fetch = FetchType.EAGER, targetEntity = District.class)
+	@JoinColumn(name = "city_code", referencedColumnName = "code", insertable = false, updatable = false)
+	@Where(clause = "status = 1")
 	private List<District> districtList;
 }
