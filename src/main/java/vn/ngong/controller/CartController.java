@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import vn.ngong.dto.CartDto;
 import vn.ngong.entity.Cart;
 import vn.ngong.entity.User;
 import vn.ngong.helper.AuthenticationUtil;
@@ -47,7 +48,7 @@ public class CartController {
             User user = authenticationUtil.getUserFromToken(token);
             userId = user.getId();
         }
-        List<Cart> carts = cartService.list(userId);
+        List<CartDto> carts = cartService.list(userId);
         CartListResponse res = CartListResponse
                 .builder()
                 .carts(carts)

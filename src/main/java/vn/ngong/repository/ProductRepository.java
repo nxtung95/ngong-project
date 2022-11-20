@@ -2,6 +2,7 @@ package vn.ngong.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import vn.ngong.entity.Post;
 import vn.ngong.entity.Product;
@@ -18,6 +19,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	List<Product> findAllByNameLike(String name);
 
 	List<Product> findAllById(Iterable<Integer> ids);
+
+	@Query(value = "SELECT brand_name FROM wp_products WHERE status = 1 GROUP BY brand_name", nativeQuery = true)
+	List<String> getBrandnames();
 
 	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(String name, long priceMin, long priceMax, int status, Pageable pageable);
 	List<Product> findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(String name, long priceMin, long priceMax, int status, Pageable pageable);

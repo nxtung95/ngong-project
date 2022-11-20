@@ -35,9 +35,9 @@ public class Category {
     @Column(name = "created_by")
     private int createdBy;
 
-    @Column(name = "updated_at")
-    private Timestamp updatedAt;
-
-    @Column(name = "updated_by")
-    private int updatedBy;
+//    @Column(name = "updated_at")
+//    private Timestamp updatedAt;
+//
+//    @Column(name = "updated_by")
+//    private int updatedBy;
 }

@@ -7,6 +7,8 @@ import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterResponse;
 
+import java.util.List;
+
 public interface ProductService {
 	ProductDto getProductDetail(int id, DetailProductKiotVietResponse detailProductKiotViet);
 
@@ -19,4 +21,6 @@ public interface ProductService {
 	ProductFilterResponse getNewestSale(int limit);
 
 	Product findById(int productId);
+
+	List<String> getBrandNames();
 }

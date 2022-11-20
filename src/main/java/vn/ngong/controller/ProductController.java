@@ -13,9 +13,12 @@ import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.request.ProductFilterRequest;
+import vn.ngong.response.BrandResponse;
 import vn.ngong.response.DetailProductResponse;
 import vn.ngong.response.ProductFilterResponse;
 import vn.ngong.service.ProductService;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -77,7 +80,7 @@ public class ProductController {
 	}
 
 	@Operation(summary = "API lấy danh sách sản phẩm bán chạy", description = "limit: số lượng sản phẩm bán chạy cần lấy")
-	@RequestMapping(value = "/best-seller", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/best-seller/all", method = RequestMethod.GET)
 	public ResponseEntity<ProductFilterResponse> getBestSeller(@RequestParam int limit) throws Exception {
 		try {
 			ProductFilterResponse products = productService.getBestSeller(limit);
@@ -90,11 +93,30 @@ public class ProductController {
 	}
 
 	@Operation(summary = "API lấy danh sách sản phẩm khuyến mại mới nhất", description = "limit: số lượng sản phẩm khuyến mại cần lấy")
-	@RequestMapping(value = "/newest-sale", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/newest-sale/all", method = RequestMethod.GET)
 	public ResponseEntity<ProductFilterResponse> getNewestSale(@RequestParam int limit) throws Exception {
 		try {
 			ProductFilterResponse products = productService.getNewestSale(limit);
 			return ResponseEntity.ok(products);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+
+		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@Operation(summary = "API lấy danh sách thương hiệu", description = "")
+	@RequestMapping(value = "/brand-names/all", method = RequestMethod.GET)
+	public ResponseEntity<BrandResponse> getBrandNames() throws Exception {
+		try {
+			List<String> brandNames = productService.getBrandNames();
+			BrandResponse res = BrandResponse
+					.builder()
+					.brandNames(brandNames)
+					.code("00")
+					.desc("Success")
+					.build();
+			return ResponseEntity.ok(res);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
