@@ -50,20 +50,21 @@ public class ProductServiceImpl implements ProductService {
 	private SaleRepository saleRepository;
 	@Autowired
 	private KiotVietService kiotVietService;
+	@Autowired
+	private Gson gson;
 
 	@Override
 	public ProductDto getProductDetail(int id, DetailProductKiotVietResponse detailProductKiotViet) {
 		try {
-			//int totalOnHand = detailProductKiotViet.getInventories().stream().mapToInt(i -> i.getOnHand()).sum();
-			int totalOnHand = 100;
 			Product product = productRepository.findByIdAndStatus(id, 1).orElse(null);
 			if (product == null) {
 				return null;
 			}
 			List<ProductVariant> productVariants = productVariantRepository.findAllByProductIdAndStatus(product.getId(), 1);
-			List<ProductVariantDto> productVariantDtos = new ArrayList<ProductVariantDto>();
+			List<ProductVariantDto> productVariantDtos = new ArrayList<>();
 
 			for (ProductVariant p : productVariants) {
+				Integer quantityStock = getQuantityStockByProductCode(p.getCode());
 				ProductVariantDto dto = ProductVariantDto
 						.builder()
 						.id(p.getId())
@@ -75,18 +76,13 @@ public class ProductServiceImpl implements ProductService {
 						.price(p.getPrice())
 						.salePrice(p.getSalePrice())
 						.productImages(p.getProductImages())
-						.variantDetail(new Gson().fromJson(p.getVariantDetail(), Object.class))
+						.variantDetail(gson.fromJson(p.getVariantDetail(), Object.class))
 						.weight(p.getWeight())
+						.quantity(quantityStock)
 						.build();
 
 				productVariantDtos.add(dto);
 			}
-
-//			JsonArray arr = new Gson().fromJson(product.getAttributes(), JsonArray.class);
-//			List<Object> ls = new ArrayList<>();
-//			for (int i = 0; i < arr.size(); i++) {
-//				ls.add(arr.get(i));
-//			}
 
 			return ProductDto.builder()
 					.name(product.getName())
@@ -96,10 +92,10 @@ public class ProductServiceImpl implements ProductService {
 					.description(product.getDescription())
 					.soGaoFlag(product.getSoGaoFlag())
 					//.attributeList(detailProductKiotViet.getAttributes())
-					.onHand(totalOnHand)
+//					.onHand(totalOnHand)
 					.productVariants(productVariantDtos)
 					.productImages(product.getImage())
-					.attributes((new Gson()).fromJson(product.getAttributes(), new TypeToken<List<Attribute>>(){}.getType()))
+					.attributes(gson.fromJson(product.getAttributes(), new TypeToken<List<Attribute>>(){}.getType()))
 					.categoryId(product.getCategoryId())
 					.origin(product.getOrigin())
 					.nutrition(product.getNutrition())
