@@ -12,6 +12,8 @@ public class CommentInsertRequest {
 
     private int productId;
 
+    private int categoryId;
+
     private String userName;
 
     private String email;

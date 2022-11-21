@@ -27,7 +27,7 @@ public class ShipRepository {
                     " WHERE s.`status` = 1" +
                     " AND a.`status` = 1" +
                     " AND a.city_code = " + cityCode +
-                    " AND a.district_code = " + districtCode +
+                    " AND IFNULL(a.district_code, '') = '' OR a.district_code = " + districtCode +
                     " AND ((s.start_kg = 0 AND s.end_kg = 0) OR (s.end_kg = 0 AND s.start_kg <= " + weight + ") OR (" + weight + " BETWEEN s.end_kg AND s.start_kg))" +
                     " AND ((s.start_money = 0 AND s.end_money = 0) OR (s.end_money = 0 AND s.start_money <= " + totalPrice + ") OR (" + totalPrice + " BETWEEN s.end_money AND s.start_money))" +
                     " LIMIT 1");

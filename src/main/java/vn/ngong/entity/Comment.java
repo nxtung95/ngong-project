@@ -25,6 +25,12 @@ public class Comment implements Serializable {
     @Column(name = "product_id")
     private int productId;
 
+    @Column(name = "category_id")
+    private int categoryId;
+
+    @Column(name = "is_category")
+    private boolean isCategory;
+
     @Column(name = "parrent_id")
     private int parrentId;
 

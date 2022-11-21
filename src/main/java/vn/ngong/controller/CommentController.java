@@ -54,4 +54,33 @@ public class CommentController {
 
         return ResponseEntity.ok(res);
     }
+
+    @Operation(summary = "API Lấy danh sách comment ở trang danh mục sản phẩm",
+            description = "productId: ID của sản phẩm được comment, orderType: 0 - Sắp xếp mới nhất, 1 - Sắp xếp cũ nhất, 2 - Sắp xếp đánh giá cao nhất, 3 - Sắp xếp đánh giá thấp nhất")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+    })
+    @RequestMapping(value = "/category", method = RequestMethod.GET)
+    public ResponseEntity<CommentListResponse> listByCategory(@RequestParam int categoryId, @RequestParam int orderType, @RequestParam int pageIndex, @RequestParam int pageSize) throws Exception {
+        CommentListResponse res = commentService.listByCategory(categoryId, orderType, pageIndex, pageSize);
+        return ResponseEntity.ok(res);
+    }
+
+    @Operation(summary = "API thêm mới comment ở trang danh mục sản phẩm",
+            description = "Truyền productId = 0")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+    })
+    @RequestMapping(value = "/category", method = RequestMethod.POST)
+    public ResponseEntity<CommentInsertResponse> addByCategory(@RequestBody CommentInsertRequest req) {
+        Comment comment = commentService.addByCategory(req);
+        CommentInsertResponse res = CommentInsertResponse
+                .builder()
+                .comment(comment)
+                .build();
+        res.setCode("00");
+        res.setDesc("Success");
+
+        return ResponseEntity.ok(res);
+    }
 }
