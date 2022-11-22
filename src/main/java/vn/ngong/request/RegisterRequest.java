@@ -14,4 +14,5 @@ public class RegisterRequest {
 	@Schema(description = "password", required = true)
 	private String password;
 	private String address;
+	private String defaultPaymentId;
 }

@@ -110,4 +110,16 @@ public class LocalCacheConfig {
 		loadCityAgentCTVList();
 		loadAgentCTVList();
 	}
+
+	public String getPaymentNameById(String defaultPaymentId) {
+		if (this.paymentMethodList.isEmpty()) {
+			loadPaymentMethodList();
+		}
+		PaymentMethod paymentMethod = this.paymentMethodList.stream().filter(f -> defaultPaymentId.equals(f.getId())).findFirst().orElse(null);
+		if (paymentMethod == null) {
+			return null;
+		}
+
+		return paymentMethod.getName();
+	}
 }

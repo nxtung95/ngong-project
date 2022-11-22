@@ -40,7 +40,13 @@ public class User implements Serializable {
 	@Column(name = "actived")
 	private int actived;
 
+	@Column(name = "default_payment")
+	private String defaultPaymentId;
+
 	@Column(name = "created_date")
 	@Builder.Default
 	private Timestamp createdDate = new Timestamp(System.currentTimeMillis());
+
+	@Transient
+	private String paymentName;
 }

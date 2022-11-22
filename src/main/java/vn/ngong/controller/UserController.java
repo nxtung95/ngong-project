@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import vn.ngong.cache.LocalCacheConfig;
 import vn.ngong.entity.User;
 import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
@@ -32,6 +33,9 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private LocalCacheConfig localCacheConfig;
 
 	@RequestMapping(value = "/health", method = RequestMethod.GET)
 	public ResponseEntity<?> createAuthenticationToken() throws Exception {
@@ -70,6 +74,7 @@ public class UserController {
 			}
 			user.setPasswordPlainText(null);
 			user.setPassword(null);
+			user.setPaymentName(localCacheConfig.getPaymentNameById(user.getDefaultPaymentId()));
 			final String token = jwtTokenUtil.generateToken(user);
 			res.setUser(user);
 			res.setJwttoken(token);
@@ -128,6 +133,7 @@ public class UserController {
 					.address(rq.getAddress())
 					.passwordPlainText(rq.getPassword())
 					.actived(1)
+					.defaultPaymentId("1")
 					.build();
 			boolean isExist = userService.checkExistByPhoneOrEmail(user);
 			if (isExist) {
@@ -185,6 +191,7 @@ public class UserController {
 					.phone(rq.getPhone())
 					.email(rq.getEmail())
 					.address(rq.getAddress())
+					.defaultPaymentId(rq.getDefaultPaymentId())
 					.build();
 			boolean update = userService.update(user);
 			if (!update) {
