@@ -64,6 +64,8 @@ public class ProductServiceImpl implements ProductService {
 
 			for (ProductVariant p : productVariants) {
 				Integer quantityStock = getQuantityStockByProductCode(p.getCode());
+
+
 				ProductVariantDto dto = ProductVariantDto
 						.builder()
 						.id(p.getId())
@@ -76,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
 						.productImages(p.getProductImages())
 						.variantDetail(gson.fromJson(p.getVariantDetail() == null ? "" : p.getVariantDetail(), Object.class))
 						.weight(p.getWeight())
-						.quantity(quantityStock)
+						.quantity(quantityStock == null ? 0 : quantityStock)
 						.build();
 
 				productVariantDtos.add(dto);
