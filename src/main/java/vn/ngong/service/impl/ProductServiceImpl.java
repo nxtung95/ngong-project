@@ -75,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
 						.price(p.getPrice())
 						.salePrice(p.getSalePrice())
 						.saleRate(p.getSalePrice() * 100 / p.getPrice())
-						.productImages(p.getProductImages())
+						.productImages(gson.fromJson(p.getProductImages() == null ? "" : p.getProductImages(), new TypeToken<List<String>>(){}.getType()))
 						.variantDetail(gson.fromJson(p.getVariantDetail() == null ? "" : p.getVariantDetail(), Object.class))
 						.weight(p.getWeight())
 						.quantity(quantityStock == null ? 0 : quantityStock)
@@ -87,14 +87,10 @@ public class ProductServiceImpl implements ProductService {
 			return ProductDto.builder()
 					.name(product.getName())
 					.brandName(product.getBrandName())
-					//.code(code)
-					//.price(FormatUtil.formatCurrency(product.getPrice()))
 					.description(product.getDescription())
 					.soGaoFlag(product.getSoGaoFlag())
-					//.attributeList(detailProductKiotViet.getAttributes())
-//					.onHand(totalOnHand)
 					.productVariants(productVariantDtos)
-					.productImages(product.getImage())
+					.productImages(gson.fromJson(product.getImage() == null ? "" : product.getImage(), new TypeToken<List<String>>(){}.getType()))
 					.attributes(gson.fromJson(product.getAttributes() == null ? "" : product.getAttributes(), new TypeToken<List<Attribute>>(){}.getType()))
 					.categoryId(product.getCategoryId())
 					.origin(product.getOrigin())
@@ -128,135 +124,6 @@ public class ProductServiceImpl implements ProductService {
 
 		return null;
 	}
-
-//	@Override
-//    public ProductFilterResponse list(ProductFilterRequest request) {
-//		try{
-//			Pageable pageable = PageRequest.of(request.getPageIndex(), request.getPageSize());
-//			if (request.getMaxPrice() < 0) {
-//				request.setMinPrice(0);
-//				request.setMaxPrice(1000000000);
-//			}
-//
-//			int order = request.getOrderType();
-//
-//			List<Product> products = null;
-//			// Lấy tất cả sản phẩm, không theo danh mục
-//			if (request.getCategoryId() <= 0) {
-//				if (ValidtionUtils.checkEmptyOrNull(request.getBrandName())) {
-//					if (order == 0) {
-//						products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPrice(
-//								"%" + request.getProductName() + "%",
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					} else {
-//						products = productRepository.findAllByNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(
-//								"%" + request.getProductName() + "%",
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					}
-//
-//				} else {
-//					if (order == 0) {
-//						products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(
-//								"%" + request.getProductName() + "%",
-//								request.getBrandName(),
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					} else {
-//						products = productRepository.findAllByNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(
-//								"%" + request.getProductName() + "%",
-//								request.getBrandName(),
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					}
-//				}
-//			} else { // Lấy sản phẩm theo danh mục
-//				if (ValidtionUtils.checkEmptyOrNull(request.getBrandName())) {
-//					if (order == 0) {
-//						products = productRepository.findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPrice(
-//								request.getCategoryId(),
-//								"%" + request.getProductName() + "%",
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					} else {
-//						products = productRepository.findAllByCategoryIdAndNameLikeAndPriceIsBetweenAndStatusOrderByPriceDesc(
-//								request.getCategoryId(),
-//								"%" + request.getProductName() + "%",
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					}
-//				} else {
-//					if (order == 0) {
-//						products = productRepository.findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPrice(
-//								request.getCategoryId(),
-//								"%" + request.getProductName() + "%",
-//								request.getBrandName(),
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					} else {
-//						products = productRepository.findAllByCategoryIdAndNameLikeAndBrandNameAndPriceIsBetweenAndStatusOrderByPriceDesc(
-//								request.getCategoryId(),
-//								"%" + request.getProductName() + "%",
-//								request.getBrandName(),
-//								request.getMinPrice(),
-//								request.getMaxPrice(),
-//								1,
-//								pageable);
-//					}
-//				}
-//			}
-//
-//			List<ProductFilterDetail> filterDetails = new ArrayList<ProductFilterDetail>();
-//			for (Product p : products) {
-//				Sale sale = saleRepository.findFirstByProductIdAndStatusOrderByUpdatedAtDesc(p.getId(), 1);
-//				if (sale == null) sale = new Sale();
-//				ProductFilterDetail item = ProductFilterDetail.builder()
-//						.id(p.getId())
-//						.image("")
-//						.name(p.getName())
-//						.code(p.getCode())
-//						.price(p.getPrice())
-//						.saleName(sale.getName())
-//						.saleRate((int)(sale.getRate() * 100))
-//						.salePrice(sale.getSalePrice())
-//						.saleStartTime(sale.getStartTime())
-//						.saleEndTime(sale.getEndTime())
-//						.build();
-//				filterDetails.add(item);
-//			}
-//
-//			ProductFilterResponse result = ProductFilterResponse.builder()
-//					.products(filterDetails)
-//					.pageIndex(request.getPageIndex())
-//					.pageSize(request.getPageSize())
-//					.totalItem(0)
-//					.build();
-//			result.setCode("00");
-//			result.setDesc("Success");
-//
-//			return result;
-//
-//		} catch (Exception e) {
-//			log.error(e.getMessage(), e);
-//		}
-//
-//		return null;
-//	}
 
 	@Override
 	public ProductFilterResponse getBestSeller(int limit) {

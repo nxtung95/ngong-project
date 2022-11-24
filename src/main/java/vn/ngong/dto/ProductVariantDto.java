@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,10 +21,6 @@ public class ProductVariantDto {
 
     private String name;
 
-    private int size;
-
-    private String unit;
-
     private double weight;
 
     private int price;
@@ -32,10 +29,9 @@ public class ProductVariantDto {
 
     private int saleRate;
 
-    private String productImages;
+    private List<String> productImages;
 
     private Object variantDetail;
 
-    @Builder.Default
-    private int quantity = 100;
+    private int quantity;
 }
