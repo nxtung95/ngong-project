@@ -31,14 +31,8 @@ public class ProductVariant {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "size")
-    private int size;
-
     @Column(name = "variants_detail")
     private String variantDetail;
-
-    @Column(name = "unit")
-    private String unit;
 
     @Column(name = "weight")
     private double weight;
