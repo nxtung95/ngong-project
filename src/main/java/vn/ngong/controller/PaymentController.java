@@ -96,12 +96,12 @@ public class PaymentController {
 			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
 				List<TransProductDto> productList = rq.getProductList();
 				List<ResponseTransProductDto> responseTransProducts = paymentService.checkInventory(productList);
-				if (responseTransProducts == null) {
-					res.setCode("02");
-					res.setDesc("Có lỗi kết nối hệ thống tồn kho");
-					return ResponseEntity.ok().body(res);
-				}
-				if (!responseTransProducts.isEmpty()) {
+//				if (responseTransProducts == null) {
+//					res.setCode("02");
+//					res.setDesc("Có lỗi kết nối hệ thống tồn kho");
+//					return ResponseEntity.ok().body(res);
+//				}
+				if (responseTransProducts != null && !responseTransProducts.isEmpty()) {
 					res.setCode("03");
 					res.setDesc("Số lượng tồn kho của một trong sản phẩm ở giỏ hàng không đủ, vui lòng kiểm tra lại");
 					res.setStockProductList(responseTransProducts);
