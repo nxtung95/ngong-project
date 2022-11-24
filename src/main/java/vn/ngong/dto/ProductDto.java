@@ -25,7 +25,7 @@ public class ProductDto {
 	private int categoryId;
 	private String nutrition;
 	private String origin;
-	private String productImages;
+	private List<String> productImages;
 	private List<Attribute> attributes;
 	double rate;
 	@Schema(name = "soGaoFlag", description = "0: Không phải sổ gạo, 1: Là sổ gạo")

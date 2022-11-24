@@ -1,6 +1,7 @@
 package vn.ngong.repository;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import vn.ngong.dto.MenuDto;
 import vn.ngong.dto.ProductVariantDto;
 import vn.ngong.entity.Product;
 import vn.ngong.helper.FormatUtil;
+import vn.ngong.kiotviet.obj.Attribute;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterDetail;
 
@@ -15,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -55,7 +58,7 @@ public class ProductNativeRepository {
                         .brandName((String) obj[2])
                         .origin((String) obj[3])
                         .categoryId(Integer.parseInt((obj[4]).toString()))
-                        .image((String) obj[5])
+                        .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
                         .price((String) obj[7])
                         .salePrice((String) obj[8])
@@ -93,7 +96,7 @@ public class ProductNativeRepository {
                         .brandName((String) obj[2])
                         .origin((String) obj[3])
                         .categoryId(Integer.parseInt((obj[4]).toString()))
-                        .image((String) obj[5])
+                        .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
                         .price((String) obj[7])
                         .salePrice((String) obj[8])
@@ -158,7 +161,7 @@ public class ProductNativeRepository {
                         .brandName((String) obj[2])
                         .origin((String) obj[3])
                         .categoryId(Integer.parseInt((obj[4]).toString()))
-                        .image((String) obj[5])
+                        .image(gson.fromJson(obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
                         .price((String) obj[7])
                         .salePrice((String) obj[8])
