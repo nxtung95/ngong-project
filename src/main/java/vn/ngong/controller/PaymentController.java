@@ -14,7 +14,6 @@ import vn.ngong.dto.payment.ResponseTransProductDto;
 import vn.ngong.entity.Transaction;
 import vn.ngong.entity.User;
 import vn.ngong.entity.UserSoGao;
-import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.UserSoGaoRepository;
 import vn.ngong.request.PaymentRequest;
@@ -105,7 +104,7 @@ public class PaymentController {
 				if (!responseTransProducts.isEmpty()) {
 					res.setCode("03");
 					res.setDesc("Số lượng tồn kho của một trong sản phẩm ở giỏ hàng không đủ, vui lòng kiểm tra lại");
-					res.setProductList(responseTransProducts);
+					res.setStockProductList(responseTransProducts);
 					return ResponseEntity.ok().body(res);
 				}
 			}
@@ -259,7 +258,7 @@ public class PaymentController {
 				if (!responseTransProducts.isEmpty()) {
 					res.setCode("03");
 					res.setDesc("Số lượng tồn kho của một trong sản phẩm ở giỏ hàng không đủ, vui lòng kiểm tra lại");
-					res.setProductList(responseTransProducts);
+					res.setStockProductList(responseTransProducts);
 					return ResponseEntity.ok().body(res);
 				}
 			}

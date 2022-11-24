@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Setter
 @SuperBuilder(toBuilder = true)
 @Entity
-@Table(name = "user_sogaos")
+@Table(name = "wp_user_sogaos")
 @NoArgsConstructor
 public class UserSoGao {
 	@Id
@@ -48,8 +48,8 @@ public class UserSoGao {
 	private Timestamp updatedAt;
 
 	@Column(name = "created_by")
-	private int createdBy;
+	private Integer createdBy;
 
 	@Column(name = "updated_by")
-	private int updatedBy;
+	private Integer updatedBy;
 }

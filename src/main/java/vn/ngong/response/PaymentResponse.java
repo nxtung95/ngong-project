@@ -14,6 +14,6 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 public class PaymentResponse extends BaseResponse {
 	private Transaction transaction;
-	private List<ResponseTransProductDto> productList;
+	private List<ResponseTransProductDto> stockProductList;
 	private RemainGaoProductDto remainGaoProduct;
 }
