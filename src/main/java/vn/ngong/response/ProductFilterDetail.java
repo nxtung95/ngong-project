@@ -3,6 +3,7 @@ package vn.ngong.response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import vn.ngong.dto.ProductVariantDto;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -22,4 +23,5 @@ public class ProductFilterDetail {
     private int saleRate;
     private String saleName;
     private String salePrice;
+    private ProductVariantDto productVariant;
 }

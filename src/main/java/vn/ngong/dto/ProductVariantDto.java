@@ -20,10 +20,6 @@ public class ProductVariantDto {
 
     private String name;
 
-    private int size;
-
-    private String unit;
-
     private double weight;
 
     private int price;
@@ -36,6 +32,5 @@ public class ProductVariantDto {
 
     private Object variantDetail;
 
-    @Builder.Default
-    private int quantity = 100;
+    private int quantity;
 }
