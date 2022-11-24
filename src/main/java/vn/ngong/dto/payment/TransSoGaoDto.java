@@ -1,14 +1,14 @@
 package vn.ngong.dto.payment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import vn.ngong.kiotviet.obj.Attribute;
 
 @Getter
 @Setter
 @Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransSoGaoDto {
 	@Schema(name = "productId", description = "ID sản phẩm")
 	private int productId;

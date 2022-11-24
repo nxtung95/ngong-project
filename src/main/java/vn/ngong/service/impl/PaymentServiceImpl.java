@@ -211,7 +211,8 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start add so gao history ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- start end so gao history ---");
 
@@ -223,9 +224,9 @@ public class PaymentServiceImpl implements PaymentService {
 		return null;
 	}
 
-	private void addSoGaoHistory(List<TransSoGaoDto> soGaoList, User user, Transaction transaction) {
+	private List<UserSoGaoHistory> addSoGaoHistory(List<TransSoGaoDto> soGaoList, User user, Transaction transaction) {
+		List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
 		try {
-			List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
 			for (TransSoGaoDto s : soGaoList) {
 				int quantity = s.getQuantity();
 				int totalSizeGao = s.getSize() * quantity;
@@ -243,10 +244,10 @@ public class PaymentServiceImpl implements PaymentService {
 						.build();
 				userSoGaoHistoryList.add(userSoGao);
 			}
-			userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+		return userSoGaoHistoryList;
 	}
 
 	private void addSoGao(PaymentRequest rq, User user) {
@@ -473,7 +474,8 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- start add so gao, add so gao history ---");
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				addSoGao(rq, user);
-				addSoGaoHistory(soGaoList, user, trans);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- end add so gao, add so gao history ---");
 
@@ -742,7 +744,8 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- start add so gao, add so gao history ---");
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				addSoGao(rq, user);
-				addSoGaoHistory(soGaoList, user, trans);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- end add so gao, add so gao history ---");
 

@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PaymentRequest {
-	@Schema(name = "Customer", description = "Thông tin user nhận hàng", required = true)
+	@Schema(name = "customer", description = "Thông tin user nhận hàng", required = true)
 	private TransCustomerDto customer;
 
 	@Schema(name = "remainGaoProductList", description = "Danh sách số gạo còn thừa được quy đổi sang tiền khi thanh toán sổ gạo", required = false)
@@ -23,7 +23,7 @@ public class PaymentRequest {
 	@Schema(name = "productList", description = "Danh sách sản phẩm khác sổ gạo thanh toán", required = true)
 	private List<TransProductDto> productList;
 
-	@Schema(name = "soGaoList", description = "Danh sách sản phẩm sổ gạo thanh toán", required = true)
+	@Schema(name = "soGaoList", description = "Danh sách sản phẩm sổ gạo thanh toán", required = false)
 	private List<TransSoGaoDto> soGaoList;
 
 	@Schema(name = "promotionCode", description = "Mã giảm giá")
