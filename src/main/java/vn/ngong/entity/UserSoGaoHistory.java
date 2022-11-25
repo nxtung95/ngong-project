@@ -24,16 +24,16 @@ public class UserSoGaoHistory {
 	private int userSoGaoId;
 
 	@Column(name = "transaction_id")
-	private int transactionId;
+	private Integer transactionId;
 
 	@Column(name = "used_number")
-	private int usedNumber;
+	private Integer usedNumber;
 
 	@Column(name = "added_number")
-	private int addedNumber;
+	private Integer addedNumber;
 
 	@Column(name = "remaining_number")
-	private int remainingNumber;
+	private Integer remainingNumber;
 
 	@Column(name = "note")
 	private String note;
@@ -45,8 +45,8 @@ public class UserSoGaoHistory {
 	private Timestamp updatedAt;
 
 	@Column(name = "created_by")
-	private int createdBy;
+	private Integer createdBy;
 
 	@Column(name = "updated_by")
-	private int updatedBy;
+	private Integer updatedBy;
 }

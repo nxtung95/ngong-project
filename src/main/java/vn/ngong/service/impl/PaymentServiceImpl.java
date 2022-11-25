@@ -99,8 +99,8 @@ public class PaymentServiceImpl implements PaymentService {
 			long totalAddGao = 0;
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
 				totalAddGao = rq.getSoGaoList().stream()
-						.map(p -> p.getSize() * p.getQuantity())
-						.count();
+						.mapToInt(p -> p.getSize() * p.getQuantity())
+						.sum();
 			}
 			Orders order = Orders.builder()
 					.customerReceiverId(addCustomer.getId())
@@ -118,34 +118,36 @@ public class PaymentServiceImpl implements PaymentService {
 			// Add order detail
 			log.info("--- start add order_detail ---");
 			List<OrderDetail> orderDetails = new ArrayList<>();
-			for (TransProductDto p : rq.getProductList()) {
-				String productCode = p.getProductCode();
-				int quantity = p.getQuantity();
-				int amount = quantity * p.getPrice();
-				int amountDiscount = quantity * p.getPriceDiscount();
-				int addGao = 0;
-				int subGao = 0;
-				int isBuySoGao = 0;
-				int isBuyGao = 0;
-				if (p.getGaoFlag() == 1) {
-					amount = 0;
-					amountDiscount = 0;
-					subGao = p.getSize() * quantity;
-					isBuyGao = 1;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				for (TransProductDto p : rq.getProductList()) {
+					String productCode = p.getProductCode();
+					int quantity = p.getQuantity();
+					int amount = quantity * p.getPrice();
+					int amountDiscount = quantity * p.getPriceDiscount();
+					int addGao = 0;
+					int subGao = 0;
+					int isBuySoGao = 0;
+					int isBuyGao = 0;
+					if (p.getGaoFlag() == 1) {
+						amount = 0;
+						amountDiscount = 0;
+						subGao = p.getSize() * quantity;
+						isBuyGao = 1;
+					}
+					OrderDetail orderDetail = OrderDetail.builder()
+							.orderId(addOrder.getId())
+							.productCode(productCode)
+							.quantity(quantity)
+							.amount(amount)
+							.amountDiscount(amountDiscount)
+							.addGao(addGao)
+							.subGao(subGao)
+							.isBuySoGao(isBuySoGao)
+							.isBuyGao(isBuyGao)
+							.createdBy(user.getName())
+							.build();
+					orderDetails.add(orderDetail);
 				}
-				OrderDetail orderDetail = OrderDetail.builder()
-						.orderId(addOrder.getId())
-						.productCode(productCode)
-						.quantity(quantity)
-						.amount(amount)
-						.amountDiscount(amountDiscount)
-						.addGao(addGao)
-						.subGao(subGao)
-						.isBuySoGao(isBuySoGao)
-						.isBuyGao(isBuyGao)
-						.createdBy(user.getName())
-						.build();
-				orderDetails.add(orderDetail);
 			}
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
 				for (TransSoGaoDto s : rq.getSoGaoList()) {
@@ -176,8 +178,9 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add so gao ---");
+			List<UserSoGao> userSoGaoList = null;
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				addSoGao(rq, user);
+				userSoGaoList = addSoGao(rq, user);
 			}
 			log.info("--- end add so gao ---");
 
@@ -196,7 +199,12 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add transaction ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			Product firstProduct;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			} else {
+				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+			}
 			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())
@@ -213,7 +221,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start add so gao history ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
 				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- start end so gao history ---");
@@ -226,18 +234,16 @@ public class PaymentServiceImpl implements PaymentService {
 		return null;
 	}
 
-	private List<UserSoGaoHistory> addSoGaoHistory(List<TransSoGaoDto> soGaoList, User user, Transaction transaction) {
+	private List<UserSoGaoHistory> addSoGaoHistory(List<UserSoGao> userSoGaoList, User user, Transaction transaction) {
 		List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
 		try {
-			for (TransSoGaoDto s : soGaoList) {
-				int quantity = s.getQuantity();
-				int totalSizeGao = s.getSize() * quantity;
+			for (UserSoGao s : userSoGaoList) {
 				UserSoGaoHistory userSoGao = UserSoGaoHistory.builder()
-						.userSoGaoId(user.getId())
+						.userSoGaoId(s.getId())
 						.transactionId(transaction.getId())
 						.usedNumber(0)
-						.addedNumber(totalSizeGao)
-						.remainingNumber(totalSizeGao)
+						.addedNumber(s.getSize())
+						.remainingNumber(s.getSize())
 						.note("Mua sản phẩm sổ gạo")
 						.createdAt(new Timestamp(System.currentTimeMillis()))
 						.createdBy(user.getId())
@@ -252,14 +258,13 @@ public class PaymentServiceImpl implements PaymentService {
 		return userSoGaoHistoryList;
 	}
 
-	private void addSoGao(PaymentRequest rq, User user) {
+	private List<UserSoGao> addSoGao(PaymentRequest rq, User user) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		String expireDateSoGao = localCacheConfig.getConfig("EXPIRE_DATE_SO_GAO", "3");
-		Calendar c = Calendar.getInstance();
 		Timestamp expireDate = new Timestamp(ZonedDateTime.of(LocalDateTime.now().plusYears(Long.parseLong(expireDateSoGao)),
 				ZoneId.systemDefault()).toInstant().toEpochMilli());
+		List<UserSoGao> userSoGaoList = new ArrayList<>();
 		try {
-			List<UserSoGao> userSoGaoList = new ArrayList<>();
 			for (TransSoGaoDto s : rq.getSoGaoList()) {
 				Optional<UserSoGao> soGaoOptional = userSoGaoRepository.findTopByOrderByIdDesc();
 				int nextSoGaoId = soGaoOptional.isPresent() ? soGaoOptional.get().getId() + 1 : 0;
@@ -286,6 +291,7 @@ public class PaymentServiceImpl implements PaymentService {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+		return userSoGaoList;
 	}
 
 	@Override
@@ -323,6 +329,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
+	@Transactional
 	public Transaction paymentWithRiceProduct(PaymentRequest rq, User user) {
 		log.info("----------------------START TRANSACTION ---------------------------");
 		try {
@@ -365,14 +372,14 @@ public class PaymentServiceImpl implements PaymentService {
 					.filter(g -> g.getGaoFlag() == 1)
 					.collect(Collectors.toList());
 			long totalSubGao = gaoProductList.stream()
-					.map(p -> p.getSize())
-					.count();
+					.mapToInt(p -> p.getSize() * p.getQuantity())
+					.sum();
 			long totalAddGao = 0;
 			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				totalAddGao = rq.getSoGaoList().stream()
-						.map(p -> p.getSize() * p.getQuantity())
-						.count();
+						.mapToInt(p -> p.getSize() * p.getQuantity())
+						.sum();
 			}
 			Orders order = Orders.builder()
 					.customerReceiverId(addCustomer.getId())
@@ -390,34 +397,36 @@ public class PaymentServiceImpl implements PaymentService {
 			// Add order detail sản phẩm gạo/sản phẩm khác
 			log.info("--- start add order_detail ---");
 			List<OrderDetail> orderDetails = new ArrayList<>();
-			for (TransProductDto p : rq.getProductList()) {
-				String productCode = p.getProductCode();
-				int quantity = p.getQuantity();
-				int amount = quantity * p.getPrice();
-				int amountDiscount = quantity * p.getPriceDiscount();
-				int addGao = 0;
-				int subGao = 0;
-				int isBuySoGao = 0;
-				int isBuyGao = 0;
-				if (p.getGaoFlag() == 1) {
-					amount = 0;
-					amountDiscount = 0;
-					subGao = p.getSize() * quantity;
-					isBuyGao = 1;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				for (TransProductDto p : rq.getProductList()) {
+					String productCode = p.getProductCode();
+					int quantity = p.getQuantity();
+					int amount = quantity * p.getPrice();
+					int amountDiscount = quantity * p.getPriceDiscount();
+					int addGao = 0;
+					int subGao = 0;
+					int isBuySoGao = 0;
+					int isBuyGao = 0;
+					if (p.getGaoFlag() == 1) {
+						amount = 0;
+						amountDiscount = 0;
+						subGao = p.getSize() * quantity;
+						isBuyGao = 1;
+					}
+					OrderDetail orderDetail = OrderDetail.builder()
+							.orderId(addOrder.getId())
+							.productCode(productCode)
+							.quantity(quantity)
+							.amount(amount)
+							.amountDiscount(amountDiscount)
+							.addGao(addGao)
+							.subGao(subGao)
+							.isBuySoGao(isBuySoGao)
+							.isBuyGao(isBuyGao)
+							.createdBy(user.getName())
+							.build();
+					orderDetails.add(orderDetail);
 				}
-				OrderDetail orderDetail = OrderDetail.builder()
-						.orderId(addOrder.getId())
-						.productCode(productCode)
-						.quantity(quantity)
-						.amount(amount)
-						.amountDiscount(amountDiscount)
-						.addGao(addGao)
-						.subGao(subGao)
-						.isBuySoGao(isBuySoGao)
-						.isBuyGao(isBuyGao)
-						.createdBy(user.getName())
-						.build();
-				orderDetails.add(orderDetail);
 			}
 
 			// Add order detail sản phẩm sổ gạo
@@ -470,24 +479,35 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start tru gao trong so gao ---");
 			if (!gaoProductList.isEmpty()) {
-				Integer remindGaoProduct = subSoGao(gaoProductList, user, trans);
-				if (remindGaoProduct > 0) {
-					log.info("Số gạo trong sổ không đủ để thanh toán");
-					throw new Exception(String.valueOf(remindGaoProduct));
+				try {
+					subSoGao(gaoProductList, user, trans);
+				} catch (Exception e) {
+					int remindGaoProduct = Integer.parseInt(e.getMessage());
+					if (remindGaoProduct > 0) {
+						log.info("Số gạo trong sổ không đủ để thanh toán");
+						throw new Exception(String.valueOf(remindGaoProduct));
+					}
 				}
+
 			}
 			log.info("--- end tru gao trong so ---");
 
 			log.info("--- start add so gao, add so gao history ---");
+			List<UserSoGao> userSoGaoList;
 			if (soGaoList != null && !soGaoList.isEmpty()) {
-				addSoGao(rq, user);
-				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				userSoGaoList = addSoGao(rq, user);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
 				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- end add so gao, add so gao history ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			Product firstProduct;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			} else {
+				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+			}
 			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())
@@ -510,15 +530,14 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
-	private Integer subSoGao(List<TransProductDto> productList, User user, Transaction trans) {
+	private void subSoGao(List<TransProductDto> productList, User user, Transaction trans) throws Exception {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		try {
 			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
 			long tmpSubTotalGao = productList.stream()
 					.collect(Collectors.summingLong(g -> g.getQuantity() * g.getSize()));
 			Integer subTotalGao = (int) tmpSubTotalGao;
-			UserSoGaoHistory userSoGaoHistory = UserSoGaoHistory.builder()
-					.userSoGaoId(user.getId())
+			UserSoGaoHistory defineUserSoGaoHistory = UserSoGaoHistory.builder()
 					.transactionId(trans.getId())
 					.note("Trừ thanh toán sổ gạo")
 					.createdAt(new Timestamp(System.currentTimeMillis()))
@@ -527,46 +546,53 @@ public class PaymentServiceImpl implements PaymentService {
 					.updatedBy(user.getId())
 					.build();
 			List<UserSoGaoHistory> userSoGaoHistoryList = new ArrayList<>();
+			boolean isEnough = false;
 			for (UserSoGao u : userSoGaoList) {
 				int currentGao = u.getSize();
 				int remainGao = currentGao - subTotalGao;
+				u.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+				u.setUpdatedBy(user.getId());
+				UserSoGaoHistory userSoGaoHistory = defineUserSoGaoHistory.toBuilder().build();
+				userSoGaoHistory.setUserSoGaoId(u.getId());
 				if (remainGao > 0) {
 					// Số gạo trong sổ gạo hiện tại đủ để trừ hết
 					u.setSize(remainGao);
-					u.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-					u.setUpdatedBy(u.getId());
-					userSoGaoHistory.setId(u.getProductId());
 					userSoGaoHistory.setUsedNumber(subTotalGao);
 					userSoGaoHistory.setAddedNumber(0);
 					userSoGaoHistory.setRemainingNumber(remainGao);
 					userSoGaoHistoryList.add(userSoGaoHistory);
+					isEnough = true;
 					break;
 				} else if (remainGao == 0) {
 					// Số gạo trong sổ gạo hiện tại đủ để trừ hết
 					u.setSize(remainGao);
-					u.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-					u.setUpdatedBy(u.getId());
 					u.setStatus(0);
-					userSoGaoHistory.setId(u.getProductId());
 					userSoGaoHistory.setUsedNumber(subTotalGao);
 					userSoGaoHistory.setAddedNumber(0);
 					userSoGaoHistory.setRemainingNumber(remainGao);
 					userSoGaoHistoryList.add(userSoGaoHistory);
+					isEnough = true;
 					break;
 				} else {
 					// Số gạo trong sổ gạo hiện tại chưa đủ để trừ hết
 					subTotalGao = subTotalGao - currentGao;
+					u.setSize(0);
+					u.setStatus(0);
+					userSoGaoHistory.setUsedNumber(currentGao);
+					userSoGaoHistory.setAddedNumber(0);
+					userSoGaoHistory.setRemainingNumber(0);
+					userSoGaoHistoryList.add(userSoGaoHistory);
 				}
 			}
-			if (subTotalGao > 0) {
-				return subTotalGao;
+			if (!isEnough && subTotalGao > 0) {
+				throw new Exception(String.valueOf(subTotalGao));
 			}
 			userSoGaoRepository.saveAllAndFlush(userSoGaoList);
 			userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+			throw e;
 		}
-		return null;
 	}
 
 	public int getShipPrice(int cityCode, int districtCode, double weight, int totalPrice){
@@ -574,6 +600,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
+	@Transactional
 	public Transaction paymentWithRiceProductAgain(PaymentRequest rq, User user) {
 		log.info("----------------------START TRANSACTION ---------------------------");
 		try {
@@ -616,14 +643,14 @@ public class PaymentServiceImpl implements PaymentService {
 					.filter(g -> g.getGaoFlag() == 1)
 					.collect(Collectors.toList());
 			long totalSubGao = gaoProductList.stream()
-					.map(p -> p.getSize())
-					.count();
+					.mapToInt(p -> p.getSize() * p.getQuantity())
+					.sum();
 			long totalAddGao = 0;
 			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				totalAddGao = rq.getSoGaoList().stream()
-						.map(p -> p.getSize() * p.getQuantity())
-						.count();
+						.mapToInt(p -> p.getSize() * p.getQuantity())
+						.sum();
 			}
 			Orders order = Orders.builder()
 					.customerReceiverId(addCustomer.getId())
@@ -641,34 +668,36 @@ public class PaymentServiceImpl implements PaymentService {
 			// Add order detail sản phẩm gạo/sản phẩm khác
 			log.info("--- start add order_detail ---");
 			List<OrderDetail> orderDetails = new ArrayList<>();
-			for (TransProductDto p : rq.getProductList()) {
-				String productCode = p.getProductCode();
-				int quantity = p.getQuantity();
-				int amount = quantity * p.getPrice();
-				int amountDiscount = quantity * p.getPriceDiscount();
-				int addGao = 0;
-				int subGao = 0;
-				int isBuySoGao = 0;
-				int isBuyGao = 0;
-				if (p.getGaoFlag() == 1) {
-					amount = 0;
-					amountDiscount = 0;
-					subGao = p.getSize() * quantity;
-					isBuyGao = 1;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				for (TransProductDto p : rq.getProductList()) {
+					String productCode = p.getProductCode();
+					int quantity = p.getQuantity();
+					int amount = quantity * p.getPrice();
+					int amountDiscount = quantity * p.getPriceDiscount();
+					int addGao = 0;
+					int subGao = 0;
+					int isBuySoGao = 0;
+					int isBuyGao = 0;
+					if (p.getGaoFlag() == 1) {
+						amount = 0;
+						amountDiscount = 0;
+						subGao = p.getSize() * quantity;
+						isBuyGao = 1;
+					}
+					OrderDetail orderDetail = OrderDetail.builder()
+							.orderId(addOrder.getId())
+							.productCode(productCode)
+							.quantity(quantity)
+							.amount(amount)
+							.amountDiscount(amountDiscount)
+							.addGao(addGao)
+							.subGao(subGao)
+							.isBuySoGao(isBuySoGao)
+							.isBuyGao(isBuyGao)
+							.createdBy(user.getName())
+							.build();
+					orderDetails.add(orderDetail);
 				}
-				OrderDetail orderDetail = OrderDetail.builder()
-						.orderId(addOrder.getId())
-						.productCode(productCode)
-						.quantity(quantity)
-						.amount(amount)
-						.amountDiscount(amountDiscount)
-						.addGao(addGao)
-						.subGao(subGao)
-						.isBuySoGao(isBuySoGao)
-						.isBuyGao(isBuyGao)
-						.createdBy(user.getName())
-						.build();
-				orderDetails.add(orderDetail);
 			}
 
 			// Add order detail sản phẩm sổ gạo
@@ -721,10 +750,15 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start tru gao trong so gao ---");
 			if (!gaoProductList.isEmpty()) {
-				Integer remindGaoProduct = subSoGao(gaoProductList, user, trans);
+				int remindGaoProduct = 0;
+				try {
+					subSoGao(gaoProductList, user, trans);
+				} catch (Exception e) {
+					remindGaoProduct = Integer.parseInt(e.getMessage());
+				}
 				if (remindGaoProduct > 0) {
 					String amountFixRemainGao = shareConfig.getAmountFixRemainGao();
-					long remainSizeGao = (long) remindGaoProduct;
+					long remainSizeGao = remindGaoProduct;
 					String amountRemainGao = String.valueOf(remainSizeGao * Long.parseLong(amountFixRemainGao));
 					RemainGaoProductDto remainGaoProductDto = RemainGaoProductDto.builder()
 							.amountFixRemainGao(amountFixRemainGao)
@@ -753,15 +787,21 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end tru gao trong so ---");
 
 			log.info("--- start add so gao, add so gao history ---");
+			List<UserSoGao> userSoGaoList;
 			if (soGaoList != null && !soGaoList.isEmpty()) {
-				addSoGao(rq, user);
-				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(rq.getSoGaoList(), user, trans);
+				userSoGaoList = addSoGao(rq, user);
+				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
 				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
 			log.info("--- end add so gao, add so gao history ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			Product firstProduct;
+			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+			} else {
+				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+			}
 			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())

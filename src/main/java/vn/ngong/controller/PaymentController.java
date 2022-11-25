@@ -73,13 +73,13 @@ public class PaymentController {
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 
-		List<TransProductDto> productRequestList = rq.getProductList();
-		if (productRequestList.stream().anyMatch(p ->
-				ValidtionUtils.checkEmptyOrNull(p.getProductCode()) || p.getQuantity() <= 0 || p.getPrice() <= 0 || p.getPriceDiscount() <= 0)) {
-			res.setCode("01");
-			res.setDesc("Thông tin sản phẩm thanh toán không được trống");
-			return new ResponseEntity<>(res, HttpStatus.OK);
-		}
+//		List<TransProductDto> productRequestList = rq.getProductList();
+//		if (productRequestList.stream().anyMatch(p ->
+//				ValidtionUtils.checkEmptyOrNull(p.getProductCode()) || p.getQuantity() <= 0 || p.getPrice() <= 0 || p.getPriceDiscount() <= 0)) {
+//			res.setCode("01");
+//			res.setDesc("Thông tin sản phẩm thanh toán không được trống");
+//			return new ResponseEntity<>(res, HttpStatus.OK);
+//		}
 
 		if (ValidtionUtils.checkEmptyOrNull(rq.getOriginAmount(), rq.getTotalAmount())) {
 			res.setCode("01");
@@ -109,7 +109,7 @@ public class PaymentController {
 			Optional<User> optionalUser = userService.findByPhone(rq.getCustomer().getCusPhone());
 
 			Transaction transaction;
-			if (!paymentService.isHaveRiceProduct(rq.getProductList())) {
+			if (rq.getProductList() == null || !paymentService.isHaveRiceProduct(rq.getProductList())) {
 				// Đơn hàng không có sản phẩm gạo
 				User user = optionalUser.isPresent() ? optionalUser.get() : userService.makeUserForPayment(rq);
 				transaction = paymentService.paymentWithNoRiceProduct(rq, user);
