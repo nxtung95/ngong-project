@@ -26,9 +26,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -174,7 +172,7 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add order_detail ---");
 
 			log.info("---- start add order to kiotviet ------");
-			orderService.addOrderToKiotViet(order, orderDetails, paymentMethod);
+//			orderService.addOrderToKiotViet(order, orderDetails, paymentMethod);
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add so gao ---");
@@ -257,7 +255,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private void addSoGao(PaymentRequest rq, User user) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		String expireDateSoGao = localCacheConfig.getConfig("EXPIRE_DATE_SO_GAO", "3");
-		Timestamp expireDate = new Timestamp(ZonedDateTime.of(LocalDateTime.now().minusYears(Long.parseLong(expireDateSoGao)),
+		Calendar c = Calendar.getInstance();
+		Timestamp expireDate = new Timestamp(ZonedDateTime.of(LocalDateTime.now().plusYears(Long.parseLong(expireDateSoGao)),
 				ZoneId.systemDefault()).toInstant().toEpochMilli());
 		try {
 			List<UserSoGao> userSoGaoList = new ArrayList<>();
@@ -452,7 +451,7 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add order_detail ---");
 
 			log.info("---- start add order to kiotviet ------");
-			orderService.addOrderToKiotViet(order, orderDetails);
+//			orderService.addOrderToKiotViet(order, orderDetails);
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add transaction ---");
@@ -703,7 +702,7 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add order_detail ---");
 
 			log.info("---- start add order to kiotviet ------");
-			orderService.addOrderToKiotViet(order, orderDetails);
+//			orderService.addOrderToKiotViet(order, orderDetails);
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add transaction ---");

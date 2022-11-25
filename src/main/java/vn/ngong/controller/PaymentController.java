@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequestMapping(value = "/payment")
@@ -72,11 +73,6 @@ public class PaymentController {
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 
-		if (rq.getProductList() == null) {
-			res.setCode("01");
-			res.setDesc("Vui lòng chọn sản phẩm để thanh toán");
-			return new ResponseEntity<>(res, HttpStatus.OK);
-		}
 		List<TransProductDto> productRequestList = rq.getProductList();
 		if (productRequestList.stream().anyMatch(p ->
 				ValidtionUtils.checkEmptyOrNull(p.getProductCode()) || p.getQuantity() <= 0 || p.getPrice() <= 0 || p.getPriceDiscount() <= 0)) {
@@ -132,11 +128,11 @@ public class PaymentController {
 					// User có sổ gạo
 					User user = optionalUser.get();
 					// Check số gạo trong sổ có đủ để thanh toán không
-					long currentSizeSoGaoKg = userSoGaoList.stream().map(u -> u.getSize()).count();
+					long currentSizeSoGaoKg = userSoGaoList.stream().mapToInt(u -> u.getSize()).sum();
 					long paymentSizeSoGaoKg = rq.getProductList().stream()
 							.filter(p -> p.getGaoFlag() == 1)
-							.map(p -> p.getSize())
-							.count();
+							.mapToInt(p -> p.getSize() * p.getQuantity())
+							.sum();
 					log.info("Current size so gao (kg): " + currentSizeSoGaoKg);
 					log.info("Size payment so gao (kg): " + paymentSizeSoGaoKg);
 					if (currentSizeSoGaoKg >= paymentSizeSoGaoKg) {

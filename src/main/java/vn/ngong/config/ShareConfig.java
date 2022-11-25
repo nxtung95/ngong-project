@@ -41,6 +41,6 @@ public class ShareConfig {
 	@Value("${jwt-token-validity-time:18000}")
 	private Integer validityTokenTime;
 
-	@Value("{amount.fix.remain.gao=54000}")
+	@Value("${amount.fix.remain.gao:54000}")
 	private String amountFixRemainGao;
 }
