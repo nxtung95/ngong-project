@@ -14,8 +14,10 @@ import vn.ngong.entity.*;
 import vn.ngong.enums.TransactionStatusEnum;
 import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.FormatUtil;
+import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.repository.*;
 import vn.ngong.request.PaymentRequest;
+import vn.ngong.service.OrderService;
 import vn.ngong.service.PaymentService;
 import vn.ngong.service.ProductService;
 import vn.ngong.service.UserService;
@@ -37,10 +39,6 @@ public class PaymentServiceImpl implements PaymentService {
 	@Autowired
 	private OrderRepository orderRepository;
 	@Autowired
-	private UserService userService;
-	@Autowired
-	private AuthenticationUtil authenticationUtil;
-	@Autowired
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private OrderDetailRepository orderDetailRepository;
@@ -58,6 +56,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private ShipRepository shipRepository;
 	@Autowired
 	private ShareConfig shareConfig;
+	@Autowired
+	private OrderService orderService;
 
 	@Transactional
 	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user) {
@@ -172,6 +172,10 @@ public class PaymentServiceImpl implements PaymentService {
 			}
 			orderDetailRepository.saveAllAndFlush(orderDetails);
 			log.info("--- end add order_detail ---");
+
+			log.info("---- start add order to kiotviet ------");
+			orderService.addOrderToKiotViet(order, orderDetails, paymentMethod);
+			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add so gao ---");
 			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
@@ -447,10 +451,14 @@ public class PaymentServiceImpl implements PaymentService {
 			orderDetailRepository.saveAllAndFlush(orderDetails);
 			log.info("--- end add order_detail ---");
 
+			log.info("---- start add order to kiotviet ------");
+			orderService.addOrderToKiotViet(order, orderDetails);
+			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
 					.orderId(addOrder.getId())
+					.tranxCode(FormatUtil.makeTranxId())
 					.paymentMethodId(rq.getPaymentMethodId())
 					.userId(user.getId())
 					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
@@ -694,10 +702,14 @@ public class PaymentServiceImpl implements PaymentService {
 			orderDetailRepository.saveAllAndFlush(orderDetails);
 			log.info("--- end add order_detail ---");
 
+			log.info("---- start add order to kiotviet ------");
+			orderService.addOrderToKiotViet(order, orderDetails);
+			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
 					.orderId(addOrder.getId())
+					.tranxCode(FormatUtil.makeTranxId())
 					.paymentMethodId(rq.getPaymentMethodId())
 					.userId(user.getId())
 					.totalAmount(Integer.parseInt(rq.getTotalAmount()))

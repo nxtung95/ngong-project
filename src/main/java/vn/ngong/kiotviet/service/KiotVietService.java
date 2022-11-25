@@ -7,7 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ngong.config.ShareConfig;
+import vn.ngong.kiotviet.request.CreateOrdersRequest;
+import vn.ngong.kiotviet.response.CreateOrdersResponse;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
+import vn.ngong.kiotviet.response.GetOrderResponse;
 import vn.ngong.kiotviet.response.TokenResponse;
 
 @Slf4j
@@ -19,6 +22,8 @@ public class KiotVietService {
 	private ShareConfig shareConfig;
 	@Autowired
 	private Gson gson;
+
+	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
 	public String getToken() {
 		try {
@@ -70,6 +75,59 @@ public class KiotVietService {
 			log.info("DetailProductKiotVietResponse response: " + result);
 			if (StringUtils.isNotBlank(result)) {
 				DetailProductKiotVietResponse res = gson.fromJson(result, DetailProductKiotVietResponse.class);
+				return res;
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	public CreateOrdersResponse createOrders(CreateOrdersRequest rq) {
+		String accessKey = getToken();
+		log.info("Access key: " + accessKey);
+		try {
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getOrderUrl()).newBuilder();
+			String url = urlBuilder.build().toString();
+			RequestBody body = RequestBody.create(JSON, gson.toJson(rq));
+
+			Request request = new Request.Builder()
+					.header("Authorization", "Bearer " + accessKey)
+					.header("Retailer", shareConfig.getRetailerKiotViet())
+					.url(url)
+					.post(body)
+					.build();
+			Response response = okHttpClient.newCall(request).execute();
+			String result = response.body().string();
+			log.info("CreateOrders response: " + result);
+			if (StringUtils.isNotBlank(result)) {
+				CreateOrdersResponse res = gson.fromJson(result, CreateOrdersResponse.class);
+				return res;
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	public GetOrderResponse getOrderByCode(String orderCode) {
+		String accessKey = getToken();
+		log.info("Access key: " + accessKey);
+		try {
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getGetOrderUrl()).newBuilder();
+			urlBuilder.addPathSegment(orderCode);
+			String url = urlBuilder.build().toString();
+
+			Request request = new Request.Builder()
+					.header("Authorization", "Bearer " + accessKey)
+					.header("Retailer", shareConfig.getRetailerKiotViet())
+					.url(url)
+					.build();
+			Response response = okHttpClient.newCall(request).execute();
+			String result = response.body().string();
+			log.info("GetOrderResponse: " + result);
+			if (StringUtils.isNotBlank(result)) {
+				GetOrderResponse res = gson.fromJson(result, GetOrderResponse.class);
 				return res;
 			}
 		} catch (Exception e) {
