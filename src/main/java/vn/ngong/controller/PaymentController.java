@@ -8,18 +8,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.ngong.config.ShareConfig;
-import vn.ngong.dto.payment.RemainGaoProductDto;
-import vn.ngong.dto.payment.TransProductDto;
-import vn.ngong.dto.payment.ResponseTransProductDto;
+import vn.ngong.dto.payment.*;
 import vn.ngong.entity.Transaction;
 import vn.ngong.entity.User;
 import vn.ngong.entity.UserSoGao;
+import vn.ngong.helper.FormatUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.UserSoGaoRepository;
+import vn.ngong.request.CalculateAmountRequest;
 import vn.ngong.request.PaymentRequest;
+import vn.ngong.response.CalculateAmountResponse;
 import vn.ngong.response.PaymentMethodListResponse;
 import vn.ngong.response.PaymentResponse;
-import vn.ngong.response.ShipPriceResponse;
 import vn.ngong.service.PaymentService;
 import vn.ngong.service.UserService;
 
@@ -27,7 +27,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequestMapping(value = "/payment")
@@ -41,6 +40,86 @@ public class PaymentController {
 	private UserService userService;
 	@Autowired
 	private ShareConfig shareConfig;
+
+	@Operation(summary = "Thanh toán",
+			description = "API tính tổng tiền sản phẩm trong giỏ hàng")
+	@RequestMapping(value = "/amount", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CalculateAmountResponse> calculateAmount(@RequestBody CalculateAmountRequest rq) {
+		CalculateAmountResponse res = CalculateAmountResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		try {
+			long originAmount = 0;
+			long discountAmount = 0;
+			long totalAmount = 0;
+			List<TransProductDto> productList = rq.getProductList();
+			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
+			if (productList == null || !paymentService.isHaveRiceProduct(productList)) {
+				// Đơn hàng không có sản phẩm gạo
+				if (productList != null && !productList.isEmpty()) {
+					originAmount += productList.stream().mapToLong(p -> p.getPrice()).sum();
+					discountAmount += productList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+				}
+				if (soGaoList != null && !soGaoList.isEmpty()) {
+					originAmount += soGaoList.stream().mapToLong(p -> p.getPrice()).sum();
+					discountAmount += soGaoList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+				}
+				totalAmount = originAmount - discountAmount;
+			} else {
+				// Kiểm tra có trong hệ thống không?
+				Optional<User> optionalUser = userService.findByPhone(rq.getCustomer().getCusPhone());
+				if (!optionalUser.isPresent()) { // User chưa tồn tại trong hệ thống
+					if (productList != null && !productList.isEmpty()) {
+						originAmount += productList.stream().mapToLong(p -> p.getPrice()).sum();
+						discountAmount += productList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+					}
+					if (soGaoList != null && !soGaoList.isEmpty()) {
+						originAmount += soGaoList.stream().mapToLong(p -> p.getPrice()).sum();
+						discountAmount += soGaoList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+					}
+					totalAmount = originAmount - discountAmount;
+				} else {
+					User user = optionalUser.get();
+					// Check số gạo trong sổ của user
+					List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(
+							user.getId(), 1, new Timestamp(System.currentTimeMillis()));
+					if (!userSoGaoList.isEmpty()) { // Có sổ gạo
+						// Cập nhật
+						for (TransProductDto p : productList) {
+							if ("1".equals(p.getGaoFlag())) {
+								p.setPrice(0);
+								p.setPriceDiscount(0);
+							}
+						}
+					}
+					originAmount += productList.stream().mapToLong(p -> p.getPrice()).sum();
+					discountAmount += productList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+
+					if (soGaoList != null && !soGaoList.isEmpty()) {
+						originAmount += soGaoList.stream().mapToLong(p -> p.getPrice()).sum();
+						discountAmount += soGaoList.stream().mapToLong(p -> p.getPriceDiscount()).sum();
+					}
+					totalAmount = originAmount - discountAmount;
+				}
+			}
+			ShippingFeeRequestDto shippingFeeReq = rq.getShippingFeeInfo();
+			int shipPrice = paymentService.getShipPrice(shippingFeeReq.getCityCode(), shippingFeeReq.getDistrictCode(),
+					shippingFeeReq.getWeight(), shippingFeeReq.getTotalPrice());
+
+			res.setProductList(productList);
+			res.setSoGaoList(soGaoList);
+			res.setOriginAmount(FormatUtil.formatCurrency(originAmount));
+			res.setAmountDiscount(FormatUtil.formatCurrency(discountAmount));
+			res.setTotalAmount(FormatUtil.formatCurrency(totalAmount));
+			res.setShippingFee(FormatUtil.formatCurrency(shipPrice));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			res.setCode("01");
+			res.setDesc("Có lỗi xảy ra... xin vui lòng thử lại");
+		}
+		return ResponseEntity.ok(res);
+	}
 
 	@Operation(summary = "API thanh toán sản phẩm trong giỏ hàng",
 			description = "User đã đăng nhập: Đính kèm token vào header khi gọi API")
@@ -283,11 +362,11 @@ public class PaymentController {
 		return ResponseEntity.ok(res);
 	}
 
-	@Operation(summary = "API giá ship")
-	@RequestMapping(value = "/ship-price", method = RequestMethod.GET)
-	public ResponseEntity<ShipPriceResponse> getShipPrice(@RequestParam int cityCode,@RequestParam int districtCode,@RequestParam double weight,@RequestParam int totalPrice) throws Exception {
-		ShipPriceResponse res = ShipPriceResponse.builder().code("00").desc("Success").build();
-		res.setShipPrice(paymentService.getShipPrice(cityCode, districtCode, weight, totalPrice));
-		return ResponseEntity.ok(res);
-	}
+//	@Operation(summary = "API giá ship")
+//	@RequestMapping(value = "/ship-price", method = RequestMethod.GET)
+//	public ResponseEntity<ShipPriceResponse> getShipPrice(@RequestParam int cityCode,@RequestParam int districtCode,@RequestParam double weight,@RequestParam int totalPrice) throws Exception {
+//		ShipPriceResponse res = ShipPriceResponse.builder().code("00").desc("Success").build();
+//		res.setShipPrice(paymentService.getShipPrice(cityCode, districtCode, weight, totalPrice));
+//		return ResponseEntity.ok(res);
+//	}
 }
