@@ -2,7 +2,9 @@ package vn.ngong.service;
 
 import org.springframework.stereotype.Service;
 import vn.ngong.dto.ProductDto;
+import vn.ngong.dto.payment.TransProductDto;
 import vn.ngong.entity.Product;
+import vn.ngong.entity.ProductVariant;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.request.ProductFilterRequest;
 import vn.ngong.response.ProductFilterResponse;
@@ -23,4 +25,6 @@ public interface ProductService {
 	Product findById(int productId);
 
 	List<String> getBrandNames();
+
+	List<ProductVariant> findAllProductByCode(List<String> productCodeList);
 }

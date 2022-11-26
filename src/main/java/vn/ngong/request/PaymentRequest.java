@@ -33,14 +33,14 @@ public class PaymentRequest {
 	private String paymentMethodId;
 
 	@Schema(name = "originAmount", description = "Tổng tiền ban đầu phải trả", required = true)
-	private String originAmount;
+	private long originAmount;
 
-	@Schema(name = "amountDiscount", description = "Tổng tiền khuyến mãi")
-	private String amountDiscount;
+	@Schema(name = "amountDiscount", description = "Tổng tiền sau khi trừ khuyến mãi")
+	private long amountDiscount;
 
 	@Schema(name = "shippingFee", description = "Phí ship")
-	private String shippingFee;
+	private int shippingFee;
 
-	@Schema(name = "totalAmount", description = "Tổng tiền phải trả (sau khi cộng phí ship và trừ khuyến mãi)", required = true)
-	private String totalAmount;
+	@Schema(name = "totalAmount", description = "Tổng tiền phải trả (sau khi cộng phí ship)", required = true)
+	private long totalAmount;
 }

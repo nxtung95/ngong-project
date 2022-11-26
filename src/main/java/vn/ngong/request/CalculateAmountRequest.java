@@ -22,6 +22,9 @@ public class CalculateAmountRequest {
 	@Schema(name = "soGaoList", description = "Danh sách sản phẩm sổ gạo thanh toán", required = false)
 	private List<TransSoGaoDto> soGaoList;
 
-	@Schema(name = "shippingFeeInfo", description = "Thông tin đơn hàng để tính phí ship", required = true)
+	@Schema(name = "shippingFeeInfo", description = "Thông tin tính phí ship", required = false)
 	private ShippingFeeRequestDto shippingFeeInfo;
+
+	@Schema(name = "isCalculateAgain", description = "Tính lại phí trong trường hợp sổ gạo trong sổ không đủ để thanh toán sản phẩm gạo", required = false)
+	private int isCalculateAgain;
 }

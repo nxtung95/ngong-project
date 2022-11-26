@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.ngong.cache.LocalCacheConfig;
 import vn.ngong.config.ShareConfig;
-import vn.ngong.dto.payment.RemainGaoProductDto;
-import vn.ngong.dto.payment.ResponseTransProductDto;
-import vn.ngong.dto.payment.TransProductDto;
-import vn.ngong.dto.payment.TransSoGaoDto;
+import vn.ngong.dto.payment.*;
 import vn.ngong.entity.*;
 import vn.ngong.enums.TransactionStatusEnum;
 import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.FormatUtil;
+import vn.ngong.kiotviet.response.CreateOrdersResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.repository.*;
 import vn.ngong.request.PaymentRequest;
@@ -58,7 +56,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private OrderService orderService;
 
 	@Transactional
-	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user) {
+	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user, List<AmountProductDto> paymentProductList, List<AmountProductDto> paymentGaoList) {
 		log.info("--------START TRANSACTION --------");
 		try {
 			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
@@ -97,16 +95,16 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- Start add order ---");
 			long totalAddGao = 0;
-			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				totalAddGao = rq.getSoGaoList().stream()
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				totalAddGao = paymentGaoList.stream()
 						.mapToInt(p -> p.getSize() * p.getQuantity())
 						.sum();
 			}
 			Orders order = Orders.builder()
 					.customerReceiverId(addCustomer.getId())
-					.originAmount(Integer.parseInt(rq.getOriginAmount()))
-					.discountAmount(Integer.parseInt(rq.getAmountDiscount()))
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+					.originAmount((int) rq.getOriginAmount())
+					.discountAmount((int) rq.getAmountDiscount())
+					.totalAmount((int) rq.getTotalAmount())
 					.totalAddGao((int) totalAddGao)
 					.totalSubGao(0)
 					.status(1)
@@ -118,8 +116,8 @@ public class PaymentServiceImpl implements PaymentService {
 			// Add order detail
 			log.info("--- start add order_detail ---");
 			List<OrderDetail> orderDetails = new ArrayList<>();
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				for (TransProductDto p : rq.getProductList()) {
+			if (paymentProductList != null && !paymentProductList.isEmpty()) {
+				for (AmountProductDto p : paymentProductList) {
 					String productCode = p.getProductCode();
 					int quantity = p.getQuantity();
 					int amount = quantity * p.getPrice();
@@ -136,6 +134,8 @@ public class PaymentServiceImpl implements PaymentService {
 					}
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
+							.productId(p.getProductId())
+							.productName(p.getProductName())
 							.productCode(productCode)
 							.quantity(quantity)
 							.amount(amount)
@@ -149,8 +149,8 @@ public class PaymentServiceImpl implements PaymentService {
 					orderDetails.add(orderDetail);
 				}
 			}
-			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				for (TransSoGaoDto s : rq.getSoGaoList()) {
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				for (AmountProductDto s : paymentGaoList) {
 					String productCode = s.getProductCode();
 					int quantity = s.getQuantity();
 					int amount = quantity * s.getPrice();
@@ -158,6 +158,8 @@ public class PaymentServiceImpl implements PaymentService {
 					int addGao = s.getSize();
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
+							.productId(s.getProductId())
+							.productName(s.getProductName())
 							.productCode(productCode)
 							.quantity(quantity)
 							.amount(amount)
@@ -174,23 +176,26 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add order_detail ---");
 
 			log.info("---- start add order to kiotviet ------");
-//			orderService.addOrderToKiotViet(order, orderDetails, paymentMethod);
+			CreateOrdersResponse ordersResponse = orderService.addOrderToKiotViet(order, orderDetails, paymentMethod, customer);
+			if (ordersResponse == null) {
+				log.info("Error kiot viet");
+			}
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add so gao ---");
 			List<UserSoGao> userSoGaoList = null;
-			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
-				userSoGaoList = addSoGao(rq, user);
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				userSoGaoList = addSoGao(paymentGaoList, user);
 			}
 			log.info("--- end add so gao ---");
 
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
-					.tranxCode(FormatUtil.makeTranxId())
+					.tranxCode(ordersResponse == null ? FormatUtil.makeTranxId() : ordersResponse.getCode())
 					.orderId(addOrder.getId())
 					.paymentMethodId(rq.getPaymentMethodId())
 					.userId(user.getId())
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+					.totalAmount((int) rq.getTotalAmount())
 					.status(statusTrans)
 					.createdBy(user.getName())
 					.updatedBy(user.getName())
@@ -199,19 +204,19 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add transaction ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct;
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
-			} else {
-				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
-			}
-			String image = firstProduct == null ? "" : firstProduct.getImage();
+//			Product firstProduct;
+//			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+//				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+//			} else {
+//				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+//			}
+//			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())
 					.userId(user.getId())
 					.tranxCode(trans.getTranxCode())
 					.title("Yeah! Đã đặt hàng thành công")
-					.image(image)
+//					.image(image)
 					.content("Bạn đã đặt hàng thành công, đơn hàng của bạn: " + trans.getTranxCode() + ". Thông tin chi tiết, liên hệ: 0945348008")
 					.createdBy(user.getName())
 					.updatedBy(user.getName())
@@ -220,7 +225,7 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add transaction_notify default ---");
 
 			log.info("--- start add so gao history ---");
-			if (rq.getSoGaoList() != null && !rq.getSoGaoList().isEmpty()) {
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
 				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
 				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
@@ -258,14 +263,14 @@ public class PaymentServiceImpl implements PaymentService {
 		return userSoGaoHistoryList;
 	}
 
-	private List<UserSoGao> addSoGao(PaymentRequest rq, User user) {
+	private List<UserSoGao> addSoGao(List<AmountProductDto> paymentGaoList, User user) {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		String expireDateSoGao = localCacheConfig.getConfig("EXPIRE_DATE_SO_GAO", "3");
 		Timestamp expireDate = new Timestamp(ZonedDateTime.of(LocalDateTime.now().plusYears(Long.parseLong(expireDateSoGao)),
 				ZoneId.systemDefault()).toInstant().toEpochMilli());
 		List<UserSoGao> userSoGaoList = new ArrayList<>();
 		try {
-			for (TransSoGaoDto s : rq.getSoGaoList()) {
+			for (AmountProductDto s : paymentGaoList) {
 				Optional<UserSoGao> soGaoOptional = userSoGaoRepository.findTopByOrderByIdDesc();
 				int nextSoGaoId = soGaoOptional.isPresent() ? soGaoOptional.get().getId() + 1 : 0;
 				String soGaoCode = FormatUtil.makeSoGaoCode(nextSoGaoId);
@@ -303,8 +308,13 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public boolean isHaveRiceProduct(List<TransProductDto> products) {
-		return products.stream().anyMatch(p -> p.getGaoFlag() == 1);
+	public boolean isHaveRiceProduct(List<AmountProductDto> paymentProductList) {
+		for (AmountProductDto pv : paymentProductList) {
+			if (pv.getGaoFlag() == 1) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -330,7 +340,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	@Transactional
-	public Transaction paymentWithRiceProduct(PaymentRequest rq, User user) {
+	public Transaction paymentWithRiceProduct(PaymentRequest rq, User user, List<AmountProductDto> paymentProductList, List<AmountProductDto> paymentGaoList) {
 		log.info("----------------------START TRANSACTION ---------------------------");
 		try {
 			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
@@ -368,24 +378,24 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- End add customer ---");
 
 			log.info("--- Start add order ---");
-			List<TransProductDto> gaoProductList = rq.getProductList().stream()
+			List<AmountProductDto> gaoProductList = paymentProductList.stream()
 					.filter(g -> g.getGaoFlag() == 1)
 					.collect(Collectors.toList());
 			long totalSubGao = gaoProductList.stream()
 					.mapToInt(p -> p.getSize() * p.getQuantity())
 					.sum();
 			long totalAddGao = 0;
-			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				totalAddGao = rq.getSoGaoList().stream()
+//			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				totalAddGao = paymentGaoList.stream()
 						.mapToInt(p -> p.getSize() * p.getQuantity())
 						.sum();
 			}
 			Orders order = Orders.builder()
 					.customerReceiverId(addCustomer.getId())
-					.originAmount(Integer.parseInt(rq.getOriginAmount()))
-					.discountAmount(Integer.parseInt(rq.getAmountDiscount()))
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+					.originAmount((int) rq.getOriginAmount())
+					.discountAmount((int) rq.getAmountDiscount())
+					.totalAmount((int) rq.getTotalAmount())
 					.totalSubGao((int) totalSubGao)
 					.totalAddGao((int) totalAddGao)
 					.status(1)
@@ -397,8 +407,8 @@ public class PaymentServiceImpl implements PaymentService {
 			// Add order detail sản phẩm gạo/sản phẩm khác
 			log.info("--- start add order_detail ---");
 			List<OrderDetail> orderDetails = new ArrayList<>();
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				for (TransProductDto p : rq.getProductList()) {
+			if (paymentProductList != null && !paymentProductList.isEmpty()) {
+				for (AmountProductDto p : paymentProductList) {
 					String productCode = p.getProductCode();
 					int quantity = p.getQuantity();
 					int amount = quantity * p.getPrice();
@@ -415,6 +425,8 @@ public class PaymentServiceImpl implements PaymentService {
 					}
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
+							.productId(p.getProductId())
+							.productName(p.getProductName())
 							.productCode(productCode)
 							.quantity(quantity)
 							.amount(amount)
@@ -430,8 +442,8 @@ public class PaymentServiceImpl implements PaymentService {
 			}
 
 			// Add order detail sản phẩm sổ gạo
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				for (TransSoGaoDto p : soGaoList) {
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				for (AmountProductDto p : paymentGaoList) {
 					String productCode = p.getProductCode();
 					int quantity = p.getQuantity();
 					int amount = quantity * p.getPrice();
@@ -442,6 +454,8 @@ public class PaymentServiceImpl implements PaymentService {
 					int isBuyGao = 0;
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
+							.productId(p.getProductId())
+							.productName(p.getProductName())
 							.productCode(productCode)
 							.quantity(quantity)
 							.amount(amount)
@@ -460,16 +474,19 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add order_detail ---");
 
 			log.info("---- start add order to kiotviet ------");
-//			orderService.addOrderToKiotViet(order, orderDetails);
+			CreateOrdersResponse ordersResponse = orderService.addOrderToKiotViet(order, orderDetails, paymentMethod, customer);
+			if (ordersResponse == null) {
+				log.info("Error kiot viet");
+			}
 			log.info("---- end add order to kiotviet ------");
 
 			log.info("--- start add transaction ---");
 			Transaction transaction = Transaction.builder()
 					.orderId(addOrder.getId())
-					.tranxCode(FormatUtil.makeTranxId())
+					.tranxCode(ordersResponse == null ? FormatUtil.makeTranxId() : ordersResponse.getCode())
 					.paymentMethodId(rq.getPaymentMethodId())
 					.userId(user.getId())
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+					.totalAmount((int) rq.getTotalAmount())
 					.status(statusTrans)
 					.createdBy(user.getName())
 					.updatedBy(user.getName())
@@ -494,8 +511,8 @@ public class PaymentServiceImpl implements PaymentService {
 
 			log.info("--- start add so gao, add so gao history ---");
 			List<UserSoGao> userSoGaoList;
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				userSoGaoList = addSoGao(rq, user);
+			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
+				userSoGaoList = addSoGao(paymentGaoList, user);
 				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
 				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
 			}
@@ -530,7 +547,7 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
-	private void subSoGao(List<TransProductDto> productList, User user, Transaction trans) throws Exception {
+	private void subSoGao(List<AmountProductDto> productList, User user, Transaction trans) throws Exception {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		try {
 			List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(user.getId(), 1, currentDate);
@@ -600,227 +617,232 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	@Transactional
 	public Transaction paymentWithRiceProductAgain(PaymentRequest rq, User user) {
-		log.info("----------------------START TRANSACTION ---------------------------");
-		try {
-			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
-			if (paymentMethodList.isEmpty()) {
-				log.info("Chưa cấu hình payment method");
-				return null;
-			}
-			PaymentMethod paymentMethod = paymentMethodList.stream()
-					.filter(p -> p.getId().equalsIgnoreCase(rq.getPaymentMethodId())).findFirst().orElse(null);
-			if (paymentMethod == null) {
-				log.info("Phương thức thanh toán không tồn tại");
-				return null;
-			}
-			int statusTrans = 0;
-			if (paymentMethod.getPaymentType() == 1) {
-				statusTrans = TransactionStatusEnum.PAYMENT_NOT_APPROVE.label();
-			} else if (paymentMethod.getPaymentType() == 2) {
-				statusTrans = TransactionStatusEnum.NOT_PAYMENT_NOT_APPOVE.label();
-			}
-			if (statusTrans == 0) {
-				log.info("Chưa chọn phương thức thanh toán hợp lệ");
-				return null;
-			}
-
-			log.info("--- Start add customer ---");
-			Customer customer = Customer.builder()
-					.name(rq.getCustomer().getCusName())
-					.email(rq.getCustomer().getCusEmail())
-					.phone(rq.getCustomer().getCusPhone())
-					.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
-					.note(rq.getCustomer().getCusNote())
-					.createdBy(user.getName())
-					.build();
-			Customer addCustomer = customerRepository.saveAndFlush(customer);
-			log.info("--- End add customer ---");
-
-			log.info("--- Start add order ---");
-			List<TransProductDto> gaoProductList = rq.getProductList().stream()
-					.filter(g -> g.getGaoFlag() == 1)
-					.collect(Collectors.toList());
-			long totalSubGao = gaoProductList.stream()
-					.mapToInt(p -> p.getSize() * p.getQuantity())
-					.sum();
-			long totalAddGao = 0;
-			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				totalAddGao = rq.getSoGaoList().stream()
-						.mapToInt(p -> p.getSize() * p.getQuantity())
-						.sum();
-			}
-			Orders order = Orders.builder()
-					.customerReceiverId(addCustomer.getId())
-					.originAmount(Integer.parseInt(rq.getOriginAmount()))
-					.discountAmount(Integer.parseInt(rq.getAmountDiscount()))
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
-					.totalSubGao((int) totalSubGao)
-					.totalAddGao((int) totalAddGao)
-					.status(1)
-					.createdBy(user.getName())
-					.build();
-			Orders addOrder = orderRepository.saveAndFlush(order);
-			log.info("--- End add order ---");
-
-			// Add order detail sản phẩm gạo/sản phẩm khác
-			log.info("--- start add order_detail ---");
-			List<OrderDetail> orderDetails = new ArrayList<>();
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				for (TransProductDto p : rq.getProductList()) {
-					String productCode = p.getProductCode();
-					int quantity = p.getQuantity();
-					int amount = quantity * p.getPrice();
-					int amountDiscount = quantity * p.getPriceDiscount();
-					int addGao = 0;
-					int subGao = 0;
-					int isBuySoGao = 0;
-					int isBuyGao = 0;
-					if (p.getGaoFlag() == 1) {
-						amount = 0;
-						amountDiscount = 0;
-						subGao = p.getSize() * quantity;
-						isBuyGao = 1;
-					}
-					OrderDetail orderDetail = OrderDetail.builder()
-							.orderId(addOrder.getId())
-							.productCode(productCode)
-							.quantity(quantity)
-							.amount(amount)
-							.amountDiscount(amountDiscount)
-							.addGao(addGao)
-							.subGao(subGao)
-							.isBuySoGao(isBuySoGao)
-							.isBuyGao(isBuyGao)
-							.createdBy(user.getName())
-							.build();
-					orderDetails.add(orderDetail);
-				}
-			}
-
-			// Add order detail sản phẩm sổ gạo
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				for (TransSoGaoDto p : soGaoList) {
-					String productCode = p.getProductCode();
-					int quantity = p.getQuantity();
-					int amount = quantity * p.getPrice();
-					int amountDiscount = quantity * p.getPriceDiscount();
-					int addGao = quantity * p.getSize();
-					int subGao = 0;
-					int isBuySoGao = 1;
-					int isBuyGao = 0;
-					OrderDetail orderDetail = OrderDetail.builder()
-							.orderId(addOrder.getId())
-							.productCode(productCode)
-							.quantity(quantity)
-							.amount(amount)
-							.amountDiscount(amountDiscount)
-							.addGao(addGao)
-							.subGao(subGao)
-							.isBuySoGao(isBuySoGao)
-							.isBuyGao(isBuyGao)
-							.createdBy(user.getName())
-							.build();
-					orderDetails.add(orderDetail);
-				}
-			}
-
-			orderDetailRepository.saveAllAndFlush(orderDetails);
-			log.info("--- end add order_detail ---");
-
-			log.info("---- start add order to kiotviet ------");
-//			orderService.addOrderToKiotViet(order, orderDetails);
-			log.info("---- end add order to kiotviet ------");
-
-			log.info("--- start add transaction ---");
-			Transaction transaction = Transaction.builder()
-					.orderId(addOrder.getId())
-					.tranxCode(FormatUtil.makeTranxId())
-					.paymentMethodId(rq.getPaymentMethodId())
-					.userId(user.getId())
-					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
-					.status(statusTrans)
-					.createdBy(user.getName())
-					.updatedBy(user.getName())
-					.build();
-			Transaction trans = transactionRepository.saveAndFlush(transaction);
-			log.info("--- end add transaction ---");
-
-			log.info("--- start tru gao trong so gao ---");
-			if (!gaoProductList.isEmpty()) {
-				int remindGaoProduct = 0;
-				try {
-					subSoGao(gaoProductList, user, trans);
-				} catch (Exception e) {
-					remindGaoProduct = Integer.parseInt(e.getMessage());
-				}
-				if (remindGaoProduct > 0) {
-					String amountFixRemainGao = shareConfig.getAmountFixRemainGao();
-					long remainSizeGao = remindGaoProduct;
-					String amountRemainGao = String.valueOf(remainSizeGao * Long.parseLong(amountFixRemainGao));
-					RemainGaoProductDto remainGaoProductDto = RemainGaoProductDto.builder()
-							.amountFixRemainGao(amountFixRemainGao)
-							.amountRemainGao(amountRemainGao)
-							.remainSizeGao(remainSizeGao)
-							.build();
-					order.setOriginAmount(order.getOriginAmount() + Integer.parseInt(remainGaoProductDto.getAmountRemainGao()));
-					order.setDiscountAmount(order.getDiscountAmount() + Integer.parseInt(remainGaoProductDto.getAmountRemainGao()));
-					orderRepository.saveAndFlush(order);
-
-					OrderDetail orderDetail = OrderDetail.builder()
-							.orderId(addOrder.getId())
-							.productCode("")
-							.quantity(1)
-							.amount(Integer.parseInt(remainGaoProductDto.getAmountRemainGao()))
-							.amountDiscount(Integer.parseInt(remainGaoProductDto.getAmountRemainGao()))
-							.addGao(0)
-							.subGao((int) remainSizeGao)
-							.isBuySoGao(0)
-							.isBuyGao(1)
-							.createdBy(user.getName())
-							.build();
-					orderDetailRepository.saveAndFlush(orderDetail);
-				}
-			}
-			log.info("--- end tru gao trong so ---");
-
-			log.info("--- start add so gao, add so gao history ---");
-			List<UserSoGao> userSoGaoList;
-			if (soGaoList != null && !soGaoList.isEmpty()) {
-				userSoGaoList = addSoGao(rq, user);
-				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
-				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
-			}
-			log.info("--- end add so gao, add so gao history ---");
-
-			log.info("--- start add transaction_notify default ---");
-			Product firstProduct;
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
-			} else {
-				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
-			}
-			String image = firstProduct == null ? "" : firstProduct.getImage();
-			TransactionNotify transactionNotify = TransactionNotify.builder()
-					.tranxId(trans.getId())
-					.userId(user.getId())
-					.tranxCode(trans.getTranxCode())
-					.title("Yeah! Đã đặt hàng thành công")
-					.image(image)
-					.content("Bạn đã đặt hàng thành công, đơn hàng của bạn: " + trans.getTranxCode() + ". Thông tin chi tiết, liên hệ: 0945348008")
-					.createdBy(user.getName())
-					.updatedBy(user.getName())
-					.build();
-			transactionNotifyRepository.saveAndFlush(transactionNotify);
-			log.info("--- end add transaction_notify default ---");
-
-			log.info("------------------------END TRANSACTION -----------------------------");
-			return trans;
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return null;
-		}
+		return null;
 	}
+
+	//	@Override
+//	@Transactional
+//	public Transaction paymentWithRiceProductAgain(PaymentRequest rq, User user) {
+//		log.info("----------------------START TRANSACTION ---------------------------");
+//		try {
+//			List<PaymentMethod> paymentMethodList = findAllPaymentMethod();
+//			if (paymentMethodList.isEmpty()) {
+//				log.info("Chưa cấu hình payment method");
+//				return null;
+//			}
+//			PaymentMethod paymentMethod = paymentMethodList.stream()
+//					.filter(p -> p.getId().equalsIgnoreCase(rq.getPaymentMethodId())).findFirst().orElse(null);
+//			if (paymentMethod == null) {
+//				log.info("Phương thức thanh toán không tồn tại");
+//				return null;
+//			}
+//			int statusTrans = 0;
+//			if (paymentMethod.getPaymentType() == 1) {
+//				statusTrans = TransactionStatusEnum.PAYMENT_NOT_APPROVE.label();
+//			} else if (paymentMethod.getPaymentType() == 2) {
+//				statusTrans = TransactionStatusEnum.NOT_PAYMENT_NOT_APPOVE.label();
+//			}
+//			if (statusTrans == 0) {
+//				log.info("Chưa chọn phương thức thanh toán hợp lệ");
+//				return null;
+//			}
+//
+//			log.info("--- Start add customer ---");
+//			Customer customer = Customer.builder()
+//					.name(rq.getCustomer().getCusName())
+//					.email(rq.getCustomer().getCusEmail())
+//					.phone(rq.getCustomer().getCusPhone())
+//					.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
+//					.note(rq.getCustomer().getCusNote())
+//					.createdBy(user.getName())
+//					.build();
+//			Customer addCustomer = customerRepository.saveAndFlush(customer);
+//			log.info("--- End add customer ---");
+//
+//			log.info("--- Start add order ---");
+//			List<TransProductDto> gaoProductList = rq.getProductList().stream()
+//					.filter(g -> g.getGaoFlag() == 1)
+//					.collect(Collectors.toList());
+//			long totalSubGao = gaoProductList.stream()
+//					.mapToInt(p -> p.getSize() * p.getQuantity())
+//					.sum();
+//			long totalAddGao = 0;
+//			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
+//			if (soGaoList != null && !soGaoList.isEmpty()) {
+//				totalAddGao = rq.getSoGaoList().stream()
+//						.mapToInt(p -> p.getSize() * p.getQuantity())
+//						.sum();
+//			}
+//			Orders order = Orders.builder()
+//					.customerReceiverId(addCustomer.getId())
+//					.originAmount(Integer.parseInt(rq.getOriginAmount()))
+//					.discountAmount(Integer.parseInt(rq.getAmountDiscount()))
+//					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+//					.totalSubGao((int) totalSubGao)
+//					.totalAddGao((int) totalAddGao)
+//					.status(1)
+//					.createdBy(user.getName())
+//					.build();
+//			Orders addOrder = orderRepository.saveAndFlush(order);
+//			log.info("--- End add order ---");
+//
+//			// Add order detail sản phẩm gạo/sản phẩm khác
+//			log.info("--- start add order_detail ---");
+//			List<OrderDetail> orderDetails = new ArrayList<>();
+//			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+//				for (TransProductDto p : rq.getProductList()) {
+//					String productCode = p.getProductCode();
+//					int quantity = p.getQuantity();
+//					int amount = quantity * p.getPrice();
+//					int amountDiscount = quantity * p.getPriceDiscount();
+//					int addGao = 0;
+//					int subGao = 0;
+//					int isBuySoGao = 0;
+//					int isBuyGao = 0;
+//					if (p.getGaoFlag() == 1) {
+//						amount = 0;
+//						amountDiscount = 0;
+//						subGao = p.getSize() * quantity;
+//						isBuyGao = 1;
+//					}
+//					OrderDetail orderDetail = OrderDetail.builder()
+//							.orderId(addOrder.getId())
+//							.productCode(productCode)
+//							.quantity(quantity)
+//							.amount(amount)
+//							.amountDiscount(amountDiscount)
+//							.addGao(addGao)
+//							.subGao(subGao)
+//							.isBuySoGao(isBuySoGao)
+//							.isBuyGao(isBuyGao)
+//							.createdBy(user.getName())
+//							.build();
+//					orderDetails.add(orderDetail);
+//				}
+//			}
+//
+//			// Add order detail sản phẩm sổ gạo
+//			if (soGaoList != null && !soGaoList.isEmpty()) {
+//				for (TransSoGaoDto p : soGaoList) {
+//					String productCode = p.getProductCode();
+//					int quantity = p.getQuantity();
+//					int amount = quantity * p.getPrice();
+//					int amountDiscount = quantity * p.getPriceDiscount();
+//					int addGao = quantity * p.getSize();
+//					int subGao = 0;
+//					int isBuySoGao = 1;
+//					int isBuyGao = 0;
+//					OrderDetail orderDetail = OrderDetail.builder()
+//							.orderId(addOrder.getId())
+//							.productCode(productCode)
+//							.quantity(quantity)
+//							.amount(amount)
+//							.amountDiscount(amountDiscount)
+//							.addGao(addGao)
+//							.subGao(subGao)
+//							.isBuySoGao(isBuySoGao)
+//							.isBuyGao(isBuyGao)
+//							.createdBy(user.getName())
+//							.build();
+//					orderDetails.add(orderDetail);
+//				}
+//			}
+//
+//			orderDetailRepository.saveAllAndFlush(orderDetails);
+//			log.info("--- end add order_detail ---");
+//
+//			log.info("---- start add order to kiotviet ------");
+////			orderService.addOrderToKiotViet(order, orderDetails);
+//			log.info("---- end add order to kiotviet ------");
+//
+//			log.info("--- start add transaction ---");
+//			Transaction transaction = Transaction.builder()
+//					.orderId(addOrder.getId())
+//					.tranxCode(FormatUtil.makeTranxId())
+//					.paymentMethodId(rq.getPaymentMethodId())
+//					.userId(user.getId())
+//					.totalAmount(Integer.parseInt(rq.getTotalAmount()))
+//					.status(statusTrans)
+//					.createdBy(user.getName())
+//					.updatedBy(user.getName())
+//					.build();
+//			Transaction trans = transactionRepository.saveAndFlush(transaction);
+//			log.info("--- end add transaction ---");
+//
+//			log.info("--- start tru gao trong so gao ---");
+//			if (!gaoProductList.isEmpty()) {
+//				int remindGaoProduct = 0;
+//				try {
+//					subSoGao(gaoProductList, user, trans);
+//				} catch (Exception e) {
+//					remindGaoProduct = Integer.parseInt(e.getMessage());
+//				}
+//				if (remindGaoProduct > 0) {
+//					String amountFixRemainGao = shareConfig.getAmountFixRemainGao();
+//					long remainSizeGao = remindGaoProduct;
+//					String amountRemainGao = String.valueOf(remainSizeGao * Long.parseLong(amountFixRemainGao));
+//					RemainGaoProductDto remainGaoProductDto = RemainGaoProductDto.builder()
+//							.amountFixRemainGao(amountFixRemainGao)
+//							.amountRemainGao(amountRemainGao)
+//							.remainSizeGao(remainSizeGao)
+//							.build();
+//					order.setOriginAmount(order.getOriginAmount() + Integer.parseInt(remainGaoProductDto.getAmountRemainGao()));
+//					order.setDiscountAmount(order.getDiscountAmount() + Integer.parseInt(remainGaoProductDto.getAmountRemainGao()));
+//					orderRepository.saveAndFlush(order);
+//
+//					OrderDetail orderDetail = OrderDetail.builder()
+//							.orderId(addOrder.getId())
+//							.productCode("")
+//							.quantity(1)
+//							.amount(Integer.parseInt(remainGaoProductDto.getAmountRemainGao()))
+//							.amountDiscount(Integer.parseInt(remainGaoProductDto.getAmountRemainGao()))
+//							.addGao(0)
+//							.subGao((int) remainSizeGao)
+//							.isBuySoGao(0)
+//							.isBuyGao(1)
+//							.createdBy(user.getName())
+//							.build();
+//					orderDetailRepository.saveAndFlush(orderDetail);
+//				}
+//			}
+//			log.info("--- end tru gao trong so ---");
+//
+//			log.info("--- start add so gao, add so gao history ---");
+//			List<UserSoGao> userSoGaoList;
+//			if (soGaoList != null && !soGaoList.isEmpty()) {
+//				userSoGaoList = addSoGao(rq, user);
+//				List<UserSoGaoHistory> userSoGaoHistoryList = addSoGaoHistory(userSoGaoList, user, trans);
+//				userSoGaoHistoryRepository.saveAllAndFlush(userSoGaoHistoryList);
+//			}
+//			log.info("--- end add so gao, add so gao history ---");
+//
+//			log.info("--- start add transaction_notify default ---");
+//			Product firstProduct;
+//			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+//				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+//			} else {
+//				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+//			}
+//			String image = firstProduct == null ? "" : firstProduct.getImage();
+//			TransactionNotify transactionNotify = TransactionNotify.builder()
+//					.tranxId(trans.getId())
+//					.userId(user.getId())
+//					.tranxCode(trans.getTranxCode())
+//					.title("Yeah! Đã đặt hàng thành công")
+//					.image(image)
+//					.content("Bạn đã đặt hàng thành công, đơn hàng của bạn: " + trans.getTranxCode() + ". Thông tin chi tiết, liên hệ: 0945348008")
+//					.createdBy(user.getName())
+//					.updatedBy(user.getName())
+//					.build();
+//			transactionNotifyRepository.saveAndFlush(transactionNotify);
+//			log.info("--- end add transaction_notify default ---");
+//
+//			log.info("------------------------END TRANSACTION -----------------------------");
+//			return trans;
+//		} catch (Exception e) {
+//			log.error(e.getMessage(), e);
+//			return null;
+//		}
+//	}
 }

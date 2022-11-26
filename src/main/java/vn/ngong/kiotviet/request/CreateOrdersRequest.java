@@ -28,5 +28,5 @@ public class CreateOrdersRequest {
     private OrderDelivery orderDelivery;
     private OrderCustomer customer;
     private List<OrderSurchages> surchages;
-    private List<OrderVoucherPayment> Payments;
+    private List<Object> payments;
 }

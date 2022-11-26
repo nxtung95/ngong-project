@@ -3,10 +3,7 @@ package vn.ngong.kiotviet.response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import vn.ngong.kiotviet.obj.OrderDelivery;
-import vn.ngong.kiotviet.obj.OrderDetail;
-import vn.ngong.kiotviet.obj.OrderInvoiceSurcharges;
-import vn.ngong.kiotviet.obj.OrderPayment;
+import vn.ngong.kiotviet.obj.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.List;
 public class CreateOrdersResponse {
     private long id;
     private String code;
-    private Timestamp purchaseDate;
+    private String purchaseDate;
     private int branchId;
     private String branchName;
     private long soldById;
@@ -35,7 +32,8 @@ public class CreateOrdersResponse {
     private boolean usingCod;
     private int saleChannelId;
     private List<OrderDetail> orderDetails;
-    private OrderDelivery orderDelivery;
-    private List<OrderPayment> payments;
-    private List<OrderInvoiceSurcharges> invoiceOrderSurcharges;
+    private ResponseStatus responseStatus;
+//    private OrderDelivery orderDelivery;
+//    private List<OrderPayment> payments;
+//    private List<OrderInvoiceSurcharges> invoiceOrderSurcharges;
 }

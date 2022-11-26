@@ -9,5 +9,5 @@ public class ShippingFeeRequestDto {
 	private int cityCode;
 	private int districtCode;
 	private double weight;
-	private int totalPrice;
+//	private int totalPrice;
 }

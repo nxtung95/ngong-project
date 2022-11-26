@@ -70,4 +70,7 @@ public class Product {
 
 	@Column(name = "updated_by")
 	private int updatedBy;
+
+	@Column(name = "gao_flag")
+	private int gaoFlag;
 }

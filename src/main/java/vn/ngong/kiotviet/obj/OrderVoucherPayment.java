@@ -10,16 +10,19 @@ import lombok.Setter;
 @Builder
 public class OrderVoucherPayment {
     @SerializedName(value = "Method", alternate = {"method"})
-    private String method; // Giá trị mặc định là Voucher (không đổi)
+    @Builder.Default
+    private String method = "Voucher"; // Giá trị mặc định là Voucher (không đổi)
 
     @SerializedName(value = "MethodStr", alternate = {"methodStr"})
-    private String methodStr; // Giá trị mặc định là Voucher (không đổi)
+    @Builder.Default
+    private String methodStr = "Voucher"; // Giá trị mặc định là Voucher (không đổi)
 
     @SerializedName(value = "Amount", alternate = {"amount"})
-    private String amount;  // Giá trị của voucher
+    private Integer amount;  // Giá trị của voucher
 
     @SerializedName(value = "ID", alternate = {"id"})
-    private int id;  // Giá trị mặc định là -1 (không đổi)
+    @Builder.Default
+    private int id = -1;  // Giá trị mặc định là -1 (không đổi)
 
     @SerializedName(value = "AccountId", alternate = {"accountId"})
     private Integer accountId; // Giá trị mặc định là null (không đổi)

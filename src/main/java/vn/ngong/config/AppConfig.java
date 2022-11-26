@@ -1,5 +1,8 @@
 package vn.ngong.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
@@ -26,5 +29,12 @@ public class AppConfig {
 		return new GsonBuilder()
 				.disableHtmlEscaping()
 				.create();
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
 	}
 }

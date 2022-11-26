@@ -42,5 +42,20 @@ public class ShareConfig {
 	private Integer validityTokenTime;
 
 	@Value("${amount.fix.remain.gao:54000}")
-	private String amountFixRemainGao;
+	private long amountFixRemainGao;
+
+	@Value("${kiotviet.branch.id:328808}")
+	private int branchId;
+
+	@Value("${kiotviet.sold.id:683952}")
+	private int soldByid;
+
+	@Value("${kiotviet.cashier.id:710635}")
+	private int cashierId;
+
+	@Value("${kiotviet.customer.id:24053787}")
+	private int customerId;
+
+	@Value("${kiotviet.customer.code:KH000005}")
+	private String customerCode;
 }

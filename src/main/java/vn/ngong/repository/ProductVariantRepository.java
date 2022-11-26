@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
     List<ProductVariant> findAllByProductIdAndStatus(int productId, int status);
+
+    List<ProductVariant> findAllByCodeInAndStatus(List<String> productCode, int status);
 }

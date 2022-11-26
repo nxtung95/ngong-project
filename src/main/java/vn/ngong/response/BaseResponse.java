@@ -1,5 +1,6 @@
 package vn.ngong.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse implements Serializable {
 	@Schema(name = "code", description = "00: Thành công, khác 00: Có lỗi")
 	private String code;

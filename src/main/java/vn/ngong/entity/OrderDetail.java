@@ -18,6 +18,12 @@ public class OrderDetail {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
+	@Transient
+	private int productId;
+
+	@Transient
+	private String productName;
+
 	@Column(name = "product_code")
 	private String productCode;
 

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class RemainGaoProductDto {
-	private String amountFixRemainGao;
+	private long amountFixRemainGao;
 	private long remainSizeGao;
-	private String amountRemainGao;
+	private long amountRemainGao;
 }

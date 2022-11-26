@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import vn.ngong.dto.BannerDto;
 import vn.ngong.dto.ProductDto;
 import vn.ngong.dto.ProductVariantDto;
+import vn.ngong.dto.payment.TransProductDto;
 import vn.ngong.entity.Product;
 import vn.ngong.entity.ProductVariant;
 import vn.ngong.entity.Sale;
@@ -33,6 +34,7 @@ import vn.ngong.service.ProductService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -164,6 +166,13 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<String> getBrandNames() {
 		return productRepository.getBrandnames();
+	}
+
+	@Override
+	public List<ProductVariant> findAllProductByCode(List<String> productCodeList) {
+//		List<String> productCode = productList.stream().map(p -> p.getProductCode()).collect(Collectors.toList());
+		List<ProductVariant> productVariantList = productVariantRepository.findAllByCodeInAndStatus(productCodeList, 1);
+		return productVariantList;
 	}
 
 	@Override
