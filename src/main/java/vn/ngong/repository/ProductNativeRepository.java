@@ -37,21 +37,34 @@ public class ProductNativeRepository {
                     " ELSE MAX(v.price) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
-                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate" +
-                    " FROM transactions T " +
-                    "INNER JOIN orders O ON O.Id = T.order_id " +
-                    "INNER JOIN detail_orders D ON O.Id = D.order_id " +
-                    "INNER JOIN wp_products p ON p.`id` = D.product_id " +
-                    "LEFT JOIN wp_product_variants v ON p.Id = v.product_id AND v.`status` = 1 " +
-                    "WHERE T.`status` = 3 " +
-                    "AND p.`status` = 1 " +
+                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " SUM(IFNULL(D.quantity, 0))" +
+//                    " FROM transactions T " +
+//                    "INNER JOIN orders O ON O.Id = T.order_id " +
+                    " FROM detail_orders D" +
+                    " LEFT JOIN wp_product_variants v ON D.product_code = v.code" +
+                    " INNER JOIN wp_products p ON p.`id` = v.product_id " +
+                    " INNER JOIN (SELECT product_id, MIN(id) id FROM wp_product_variants GROUP BY product_id) tmp ON p.id = tmp.product_id" +
+                    " INNER JOIN wp_product_variants v2 ON p.id = v2.product_id AND tmp.id = v2.id" +
+                    //" WHERE T.`status` = 3 " +
+                    " WHERE p.`status` = 1 " +
                     " AND v.`status` = 1" +
                     " GROUP BY p.id " +
-                    "ORDER BY quantity DESC LIMIT " + limit);
+                    "ORDER BY SUM(IFNULL(D.quantity, 0)) DESC LIMIT " + limit);
 
             List<Object[]> objects = query.getResultList();
             List<ProductFilterDetail> products = new ArrayList<>();
             for (Object[] obj : objects) {
+                ProductVariantDto variant = ProductVariantDto
+                        .builder()
+                        .id(Integer.parseInt((obj[10]).toString()))
+                        .price(Integer.parseInt((obj[11]).toString()))
+                        .salePrice(Integer.parseInt((obj[12]).toString()))
+                        .weight(Double.parseDouble((obj[13]).toString()))
+                        .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
+                        .build();
+
                 products.add(ProductFilterDetail.builder()
                         .id(Integer.parseInt((obj[0]).toString()))
                         .name((String) obj[1])
@@ -63,6 +76,8 @@ public class ProductNativeRepository {
                         .price((String) obj[7])
                         .salePrice((String) obj[8])
                         .saleRate(Integer.parseInt((obj[9]).toString()))
+                        .selledNumber(Integer.parseInt((obj[15]).toString()))
+                        .productVariant(variant)
                         .build());
             }
 
@@ -80,16 +95,30 @@ public class ProductNativeRepository {
                     " ELSE MAX(v.price) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
-                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate" +
+                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " SUM(IFNULL(o.quantity, 0))" +
                     " FROM wp_products p " +
                     "INNER JOIN wp_product_variants v ON p.Id = v.product_id AND v.`status` = 1 " +
-                    "WHERE p.`status` = 1 AND v.sale_prices <> v.price" +
+                    " INNER JOIN (SELECT product_id, MIN(id) id FROM wp_product_variants GROUP BY product_id) tmp ON p.id = tmp.product_id" +
+                    " INNER JOIN wp_product_variants v2 ON p.id = v2.product_id AND tmp.id = v2.id" +
+                    " LEFT JOIN detail_orders o ON o.product_code = v.code" +
+                    " WHERE p.`status` = 1 AND v.sale_prices <> v.price" +
                     " GROUP BY p.id " +
                     "ORDER BY v.updated_at DESC LIMIT " + limit);
 
             List<Object[]> objects = query.getResultList();
             List<ProductFilterDetail> products = new ArrayList<>();
             for (Object[] obj : objects) {
+                ProductVariantDto variant = ProductVariantDto
+                        .builder()
+                        .id(Integer.parseInt((obj[10]).toString()))
+                        .price(Integer.parseInt((obj[11]).toString()))
+                        .salePrice(Integer.parseInt((obj[12]).toString()))
+                        .weight(Double.parseDouble((obj[13]).toString()))
+                        .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
+                        .build();
+
                 products.add(ProductFilterDetail.builder()
                         .id(Integer.parseInt((obj[0]).toString()))
                         .name((String) obj[1])
@@ -101,6 +130,8 @@ public class ProductNativeRepository {
                         .price((String) obj[7])
                         .salePrice((String) obj[8])
                         .saleRate(Integer.parseInt((obj[9]).toString()))
+                        .selledNumber(Integer.parseInt((obj[15]).toString()))
+                        .productVariant(variant)
                         .build());
             }
 
@@ -121,8 +152,8 @@ public class ProductNativeRepository {
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
                     " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
-                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail" +
-                    //" SUM(o.quantity)" +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " SUM(IFNULL(o.quantity, 0))" +
                     " FROM wp_products p" +
                     " INNER JOIN wp_product_variants v ON p.id = v.product_id" +
                     " INNER JOIN (SELECT product_id, MIN(id) id FROM wp_product_variants GROUP BY product_id) tmp ON p.id = tmp.product_id" +
@@ -167,6 +198,7 @@ public class ProductNativeRepository {
                         .salePrice((String) obj[8])
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .productVariant(variant)
+                        .selledNumber(Integer.parseInt((obj[15]).toString()))
                         .build());
             }
 

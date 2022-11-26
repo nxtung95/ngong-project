@@ -25,4 +25,5 @@ public class ProductFilterDetail {
     private String saleName;
     private String salePrice;
     private ProductVariantDto productVariant;
+    private int selledNumber;
 }
