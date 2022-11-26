@@ -1,6 +1,7 @@
 package vn.ngong.filter;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -28,10 +30,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Autowired
 	private UserDetailsService jwtUserDetailsService;
 
+	@SneakyThrows
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 
+		Thread.sleep(900000);
+		response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
 		User user = null;
 		String jwtToken = jwtTokenUtil.extractTokenFromRequest(request);
 		// JWT Token is in the form "Bearer token". Remove Bearer word and get
