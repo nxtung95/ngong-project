@@ -163,8 +163,7 @@ public class UserServiceImpl implements UserService {
 			if (user == null) {
 				return null;
 			}
-			user.setPassword(null);
-			return userRepository.findById(userId).orElse(null);
+			return user;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

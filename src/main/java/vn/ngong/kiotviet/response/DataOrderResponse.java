@@ -12,15 +12,16 @@ import java.util.List;
 
 @Getter
 @Setter
-public class GetOrderResponse {
+public class DataOrderResponse {
     private long id;
     private String code;
-    private Timestamp purchaseDate;
+    private String purchaseDate;
     private int branchId;
     private String branchName;
     private long soldById;
     private String soldByName;
     private long customerId;
+    private String customerCode;
     private String customerName;
     private double total;
     private double totalPayment;
@@ -30,11 +31,11 @@ public class GetOrderResponse {
     private String statusValue;
     private String description;
     private boolean usingCod;
-    private List<OrderPayment> payments;
+//    private List<OrderPayment> payments;
     private List<OrderDetail> orderDetails;
-    private OrderDelivery orderDelivery;
-    private OrderInvoiceSurcharges invoiceOrderSurcharges;
+//    private OrderDelivery orderDelivery;
+//    private OrderInvoiceSurcharges invoiceOrderSurcharges;
     private int retailerId;
-    private Timestamp modifiedDate;
-    private Timestamp createdDate;
+    private String modifiedDate;
+    private String createdDate;
 }

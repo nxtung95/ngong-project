@@ -1,23 +1,25 @@
 package vn.ngong.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.ngong.config.ShareConfig;
-import vn.ngong.dto.payment.TransCustomerDto;
-import vn.ngong.entity.Customer;
+import vn.ngong.dto.GetListOrderDto;
+import vn.ngong.dto.OrderDto;
 import vn.ngong.entity.OrderDetail;
 import vn.ngong.entity.Orders;
 import vn.ngong.entity.PaymentMethod;
-import vn.ngong.helper.ValidtionUtils;
-import vn.ngong.kiotviet.obj.*;
+import vn.ngong.entity.Product;
+import vn.ngong.kiotviet.obj.OrderCustomer;
+import vn.ngong.kiotviet.obj.OrderDelivery;
+import vn.ngong.kiotviet.obj.OrderPartnerDelivery;
+import vn.ngong.kiotviet.obj.OrderPayment;
 import vn.ngong.kiotviet.request.CreateOrdersRequest;
-import vn.ngong.kiotviet.response.CreateCustomerResponse;
-import vn.ngong.kiotviet.response.CreateOrdersResponse;
-import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
+import vn.ngong.kiotviet.request.GetOrderKiotVietRequest;
+import vn.ngong.kiotviet.response.*;
 import vn.ngong.kiotviet.service.KiotVietService;
 import vn.ngong.service.OrderService;
+import vn.ngong.service.ProductService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -33,6 +35,8 @@ public class OrderServiceImpl implements OrderService {
     private KiotVietService kiotVietService;
     @Autowired
     private ShareConfig shareConfig;
+    @Autowired
+    private ProductService productService;
 
     @Override
     public CreateOrdersResponse addOrderToKiotViet(Orders orders, List<OrderDetail> orderDetails, PaymentMethod paymentMethod, CreateCustomerResponse customer) {
@@ -124,6 +128,61 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             return res;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    @Override
+    public GetListOrderDto getOrderList(String customerCode, String customerName, int status) {
+        List<OrderDto> orderList = new ArrayList<>();
+        try {
+            GetOrderKiotVietRequest rq = GetOrderKiotVietRequest.builder()
+                    .customerCode(customerCode)
+                    .includePayment(true)
+                    .includeOrderDelivery(true)
+                    .pageSize(20)
+                    .orderBy("createdDate")
+                    .orderDirection("DESC")
+                    .build();
+            if (status != 0) {
+                if (status == 2) {
+                    rq.setStatus(new Integer[] {status, 5});
+                } else {
+                    rq.setStatus(new Integer[] {status});
+                }
+            }
+            GetOrderKiotVietResponse res = kiotVietService.getOrderByCustomerCode(rq);
+            if (res != null && res.getData() != null) {
+                GetListOrderDto orderDto = GetListOrderDto.builder()
+                        .customerCode(customerCode)
+                        .customerName(customerName)
+                        .total(res.getTotal())
+                        .pageSize(res.getPageSize())
+                        .build();
+                for (DataOrderResponse order : res.getData()) {
+                    List<vn.ngong.kiotviet.obj.OrderDetail> orderDetails = order.getOrderDetails();
+                    for (vn.ngong.kiotviet.obj.OrderDetail od : orderDetails) {
+                        Product p = productService.findById((int) od.getProductId());
+                        String productImage = p != null ? p.getImage() : "";
+                        od.setProductImage(productImage);
+                    }
+                    orderList.add(OrderDto.builder()
+                            .orderCode(order.getCode())
+                            .purchaseDate(order.getPurchaseDate())
+                            .status(order.getStatus())
+                            .statusValue(order.getStatusValue())
+                            .description(order.getDescription())
+                            .totalAmount(order.getTotal())
+                            .createdDate(order.getCreatedDate())
+                            .modifiedDate(order.getModifiedDate())
+                            .orderDetails(order.getOrderDetails())
+                            .build());
+                }
+                orderDto.setOrders(orderList);
+                return orderDto;
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

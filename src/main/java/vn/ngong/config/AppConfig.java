@@ -28,6 +28,7 @@ public class AppConfig {
 	public Gson gson() {
 		return new GsonBuilder()
 				.disableHtmlEscaping()
+				.setPrettyPrinting()
 				.create();
 	}
 

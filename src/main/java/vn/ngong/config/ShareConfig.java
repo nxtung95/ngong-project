@@ -35,12 +35,6 @@ public class ShareConfig {
 	@Value("${kiotviet.token.customer.url:https://public.kiotapi.com/customers}")
 	private String customerUrl;
 
-	@Value("${kiotviet.token.get.order.url:https://public.kiotapi.com/orders/code}")
-	private String getOrderUrl;
-
-	@Value("${kiotviet.token.get.customer.url:https://public.kiotapi.com/customers/code}")
-	private String getCusUrl;
-
 	@Value("${kiotviet.retailer:rausachviet1808}")
 	private String retailerKiotViet;
 

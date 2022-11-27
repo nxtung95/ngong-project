@@ -6,12 +6,15 @@ import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.ValidationUtils;
 import vn.ngong.config.ShareConfig;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.request.CreateCustomerRequest;
 import vn.ngong.kiotviet.request.CreateOrdersRequest;
+import vn.ngong.kiotviet.request.GetOrderKiotVietRequest;
 import vn.ngong.kiotviet.response.*;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -62,7 +65,7 @@ public class KiotVietService {
 		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
 			getToken();
 		}
-		log.info("Access key: " + this.accessToken);
+//		log.info("Access key: " + this.accessToken);
 		try {
 			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getKiotVietDetailProductUrl()).newBuilder();
 			urlBuilder.addPathSegment(productCode);
@@ -145,26 +148,35 @@ public class KiotVietService {
 		return null;
 	}
 
-	public GetOrderResponse getOrderByCode(String orderCode) {
+	public GetOrderKiotVietResponse getOrderByCustomerCode(GetOrderKiotVietRequest rq) {
 		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
 			getToken();
 		}
-		log.info("Access key: " + this.accessToken);
+		log.info("GetOrder@request" + gson.toJson(rq));
 		try {
-			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getGetOrderUrl()).newBuilder();
-			urlBuilder.addPathSegment(orderCode);
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getOrderUrl()).newBuilder();
+			urlBuilder.addQueryParameter("customerCode", rq.getCustomerCode());
+			urlBuilder.addQueryParameter("includeOrderDelivery", String.valueOf(rq.isIncludeOrderDelivery()));
+			urlBuilder.addQueryParameter("includePayment", String.valueOf(rq.isIncludePayment()));
+			urlBuilder.addQueryParameter("orderBy", rq.getOrderBy());
+			urlBuilder.addQueryParameter("orderDirection", rq.getOrderDirection());
+			if (rq.getStatus() != null) {
+				String status = Arrays.stream(rq.getStatus()).map(s -> String.valueOf(s)).collect(Collectors.joining(","));
+				urlBuilder.addQueryParameter("status", "[" + status + "]");
+			}
 			String url = urlBuilder.build().toString();
-
+			log.info("GetOrder@url" + url);
 			Request request = new Request.Builder()
 					.header("Authorization", "Bearer " + this.accessToken)
 					.header("Retailer", shareConfig.getRetailerKiotViet())
 					.url(url)
+					.get()
 					.build();
 			Response response = okHttpClient.newCall(request).execute();
 			String result = response.body().string();
 			log.info("GetOrderResponse: " + result);
 			if (StringUtils.isNotBlank(result)) {
-				GetOrderResponse res = gson.fromJson(result, GetOrderResponse.class);
+				GetOrderKiotVietResponse res = gson.fromJson(result, GetOrderKiotVietResponse.class);
 				return res;
 			}
 		} catch (Exception e) {
@@ -178,7 +190,7 @@ public class KiotVietService {
 			getToken();
 		}
 		try {
-			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getGetCusUrl()).newBuilder();
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getCustomerUrl() + "/code").newBuilder();
 			urlBuilder.addPathSegment(code);
 			String url = urlBuilder.build().toString();
 

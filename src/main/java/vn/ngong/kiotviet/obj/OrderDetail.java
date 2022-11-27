@@ -16,4 +16,7 @@ public class OrderDetail {
     private double discount;
     private double discountRatio;
     private String note;
+
+
+    private String productImage;
 }

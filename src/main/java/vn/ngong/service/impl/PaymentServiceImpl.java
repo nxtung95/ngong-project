@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 	@Autowired
-	private CustomerRepository customerRepository;
-	@Autowired
 	private OrderRepository orderRepository;
 	@Autowired
 	private TransactionRepository transactionRepository;
@@ -49,11 +47,11 @@ public class PaymentServiceImpl implements PaymentService {
 	@Autowired
 	private ShipRepository shipRepository;
 	@Autowired
-	private ShareConfig shareConfig;
-	@Autowired
 	private OrderService orderService;
 	@Autowired
 	private CustomerService customerService;
+	@Autowired
+	private UserService userService;
 
 	@Transactional
 	public Transaction paymentWithNoRiceProduct(PaymentRequest rq, User user, List<AmountProductDto> paymentProductList, List<AmountProductDto> paymentGaoList) {
@@ -98,12 +96,15 @@ public class PaymentServiceImpl implements PaymentService {
 				cusKiotViet = customerService.addCusToKiotViet(customer);
 				if (cusKiotViet != null) {
 					customer.setCode(cusKiotViet.getData().getCode());
+					user.setCode(cusKiotViet.getData().getCode());
 				}
 			} else {
 				cusKiotViet = customerService.getDetailCus(cusReceive.getCode());
 				customer.setCode(cusReceive.getCode());
+				user.setCode(cusReceive.getCode());
 			}
 			Customer addCustomer = customerService.add(customer);
+			userService.update(user);
 			log.info("--- End add customer");
 
 			log.info("--- Start add order ---");
