@@ -24,6 +24,9 @@ public class OrderDetail {
 	@Transient
 	private String productName;
 
+	@Transient
+	private String note;
+
 	@Column(name = "product_code")
 	private String productCode;
 

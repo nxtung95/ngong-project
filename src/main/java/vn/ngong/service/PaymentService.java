@@ -20,9 +20,8 @@ public interface PaymentService {
 
 	List<ResponseTransProductDto> checkInventory(List<TransProductDto> productList);
 
-	Transaction paymentWithRiceProduct(PaymentRequest rq, User user, List<AmountProductDto> paymentProductList, List<AmountProductDto> paymentGaoList);
+	Transaction paymentWithRiceProduct(PaymentRequest rq, User user, List<AmountProductDto> paymentProductList, List<AmountProductDto> paymentGaoList, AmountProductDto remindGao);
 
 	int getShipPrice(int cityCode, int districtCode, double weight, int totalPrice);
 
-	Transaction paymentWithRiceProductAgain(PaymentRequest rq, User user);
 }

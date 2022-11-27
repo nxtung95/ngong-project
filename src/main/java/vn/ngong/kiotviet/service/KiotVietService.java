@@ -9,11 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.ValidationUtils;
 import vn.ngong.config.ShareConfig;
 import vn.ngong.helper.ValidtionUtils;
+import vn.ngong.kiotviet.request.CreateCustomerRequest;
 import vn.ngong.kiotviet.request.CreateOrdersRequest;
-import vn.ngong.kiotviet.response.CreateOrdersResponse;
-import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
-import vn.ngong.kiotviet.response.GetOrderResponse;
-import vn.ngong.kiotviet.response.TokenResponse;
+import vn.ngong.kiotviet.response.*;
 
 @Slf4j
 @Service
@@ -93,7 +91,7 @@ public class KiotVietService {
 		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
 			getToken();
 		}
-		log.info("Access key: " + this.accessToken);
+		log.info("createOrders@request" + gson.toJson(rq));
 		try {
 			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getOrderUrl()).newBuilder();
 			String url = urlBuilder.build().toString();
@@ -118,16 +116,47 @@ public class KiotVietService {
 		return null;
 	}
 
+	public CreateCustomerResponse createCustomer(CreateCustomerRequest rq) {
+		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
+			getToken();
+		}
+		log.info("createCustomer@request" + gson.toJson(rq));
+		try {
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getCustomerUrl()).newBuilder();
+			String url = urlBuilder.build().toString();
+			RequestBody body = RequestBody.create(JSON, gson.toJson(rq));
+
+			Request request = new Request.Builder()
+					.header("Authorization", "Bearer " + this.accessToken)
+					.header("Retailer", shareConfig.getRetailerKiotViet())
+					.url(url)
+					.post(body)
+					.build();
+			Response response = okHttpClient.newCall(request).execute();
+			String result = response.body().string();
+			log.info("createCustomer response: " + result);
+			if (StringUtils.isNotBlank(result)) {
+				CreateCustomerResponse res = gson.fromJson(result, CreateCustomerResponse.class);
+				return res;
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
 	public GetOrderResponse getOrderByCode(String orderCode) {
-		String accessKey = getToken();
-		log.info("Access key: " + accessKey);
+		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
+			getToken();
+		}
+		log.info("Access key: " + this.accessToken);
 		try {
 			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getGetOrderUrl()).newBuilder();
 			urlBuilder.addPathSegment(orderCode);
 			String url = urlBuilder.build().toString();
 
 			Request request = new Request.Builder()
-					.header("Authorization", "Bearer " + accessKey)
+					.header("Authorization", "Bearer " + this.accessToken)
 					.header("Retailer", shareConfig.getRetailerKiotViet())
 					.url(url)
 					.build();
@@ -136,6 +165,33 @@ public class KiotVietService {
 			log.info("GetOrderResponse: " + result);
 			if (StringUtils.isNotBlank(result)) {
 				GetOrderResponse res = gson.fromJson(result, GetOrderResponse.class);
+				return res;
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	public DataCustomerResponse getDetailCus(String code) {
+		if (ValidtionUtils.checkEmptyOrNull(this.accessToken)) {
+			getToken();
+		}
+		try {
+			HttpUrl.Builder urlBuilder = HttpUrl.parse(shareConfig.getGetCusUrl()).newBuilder();
+			urlBuilder.addPathSegment(code);
+			String url = urlBuilder.build().toString();
+
+			Request request = new Request.Builder()
+					.header("Authorization", "Bearer " + this.accessToken)
+					.header("Retailer", shareConfig.getRetailerKiotViet())
+					.url(url)
+					.build();
+			Response response = okHttpClient.newCall(request).execute();
+			String result = response.body().string();
+			log.info("getDetailCus@response: " + result);
+			if (StringUtils.isNotBlank(result)) {
+				DataCustomerResponse res = gson.fromJson(result, DataCustomerResponse.class);
 				return res;
 			}
 		} catch (Exception e) {

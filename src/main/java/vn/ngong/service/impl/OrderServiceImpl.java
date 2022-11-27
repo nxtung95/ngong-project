@@ -13,6 +13,7 @@ import vn.ngong.entity.PaymentMethod;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.kiotviet.obj.*;
 import vn.ngong.kiotviet.request.CreateOrdersRequest;
+import vn.ngong.kiotviet.response.CreateCustomerResponse;
 import vn.ngong.kiotviet.response.CreateOrdersResponse;
 import vn.ngong.kiotviet.response.DetailProductKiotVietResponse;
 import vn.ngong.kiotviet.service.KiotVietService;
@@ -34,12 +35,15 @@ public class OrderServiceImpl implements OrderService {
     private ShareConfig shareConfig;
 
     @Override
-    public CreateOrdersResponse addOrderToKiotViet(Orders orders, List<OrderDetail> orderDetails, PaymentMethod paymentMethod, Customer customer) {
+    public CreateOrdersResponse addOrderToKiotViet(Orders orders, List<OrderDetail> orderDetails, PaymentMethod paymentMethod, CreateCustomerResponse customer) {
         try {
             Timestamp deliveryTime = new Timestamp(ZonedDateTime.of(LocalDateTime.now().plusHours(3),
                     ZoneId.systemDefault()).toInstant().toEpochMilli());
             List<vn.ngong.kiotviet.obj.OrderDetail> orderDetailKiotViets = new ArrayList<>();
+            int totalDiscountKiot = 0;
             for (OrderDetail orderDetail : orderDetails) {
+                int currentTotalDisCount = orderDetail.getAmount() - orderDetail.getAmountDiscount();
+                totalDiscountKiot += currentTotalDisCount;
                 DetailProductKiotVietResponse res = kiotVietService.getDetailProductByCode(orderDetail.getProductCode());
                 orderDetailKiotViets.add(vn.ngong.kiotviet.obj.OrderDetail.builder()
                         .productId(res.getId())
@@ -47,9 +51,9 @@ public class OrderServiceImpl implements OrderService {
                         .productName(orderDetail.getProductName())
                         .quantity(orderDetail.getQuantity())
                         .price(orderDetail.getAmount())
-                        .discount(orderDetail.getAmount() - orderDetail.getAmountDiscount())
+                        .discount(currentTotalDisCount)
                         .discountRatio(0)
-                        .note("Đặt hàng từ ngong.vn")
+                        .note(orderDetail.getNote())
                         .build());
             }
             List<Object> orderPayments = new ArrayList<>();
@@ -62,18 +66,18 @@ public class OrderServiceImpl implements OrderService {
                     .statusValue("Thanh toán thành công")
                     .transDate(orders.getCreatedDate())
                     .build());
-            orderPayments.add(OrderVoucherPayment.builder()
-                    .build());
+//            orderPayments.add(OrderVoucherPayment.builder()
+//                    .build());
             CreateOrdersRequest rq = CreateOrdersRequest.builder()
                     .isApplyVoucher(false)
                     .purchaseDate(new Timestamp(System.currentTimeMillis()))
                     .branchId(shareConfig.getBranchId())
                     .soldById(shareConfig.getSoldByid())
                     .cashierId(shareConfig.getCashierId())
-                    .discount(orders.getDiscountAmount())
+                    .discount(totalDiscountKiot)
                     .description("Đặt đơn hàng mới")
                     .method("ngong.vn")
-                    .totalPayment(orders.getTotalAmount())
+                    .totalPayment(0)
                     //                .accountId(0)
                     .makeInvoice(false)
                     //                .saleChannelId()
@@ -82,9 +86,9 @@ public class OrderServiceImpl implements OrderService {
                             .deliveryCode("DELIVERY0001")
                             .type(0)
                             .price(orders.getTotalAmount())
-                            .receiver(customer.getName())
-                            .contactNumber(customer.getPhone())
-                            .address(customer.getAddress())
+                            .receiver(customer.getData().getName())
+                            .contactNumber(customer.getData().getContactNumber())
+                            .address(customer.getData().getAddress())
                             .locationId(240)
                             .locationName("Hà Nội - Quận Cầu Giấy")
                             .wardName("Phường Nghĩa Tân")
@@ -99,16 +103,16 @@ public class OrderServiceImpl implements OrderService {
                                     .build())
                             .build())
                     .customer(OrderCustomer.builder()
-                            .id(shareConfig.getCustomerId())
-                            .code(shareConfig.getCustomerCode())
-                            .name(customer.getName())
+                            .id(customer.getData().getId())
+                            .code(customer.getData().getCode())
+                            .name(customer.getData().getName())
                             .gender(true)
                             .birthDate(new Timestamp(System.currentTimeMillis()))
-                            .contactNumber(customer.getPhone())
-                            .address(customer.getAddress())
-                            .wardName(customer.getAddress())
-                            .email(customer.getEmail())
-                            .comments(customer.getNote())
+                            .contactNumber(customer.getData().getContactNumber())
+                            .address(customer.getData().getAddress())
+                            .wardName(customer.getData().getAddress())
+                            .email(customer.getData().getEmail())
+                            .comments(customer.getData().getComments())
                             .build())
                     .surchages(new ArrayList<>())
                     .payments(orderPayments)

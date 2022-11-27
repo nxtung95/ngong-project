@@ -76,6 +76,7 @@ public class PaymentController {
 		try {
 			List<AmountProductDto> paymentProductList = new ArrayList<>();
 			List<AmountProductDto> paymentGaoList = new ArrayList<>();
+			AmountProductDto remindGao = null;
 			List<TransProductDto> productList = rq.getProductList();
 			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
 
@@ -85,8 +86,11 @@ public class PaymentController {
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				paymentGaoList = convertSoGaoToPayment(soGaoList);
 			}
+			if (rq.getRemindGao() != null) {
+				remindGao = convertRemindGaoToPayment(rq.getRemindGao());
+			}
 
-			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone());
+			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao);
 
 			if (paymentProductList != null && !paymentProductList.isEmpty()) {
 				res.setProductList(paymentProductList);
@@ -94,9 +98,8 @@ public class PaymentController {
 			if (paymentGaoList != null && !paymentGaoList.isEmpty()) {
 				res.setSoGaoList(paymentGaoList);
 			}
-
-			if (rq.getIsCalculateAgain() == 1) {
-
+			if (remindGao != null) {
+				res.setRemindGao(remindGao);
 			}
 			res.setOriginAmount(calculateAmount[0]);
 			res.setAmountDiscount(calculateAmount[1]);
@@ -109,8 +112,23 @@ public class PaymentController {
 		return ResponseEntity.ok(res);
 	}
 
+	private AmountProductDto convertRemindGaoToPayment(RemainGaoProductDto remainGao) {
+		Product product = productService.findById(remainGao.getProductId());
+		return AmountProductDto.builder()
+				.productId(remainGao.getProductId())
+				.productCode(remainGao.getProductCode())
+				.productName(product.getName())
+				.price((int) remainGao.getAmountFix())
+				.priceDiscount((int) remainGao.getAmountFix())
+				.quantity(1)
+				.size((int) remainGao.getQuantity())
+				.gaoFlag(1)
+				.soGaoFlag(0)
+				.build();
+	}
+
 	private long[] calcAmount(List<TransProductDto> productList, List<AmountProductDto> paymentProductList,
-							  List<AmountProductDto> paymentGaoList, List<TransSoGaoDto> soGaoList, String phone) {
+							  List<AmountProductDto> paymentGaoList, List<TransSoGaoDto> soGaoList, String phone, AmountProductDto remainGao) {
 		long originAmount = 0;
 		long discountAmount = 0;
 		if (productList == null || !paymentService.isHaveRiceProduct(paymentProductList)) {
@@ -157,6 +175,10 @@ public class PaymentController {
 					discountAmount += paymentGaoList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
 				}
 			}
+		}
+		if (remainGao != null) {
+			originAmount += remainGao.getPrice() * remainGao.getSize();
+			discountAmount += remainGao.getPriceDiscount() * remainGao.getSize();
 		}
 		return new long[] {originAmount, discountAmount};
 	}
@@ -275,6 +297,7 @@ public class PaymentController {
 
 			List<AmountProductDto> paymentProductList = new ArrayList<>();
 			List<AmountProductDto> paymentGaoList = new ArrayList<>();
+			AmountProductDto remindGao = null;
 			List<TransProductDto> productList = rq.getProductList();
 			List<TransSoGaoDto> soGaoList = rq.getSoGaoList();
 
@@ -284,9 +307,12 @@ public class PaymentController {
 			if (soGaoList != null && !soGaoList.isEmpty()) {
 				paymentGaoList = convertSoGaoToPayment(soGaoList);
 			}
+			if (rq.getRemindGao() != null) {
+				remindGao = convertRemindGaoToPayment(rq.getRemindGao());
+			}
+			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao);
 
-			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone());
-
+			int shippingFee = rq.getShippingFee();
 			if (rq.getOriginAmount() != calculateAmount[0]) {
 				res.setCode("04");
 				res.setDesc("Tổng tiền gốc đang không khớp, vui lòng thử lại");
@@ -299,10 +325,16 @@ public class PaymentController {
 				return new ResponseEntity<>(res, HttpStatus.OK);
 			}
 
+			if (rq.getTotalAmount() != calculateAmount[1] + shippingFee) {
+				res.setCode("04");
+				res.setDesc("Tổng tiền đang không khớp, vui lòng thử lại");
+				return new ResponseEntity<>(res, HttpStatus.OK);
+			}
+
 			// Kiểm tra có trong hệ thống không?
 			Optional<User> optionalUser = userService.findByPhone(rq.getCustomer().getCusPhone());
 
-			Transaction transaction;
+			Transaction transaction = null;
 			if (paymentProductList == null || !paymentService.isHaveRiceProduct(paymentProductList)) {
 				// Đơn hàng không có sản phẩm gạo
 				User user = optionalUser.isPresent() ? optionalUser.get() : userService.makeUserForPayment(rq);
@@ -327,40 +359,43 @@ public class PaymentController {
 							.filter(p -> p.getGaoFlag() == 1)
 							.mapToInt(p -> p.getSize() * p.getQuantity())
 							.sum();
+					if (remindGao != null) {
+						paymentSizeSoGaoKg = paymentSizeSoGaoKg - remindGao.getSize();
+					}
 					log.info("Current size so gao (kg): " + currentSizeSoGaoKg);
 					log.info("Size payment so gao (kg): " + paymentSizeSoGaoKg);
 					if (currentSizeSoGaoKg >= paymentSizeSoGaoKg) {
 						// Số gạo trong sổ đủ để thanh toán
 						try {
-							transaction = paymentService.paymentWithRiceProduct(rq, user, paymentProductList, paymentGaoList);
+							transaction = paymentService.paymentWithRiceProduct(rq, user, paymentProductList, paymentGaoList, remindGao);
 						} catch (Exception e) {
-							// Số gạo trong sổ không đủ để thanh toán
-							long amountFixRemainGao = shareConfig.getAmountFixRemainGao();
-							long remainSizeGao = paymentSizeSoGaoKg - currentSizeSoGaoKg;
-							long amountRemainGao = remainSizeGao * amountFixRemainGao;
-							RemainGaoProductDto remainGaoProductDto = RemainGaoProductDto.builder()
-									.amountFixRemainGao(amountFixRemainGao)
-									.amountRemainGao(amountRemainGao)
-									.remainSizeGao(remainSizeGao)
-									.build();
-							res.setRemainGaoProduct(remainGaoProductDto);
-							res.setCode("05");
-							res.setDesc("Số gạo trong sổ không đủ để thanh toán sản phẩm gạo");
-							return new ResponseEntity<>(res, HttpStatus.OK);
+							log.error(e.getMessage(), e);
 						}
 					} else {
+						long currentSize = currentSizeSoGaoKg;
+						AmountProductDto remindProduct = null;
+						for (AmountProductDto p : paymentProductList) {
+							int paymentSize = p.getSize() * p.getQuantity();
+							if (currentSize - paymentSize >= 0) {
+								currentSize = currentSize - paymentSize;
+							} else {
+								remindProduct = p;
+							}
+						}
 						long amountFixRemainGao = shareConfig.getAmountFixRemainGao();
 						long remainSizeGao = paymentSizeSoGaoKg - currentSizeSoGaoKg;
 						long amountRemainGao = remainSizeGao * amountFixRemainGao;
 						RemainGaoProductDto remainGaoProductDto = RemainGaoProductDto.builder()
-								.amountFixRemainGao(amountFixRemainGao)
-								.amountRemainGao(amountRemainGao)
-								.remainSizeGao(remainSizeGao)
+								.productId(remindProduct.getProductId())
+								.productCode(remindProduct.getProductCode())
+								.amountFix(amountFixRemainGao)
+								.totalAmount(amountRemainGao)
+								.quantity(remainSizeGao)
 								.build();
 						// Số gạo trong sổ không đủ để thanh toán
 						res.setCode("05");
 						res.setDesc("Số gạo trong sổ không đủ để thanh toán sản phẩm gạo");
-						res.setRemainGaoProduct(remainGaoProductDto);
+						res.setRemindGao(remainGaoProductDto);
 						return new ResponseEntity<>(res, HttpStatus.OK);
 					}
 				}

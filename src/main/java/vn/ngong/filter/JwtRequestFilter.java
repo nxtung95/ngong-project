@@ -35,8 +35,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 
-		Thread.sleep(900000);
-		response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
+//		Thread.sleep(900000);
+//		response.sendError(HttpServletResponse.SC_GATEWAY_TIMEOUT);
 		User user = null;
 		String jwtToken = jwtTokenUtil.extractTokenFromRequest(request);
 		// JWT Token is in the form "Bearer token". Remove Bearer word and get

@@ -15,5 +15,5 @@ import java.util.List;
 public class PaymentResponse extends BaseResponse {
 	private Transaction transaction;
 	private List<ResponseTransProductDto> stockProductList;
-	private RemainGaoProductDto remainGaoProduct;
+	private RemainGaoProductDto remindGao;
 }

@@ -2,6 +2,7 @@ package vn.ngong.entity;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -17,6 +18,9 @@ public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@Column(name = "code")
+	private String code;
 
 	@Column(name = "name")
 	private String name;

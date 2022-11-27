@@ -18,6 +18,9 @@ public class CalculateAmountResponse extends BaseResponse {
 	@Schema(name = "soGaoList", description = "Danh sách sản phẩm sổ gạo thanh toán", required = false)
 	private List<AmountProductDto> soGaoList;
 
+	@Schema(name = "remainGao", description = "Tính lại amount trong trường hợp sổ gạo trong sổ không đủ để thanh toán sản phẩm gạo", required = false)
+	private AmountProductDto remindGao;
+
 	@Schema(name = "originAmount", description = "Tổng tiền ban đầu phải trả", required = true)
 	private long originAmount;
 

@@ -32,8 +32,14 @@ public class ShareConfig {
 	@Value("${kiotviet.token.order.url:https://public.kiotapi.com/orders}")
 	private String orderUrl;
 
+	@Value("${kiotviet.token.customer.url:https://public.kiotapi.com/customers}")
+	private String customerUrl;
+
 	@Value("${kiotviet.token.get.order.url:https://public.kiotapi.com/orders/code}")
 	private String getOrderUrl;
+
+	@Value("${kiotviet.token.get.customer.url:https://public.kiotapi.com/customers/code}")
+	private String getCusUrl;
 
 	@Value("${kiotviet.retailer:rausachviet1808}")
 	private String retailerKiotViet;
@@ -53,9 +59,6 @@ public class ShareConfig {
 	@Value("${kiotviet.cashier.id:710635}")
 	private int cashierId;
 
-	@Value("${kiotviet.customer.id:24053787}")
-	private int customerId;
-
-	@Value("${kiotviet.customer.code:KH000005}")
-	private String customerCode;
+	@Value("${kiotviet.cus.group.id:174336}")
+	private int cusGroupId;
 }
