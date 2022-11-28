@@ -431,6 +431,7 @@ public class PaymentServiceImpl implements PaymentService {
 			List<OrderDetail> orderDetails = new ArrayList<>();
 			if (paymentProductList != null && !paymentProductList.isEmpty()) {
 				for (AmountProductDto p : paymentProductList) {
+					String note = "Đặt hàng từ ngong.vn";
 					String productCode = p.getProductCode();
 					int quantity = p.getQuantity();
 					int amount = quantity * p.getPrice();
@@ -444,13 +445,14 @@ public class PaymentServiceImpl implements PaymentService {
 						amountDiscount = 0;
 						subGao = p.getSize() * quantity;
 						isBuyGao = 1;
+						note = ", đã thanh toán bằng sổ gạo";
 					}
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
 							.productId(p.getProductId())
 							.productName(p.getProductName())
 							.productCode(productCode)
-							.note("Đặt hàng từ ngong.vn")
+							.note(note)
 							.quantity(quantity)
 							.amount(amount)
 							.amountDiscount(amountDiscount)
