@@ -7,5 +7,5 @@ import vn.ngong.entity.Project;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-	List<Project> findAllByStatusOrderByStartDateAsc(int status);
+	List<Project> findAllByStatusOrderByCreatedAtAsc(int status);
 }

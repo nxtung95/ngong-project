@@ -112,7 +112,7 @@ public class UtilityServiceImpl implements UtilityService {
 
 	@Override
 	public List<Project> findAllProject(int type) {
-		List<Project> projectList = projectRepository.findAllByStatusOrderByStartDateAsc(1);
+		List<Project> projectList = projectRepository.findAllByStatusOrderByCreatedAtAsc(1);
 		if (type == 0) {
 			return projectList;
 		} else {
@@ -238,7 +238,7 @@ public class UtilityServiceImpl implements UtilityService {
 	public TrangChuDuAn getTrangChuDuAnContent() {
 		ImageBanner banner = gson.fromJson(getValue("TRANG_CHU_DU_AN_BANNER"), ImageBanner.class);
 		String moDau = getValue("TRANG_CHU_DU_AN_MO_DAU");
-		List<Project> projectList = projectRepository.findAllByStatusOrderByStartDateAsc(1);
+		List<Project> projectList = projectRepository.findAllByStatusOrderByCreatedAtAsc(1);
 		return TrangChuDuAn.builder()
 				.banner(banner)
 				.moDau(moDau)
