@@ -37,8 +37,8 @@ public class ProductNativeRepository {
                     " ELSE MAX(v.price) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
-                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
-                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(D.quantity, 0))" +
 //                    " FROM transactions T " +
 //                    "INNER JOIN orders O ON O.Id = T.order_id " +
@@ -62,6 +62,7 @@ public class ProductNativeRepository {
                         .price(Integer.parseInt((obj[11]).toString()))
                         .salePrice(Integer.parseInt((obj[12]).toString()))
                         .weight(Double.parseDouble((obj[13]).toString()))
+                        .saleRate(Integer.parseInt((obj[15]).toString()))
                         .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
                         .build();
 
@@ -95,8 +96,8 @@ public class ProductNativeRepository {
                     " ELSE MAX(v.price) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
-                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
-                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(o.quantity, 0))" +
                     " FROM wp_products p " +
                     "INNER JOIN wp_product_variants v ON p.Id = v.product_id AND v.`status` = 1 " +
@@ -116,6 +117,7 @@ public class ProductNativeRepository {
                         .price(Integer.parseInt((obj[11]).toString()))
                         .salePrice(Integer.parseInt((obj[12]).toString()))
                         .weight(Double.parseDouble((obj[13]).toString()))
+                        .saleRate(Integer.parseInt((obj[15]).toString()))
                         .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
                         .build();
 
@@ -151,8 +153,8 @@ public class ProductNativeRepository {
                     " ELSE MAX(v.price) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
-                    " CAST(MAX(v.sale_prices * 100 / v.price) AS INT) sale_rate," +
-                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail," +
+                    " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
+                    " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(o.quantity, 0))" +
                     " FROM wp_products p" +
                     " INNER JOIN wp_product_variants v ON p.id = v.product_id" +
@@ -183,6 +185,7 @@ public class ProductNativeRepository {
                         .price(Integer.parseInt((obj[11]).toString()))
                         .salePrice(Integer.parseInt((obj[12]).toString()))
                         .weight(Double.parseDouble((obj[13]).toString()))
+                        .saleRate(Integer.parseInt((obj[15]).toString()))
                         .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
                         .build();
 
