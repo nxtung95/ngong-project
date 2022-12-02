@@ -160,7 +160,7 @@ public class UtilityServiceImpl implements UtilityService {
 		DinhHuongLinhVuc dinhHuongPT = gson.fromJson(getValue("SO_LUOC_VE_NGONG_CONTENT_4"), DinhHuongLinhVuc.class);
 		SoDoToChuc soDoToChuc = gson.fromJson(getValue("SO_LUOC_VE_NGONG_CONTENT_5"), SoDoToChuc.class);
 		List<CamKetKhachHang> camKetKH = gson.fromJson(getValue("SO_LUOC_VE_NGONG_CONTENT_6"), new TypeToken<List<CamKetKhachHang>>(){}.getType());
-
+		String banner = getValue("SO_LUOC_VE_NGONG_BANNER");
 		return SoLuocVeNgongDto.builder()
 				.moDau(moDau)
 				.tamNhinSuMenhGTCL(tamNhinSM)
@@ -169,6 +169,7 @@ public class UtilityServiceImpl implements UtilityService {
 				.dinhHuongLinhVuc(dinhHuongPT)
 				.soDoToChuc(soDoToChuc)
 				.camKetKhachHang(camKetKH)
+				.banner(banner)
 				.build();
 	}
 
