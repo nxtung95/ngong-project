@@ -72,4 +72,6 @@ public interface UtilityService {
 	MuaODauDto getMuaODauContent();
 
 	FooterDto getFooterContent();
+
+	List<Feedback> getAllFeedback();
 }

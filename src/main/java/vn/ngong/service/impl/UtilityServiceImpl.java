@@ -335,4 +335,12 @@ public class UtilityServiceImpl implements UtilityService {
 				.fbConnect(connect)
 				.build();
 	}
+
+	@Override
+	public List<Feedback> getAllFeedback() {
+		if (localCacheConfig.getFeedbackList().isEmpty()) {
+			localCacheConfig.loadFeedback();
+		}
+		return localCacheConfig.getFeedbackList();
+	}
 }

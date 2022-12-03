@@ -351,4 +351,15 @@ public class UtilityController {
 		res.setAgentCTVList(utilityService.getAgentCTVListByCity(cityId));
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
+
+	@Operation(summary = "API lấy danh sách feedback")
+	@RequestMapping(value = "/feedback", method = RequestMethod.GET)
+	public ResponseEntity<GetFeedbackResponse> feedback() {
+		GetFeedbackResponse res = GetFeedbackResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setFeedbackList(utilityService.getAllFeedback());
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
 }
