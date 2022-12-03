@@ -14,7 +14,7 @@ public class InitBeanApp implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		localCacheConfig.loadCityAgentCTVList();
+		localCacheConfig.loadCityDistrictWardList();
 	}
 
 }
