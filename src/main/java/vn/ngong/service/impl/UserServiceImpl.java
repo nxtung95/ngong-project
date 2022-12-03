@@ -92,11 +92,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public boolean update(User user) {
 		try {
-			User userByPhone = userRepository.findByPhone(user.getPhone()).orElse(null);
-			if (userByPhone == null) {
-				return false;
-			}
-			userRepository.saveAndFlush(userByPhone);
+			userRepository.saveAndFlush(user);
 			return true;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

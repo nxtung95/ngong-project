@@ -211,6 +211,8 @@ public class UserController {
 				res.setDesc("Cập nhật thất bại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 			}
+			user.setPassword("******");
+			user.setPasswordPlainText("******");
 			res.setUser(user);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {
