@@ -33,9 +33,9 @@ public class ProductNativeRepository {
     public List<ProductFilterDetail> findBestSeller(int limit) {
         try {
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
-                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(MIN(v.price), ' - ', MAX(v.price))" +
+                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
                     " ELSE MAX(v.price) END price," +
-                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
+                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
@@ -74,8 +74,8 @@ public class ProductNativeRepository {
                         .categoryId(Integer.parseInt((obj[4]).toString()))
                         .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
-                        .price((String) obj[7])
-                        .salePrice((String) obj[8])
+                        .price(((String) obj[7]).replace(",", "."))
+                        .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
                         .productVariant(variant)
@@ -92,9 +92,9 @@ public class ProductNativeRepository {
     public List<ProductFilterDetail> findNewestSale(int limit) {
         try {
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
-                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(MIN(v.price), ' - ', MAX(v.price))" +
+                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
                     " ELSE MAX(v.price) END price," +
-                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
+                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
@@ -129,8 +129,8 @@ public class ProductNativeRepository {
                         .categoryId(Integer.parseInt((obj[4]).toString()))
                         .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
-                        .price((String) obj[7])
-                        .salePrice((String) obj[8])
+                        .price(((String) obj[7]).replace(",", "."))
+                        .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
                         .productVariant(variant)
@@ -149,9 +149,9 @@ public class ProductNativeRepository {
             String order = filter.getOrderType() == 0 ? " ORDER BY v.price" : " ORDER BY v.price DESC";
             String paging = " LIMIT " + filter.getPageSize() + " OFFSET " + ((filter.getPageIndex()) * filter.getPageSize());
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
-                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(MIN(v.price), ' - ', MAX(v.price))" +
+                    " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
                     " ELSE MAX(v.price) END price," +
-                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(MIN(v.sale_prices), ' - ', MAX(v.sale_prices))" +
+                    " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
                     " ELSE MAX(v.sale_prices) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
@@ -197,8 +197,8 @@ public class ProductNativeRepository {
                         .categoryId(Integer.parseInt((obj[4]).toString()))
                         .image(gson.fromJson(obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
-                        .price((String) obj[7])
-                        .salePrice((String) obj[8])
+                        .price(((String) obj[7]).replace(",", "."))
+                        .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .productVariant(variant)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
