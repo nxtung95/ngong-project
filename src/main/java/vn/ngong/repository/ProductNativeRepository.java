@@ -34,9 +34,9 @@ public class ProductNativeRepository {
         try {
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
                     " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
-                    " ELSE MAX(v.price) END price," +
+                    " ELSE FORMAT(MAX(v.price), 0) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
-                    " ELSE MAX(v.sale_prices) END sale_prices," +
+                    " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(D.quantity, 0))" +
@@ -93,9 +93,9 @@ public class ProductNativeRepository {
         try {
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
                     " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
-                    " ELSE MAX(v.price) END price," +
+                    " ELSE FORMAT(MAX(v.price), 0) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
-                    " ELSE MAX(v.sale_prices) END sale_prices," +
+                    " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(o.quantity, 0))" +
@@ -150,9 +150,9 @@ public class ProductNativeRepository {
             String paging = " LIMIT " + filter.getPageSize() + " OFFSET " + ((filter.getPageIndex()) * filter.getPageSize());
             Query query = entityManager.createNativeQuery("SELECT p.id, p.`name`, p.brand_name, p.origin, p.category_id, p.product_images, p.so_gao_flag," +
                     " CASE WHEN MIN(v.price) <> MAX(v.price) THEN CONCAT(FORMAT(MIN(v.price), 0), ' - ', FORMAT(MAX(v.price), 0))" +
-                    " ELSE MAX(v.price) END price," +
+                    " ELSE FORMAT(MAX(v.price), 0) END price," +
                     " CASE WHEN MIN(v.sale_prices) <> MAX(v.sale_prices) THEN CONCAT(FORMAT(MIN(v.sale_prices), 0), ' - ', FORMAT(MAX(v.sale_prices), 0))" +
-                    " ELSE MAX(v.sale_prices) END sale_prices," +
+                    " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
                     " SUM(IFNULL(o.quantity, 0))" +
