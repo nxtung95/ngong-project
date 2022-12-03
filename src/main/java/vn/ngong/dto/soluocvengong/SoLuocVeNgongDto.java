@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 public class SoLuocVeNgongDto {
+	private String banner;
 	private String moDau;
 	private TamNhinSuMenhGTCL tamNhinSuMenhGTCL;
 	private CauChuyenThuongHieu cauChuyenThuongHieu;
