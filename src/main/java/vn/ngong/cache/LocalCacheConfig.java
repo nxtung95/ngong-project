@@ -21,6 +21,7 @@ import java.util.Map;
 @EnableScheduling
 public class LocalCacheConfig {
 	private List<City> cityList = new ArrayList<>();
+	private List<District> districtList = new ArrayList<>();
 	private List<PaymentMethod> paymentMethodList = new ArrayList<>();
 	private List<MenuDto> menuList = new ArrayList<>();
 	private Map<String, String> configMap = new HashMap<>();
@@ -62,8 +63,8 @@ public class LocalCacheConfig {
 	public void loadCityDistrictWardList() {
 		log.info("--------Start load city district ward cache---------");
 		cityList = cityRepository.findAllByStatusOrderByOrderNumberAsc(1);
-//		wardList = wardRepository.findAllByStatusOrderByOrderNumberAsc(1);
-		log.info("--------End load city cache, size: --------- " + cityList.size());
+		districtList = districtRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		log.info("--------End load city, district cache, size: --------- " + cityList.size() + ", " + districtList.size());
 
 	}
 

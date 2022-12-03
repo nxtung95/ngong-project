@@ -53,8 +53,8 @@ public class UtilityServiceImpl implements UtilityService {
 	private Gson gson;
 	@Autowired
 	private QuestionRepository questionRepository;
-//	@Autowired
-//	private WardRepository wardRepository;
+	@Autowired
+	private WardRepository wardRepository;
 
 	@Override
 	public List<City> getAllCity() {
@@ -64,22 +64,22 @@ public class UtilityServiceImpl implements UtilityService {
 		return localCacheConfig.getCityList();
 	}
 
-//	@Override
-//	public List<District> getAllDistrictByCity(String cityCode) {
-//		if (localCacheConfig.getCityList().isEmpty() || localCacheConfig.getDistrictList().isEmpty()) {
-//			localCacheConfig.loadCityDistrictWardList();
-//		}
-//		return localCacheConfig.getDistrictList().stream().filter(d -> cityCode.equals(d.getCityCode())).collect(Collectors.toList());
-//	}
+	@Override
+	public List<District> getAllDistrictByCity(String cityCode) {
+		if (localCacheConfig.getCityList().isEmpty() || localCacheConfig.getDistrictList().isEmpty()) {
+			localCacheConfig.loadCityDistrictWardList();
+		}
+		return localCacheConfig.getDistrictList().stream().filter(d -> cityCode.equals(d.getCityCode())).collect(Collectors.toList());
+	}
 
-//	@Override
-//	public List<Ward> getAllWardByDistrict(String districtCode) {
-//		if (localCacheConfig.getDistrictList().isEmpty()) {
-//			localCacheConfig.loadCityDistrictWardList();
-//		}
-//		List<Ward> wardList = wardRepository.findAllByStatusAndDistrictCodeOrderByOrderNumberAsc(1, districtCode);
-//		return wardList;
-//	}
+	@Override
+	public List<Ward> getAllWardByDistrict(String districtCode) {
+		if (localCacheConfig.getDistrictList().isEmpty()) {
+			localCacheConfig.loadCityDistrictWardList();
+		}
+		List<Ward> wardList = wardRepository.findAllByStatusAndDistrictCodeOrderByOrderNumberAsc(1, districtCode);
+		return wardList;
+	}
 
 	@Override
 	public String getValue(String key) {

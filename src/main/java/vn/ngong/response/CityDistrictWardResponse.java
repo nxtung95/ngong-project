@@ -14,6 +14,6 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 public class CityDistrictWardResponse extends BaseResponse{
 	private List<City> cityList;
-//	private List<District> districtList;
-//	private List<Ward> wardList;
+	private List<District> districtList;
+	private List<Ward> wardList;
 }
