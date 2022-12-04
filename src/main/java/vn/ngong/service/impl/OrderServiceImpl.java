@@ -84,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
                     .totalPayment(0)
                     //                .accountId(0)
                     .makeInvoice(false)
-                    //                .saleChannelId()
+                    //                .saleChannelId()getDetailCus
                     .orderDetails(orderDetailKiotViets)
                     .orderDelivery(OrderDelivery.builder()
                             .deliveryCode("DT000001")

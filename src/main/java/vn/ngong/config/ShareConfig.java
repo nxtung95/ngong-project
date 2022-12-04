@@ -53,6 +53,6 @@ public class ShareConfig {
 	@Value("${kiotviet.cashier.id:1417533}")
 	private int cashierId;
 
-	@Value("${kiotviet.cus.group.id:17804214}")
+	@Value("${kiotviet.cus.group.id:1230415}")
 	private int cusGroupId;
 }

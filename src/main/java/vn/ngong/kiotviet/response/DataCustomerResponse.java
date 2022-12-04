@@ -2,6 +2,7 @@ package vn.ngong.kiotviet.response;
 
 import lombok.Getter;
 import lombok.Setter;
+import vn.ngong.kiotviet.obj.ResponseStatus;
 
 import java.util.Date;
 import java.util.List;
@@ -26,4 +27,5 @@ public class DataCustomerResponse {
 	private String modifiedDate;
 	private String createdDate;
 	private List<Object> customerGroupDetails;
+	private ResponseStatus responseStatus;
 }
