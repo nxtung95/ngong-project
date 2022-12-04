@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@Table(name = "feedback")
+@Table(name = "wp_feedback")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
