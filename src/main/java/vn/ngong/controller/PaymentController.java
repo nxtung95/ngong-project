@@ -513,11 +513,11 @@ public class PaymentController {
 		return ResponseEntity.ok(res);
 	}
 
-//	@Operation(summary = "API giá ship")
-//	@RequestMapping(value = "/ship-price", method = RequestMethod.GET)
-//	public ResponseEntity<ShipPriceResponse> getShipPrice(@RequestParam int cityCode, @RequestParam int districtCode, @RequestParam double weight, @RequestParam int totalPrice) throws Exception {
-//		ShipPriceResponse res = ShipPriceResponse.builder().code("00").desc("Success").build();
-//		res.setShipPrice(paymentService.getShipPrice(cityCode, districtCode, weight, totalPrice));
-//		return ResponseEntity.ok(res);
-//	}
+	@Operation(summary = "API giá ship")
+	@RequestMapping(value = "/ship-price", method = RequestMethod.GET)
+	public ResponseEntity<ShipPriceResponse> getShipPrice(@RequestParam int cityCode, @RequestParam int districtCode, @RequestParam double weight, @RequestParam int totalPrice) throws Exception {
+		ShipPriceResponse res = ShipPriceResponse.builder().code("00").desc("Success").build();
+		res.setShipPrice(paymentService.getShipPrice(cityCode, districtCode, weight, totalPrice));
+		return ResponseEntity.ok(res);
+	}
 }
