@@ -453,7 +453,7 @@ public class PaymentServiceImpl implements PaymentService {
 						amountDiscount = 0;
 						subGao = p.getSize() * quantity;
 						isBuyGao = 1;
-						note = ", đã thanh toán bằng sổ gạo";
+						note += ", đã thanh toán bằng sổ gạo";
 					}
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
