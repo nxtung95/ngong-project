@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import vn.ngong.dto.MenuDto;
 import vn.ngong.dto.ProductVariantDto;
 import vn.ngong.entity.Product;
+import vn.ngong.entity.ProductVariant;
 import vn.ngong.helper.FormatUtil;
 import vn.ngong.kiotviet.obj.Attribute;
 import vn.ngong.request.ProductFilterRequest;
@@ -25,6 +26,8 @@ import java.util.List;
 public class ProductNativeRepository {
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
@@ -56,15 +59,30 @@ public class ProductNativeRepository {
             List<Object[]> objects = query.getResultList();
             List<ProductFilterDetail> products = new ArrayList<>();
             for (Object[] obj : objects) {
-                ProductVariantDto variant = ProductVariantDto
-                        .builder()
-                        .id(Integer.parseInt((obj[10]).toString()))
-                        .price(Integer.parseInt((obj[11]).toString()))
-                        .salePrice(Integer.parseInt((obj[12]).toString()))
-                        .weight(Double.parseDouble((obj[13]).toString()))
-                        .saleRate(Integer.parseInt((obj[15]).toString()))
-                        .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
-                        .build();
+                List<ProductVariant> productVariants = productVariantRepository.findAllByProductIdAndStatus(Integer.parseInt((obj[0]).toString()), 1);
+                List<ProductVariantDto> productVariantDtos = new ArrayList<>();
+
+                for (ProductVariant p : productVariants) {
+                    //Integer quantityStock = getQuantityStockByProductCode(p.getCode());
+
+
+                    ProductVariantDto dto = ProductVariantDto
+                            .builder()
+                            .id(p.getId())
+                            .code(p.getCode())
+                            .productId(p.getProductId())
+                            .name(p.getName())
+                            .price(p.getPrice())
+                            .salePrice(p.getSalePrice())
+                            .saleRate(p.getSalePrice() * 100 / p.getPrice())
+                            .productImages(gson.fromJson(p.getProductImages() == null ? "" : p.getProductImages(), new TypeToken<List<String>>(){}.getType()))
+                            .variantDetail(gson.fromJson(p.getVariantDetail() == null ? "" : p.getVariantDetail(), Object.class))
+                            .weight(p.getWeight())
+                            //.quantity(quantityStock == null ? 0 : quantityStock)
+                            .build();
+
+                    productVariantDtos.add(dto);
+                }
 
                 products.add(ProductFilterDetail.builder()
                         .id(Integer.parseInt((obj[0]).toString()))
@@ -72,13 +90,13 @@ public class ProductNativeRepository {
                         .brandName((String) obj[2])
                         .origin((String) obj[3])
                         .categoryId(Integer.parseInt((obj[4]).toString()))
-                        .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
+                        .image(gson.fromJson(obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
                         .price(((String) obj[7]).replace(",", "."))
                         .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
+                        .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
-                        .productVariant(variant)
                         .build());
             }
 
@@ -111,15 +129,30 @@ public class ProductNativeRepository {
             List<Object[]> objects = query.getResultList();
             List<ProductFilterDetail> products = new ArrayList<>();
             for (Object[] obj : objects) {
-                ProductVariantDto variant = ProductVariantDto
-                        .builder()
-                        .id(Integer.parseInt((obj[10]).toString()))
-                        .price(Integer.parseInt((obj[11]).toString()))
-                        .salePrice(Integer.parseInt((obj[12]).toString()))
-                        .weight(Double.parseDouble((obj[13]).toString()))
-                        .saleRate(Integer.parseInt((obj[15]).toString()))
-                        .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
-                        .build();
+                List<ProductVariant> productVariants = productVariantRepository.findAllByProductIdAndStatus(Integer.parseInt((obj[0]).toString()), 1);
+                List<ProductVariantDto> productVariantDtos = new ArrayList<>();
+
+                for (ProductVariant p : productVariants) {
+                    //Integer quantityStock = getQuantityStockByProductCode(p.getCode());
+
+
+                    ProductVariantDto dto = ProductVariantDto
+                            .builder()
+                            .id(p.getId())
+                            .code(p.getCode())
+                            .productId(p.getProductId())
+                            .name(p.getName())
+                            .price(p.getPrice())
+                            .salePrice(p.getSalePrice())
+                            .saleRate(p.getSalePrice() * 100 / p.getPrice())
+                            .productImages(gson.fromJson(p.getProductImages() == null ? "" : p.getProductImages(), new TypeToken<List<String>>(){}.getType()))
+                            .variantDetail(gson.fromJson(p.getVariantDetail() == null ? "" : p.getVariantDetail(), Object.class))
+                            .weight(p.getWeight())
+                            //.quantity(quantityStock == null ? 0 : quantityStock)
+                            .build();
+
+                    productVariantDtos.add(dto);
+                }
 
                 products.add(ProductFilterDetail.builder()
                         .id(Integer.parseInt((obj[0]).toString()))
@@ -127,13 +160,13 @@ public class ProductNativeRepository {
                         .brandName((String) obj[2])
                         .origin((String) obj[3])
                         .categoryId(Integer.parseInt((obj[4]).toString()))
-                        .image(gson.fromJson((String) obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
+                        .image(gson.fromJson(obj[5] == null ? "" : (String) obj[5], new TypeToken<List<String>>(){}.getType()))
                         .soGaoFlag(Boolean.parseBoolean((obj[6]).toString()) ? 1 : 0)
                         .price(((String) obj[7]).replace(",", "."))
                         .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
+                        .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
-                        .productVariant(variant)
                         .build());
             }
 
@@ -179,15 +212,30 @@ public class ProductNativeRepository {
             List<Object[]> objects = query.getResultList();
             List<ProductFilterDetail> products = new ArrayList<>();
             for (Object[] obj : objects) {
-                ProductVariantDto variant = ProductVariantDto
-                        .builder()
-                        .id(Integer.parseInt((obj[10]).toString()))
-                        .price(Integer.parseInt((obj[11]).toString()))
-                        .salePrice(Integer.parseInt((obj[12]).toString()))
-                        .weight(Double.parseDouble((obj[13]).toString()))
-                        .saleRate(Integer.parseInt((obj[15]).toString()))
-                        .variantDetail(gson.fromJson((obj[14]).toString() == null ? "" : (obj[14]).toString(), Object.class))
-                        .build();
+                List<ProductVariant> productVariants = productVariantRepository.findAllByProductIdAndStatus(Integer.parseInt((obj[0]).toString()), 1);
+                List<ProductVariantDto> productVariantDtos = new ArrayList<>();
+
+                for (ProductVariant p : productVariants) {
+                    //Integer quantityStock = getQuantityStockByProductCode(p.getCode());
+
+
+                    ProductVariantDto dto = ProductVariantDto
+                            .builder()
+                            .id(p.getId())
+                            .code(p.getCode())
+                            .productId(p.getProductId())
+                            .name(p.getName())
+                            .price(p.getPrice())
+                            .salePrice(p.getSalePrice())
+                            .saleRate(p.getSalePrice() * 100 / p.getPrice())
+                            .productImages(gson.fromJson(p.getProductImages() == null ? "" : p.getProductImages(), new TypeToken<List<String>>(){}.getType()))
+                            .variantDetail(gson.fromJson(p.getVariantDetail() == null ? "" : p.getVariantDetail(), Object.class))
+                            .weight(p.getWeight())
+                            //.quantity(quantityStock == null ? 0 : quantityStock)
+                            .build();
+
+                    productVariantDtos.add(dto);
+                }
 
                 products.add(ProductFilterDetail.builder()
                         .id(Integer.parseInt((obj[0]).toString()))
@@ -200,7 +248,7 @@ public class ProductNativeRepository {
                         .price(((String) obj[7]).replace(",", "."))
                         .salePrice(((String) obj[8]).replace(",", "."))
                         .saleRate(Integer.parseInt((obj[9]).toString()))
-                        .productVariant(variant)
+                        .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
                         .build());
             }
