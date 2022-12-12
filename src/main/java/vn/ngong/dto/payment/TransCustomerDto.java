@@ -13,4 +13,5 @@ public class TransCustomerDto {
 	private String cusDistrict;
 	private String cusWard;
 	private String cusNote;
+	private String cusAddress;
 }

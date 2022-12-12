@@ -85,7 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.name(rq.getCustomer().getCusName())
 					.email(rq.getCustomer().getCusEmail())
 					.phone(rq.getCustomer().getCusPhone())
-					.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
+					.address(rq.getCustomer().getCusAddress())
 					.note(rq.getCustomer().getCusNote())
 					.createdBy(user.getName())
 					.build();
@@ -389,7 +389,7 @@ public class PaymentServiceImpl implements PaymentService {
 					.name(rq.getCustomer().getCusName())
 					.email(rq.getCustomer().getCusEmail())
 					.phone(rq.getCustomer().getCusPhone())
-					.address(rq.getCustomer().getCusWard() + "," + rq.getCustomer().getCusDistrict() + "," + rq.getCustomer().getCusCity())
+					.address(rq.getCustomer().getCusAddress())
 					.note(rq.getCustomer().getCusNote())
 					.createdBy(user.getName())
 					.build();

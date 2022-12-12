@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findByPhone(String phone);
 
 	Optional<User> findByPhoneAndActived(String phone, int actived);
+
+	Optional<User> findByIdAndActived(Integer id, int actived);
 }
