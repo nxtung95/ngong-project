@@ -52,22 +52,6 @@ public class PaymentController {
 				.code("00")
 				.desc("Success")
 				.build();
-		if (rq.getCustomer() == null ||
-				ValidtionUtils.checkEmptyOrNull(
-						rq.getCustomer().getCusPhone(),
-						rq.getCustomer().getCusEmail(),
-						rq.getCustomer().getCusCity(),
-						rq.getCustomer().getCusDistrict(),
-						rq.getCustomer().getCusWard())) {
-			res.setCode("01");
-			res.setDesc("Vui lòng nhập đủ thông tin khách hàng");
-			return new ResponseEntity<>(res, HttpStatus.OK);
-		}
-		if (!ValidtionUtils.validPhoneNumber(rq.getCustomer().getCusPhone())) {
-			res.setCode("01");
-			res.setDesc("Vui lòng nhập số điện thoại đúng định dạng");
-			return new ResponseEntity<>(res, HttpStatus.OK);
-		}
 		if ((rq.getProductList() == null || rq.getProductList().isEmpty()) && (rq.getSoGaoList() == null || rq.getSoGaoList().isEmpty())) {
 			res.setCode("01");
 			res.setDesc("Sản phẩm để tính phí không được trống");
@@ -251,7 +235,7 @@ public class PaymentController {
 		if (rq.getCustomer() == null ||
 				ValidtionUtils.checkEmptyOrNull(
 						rq.getCustomer().getCusPhone(),
-						rq.getCustomer().getCusEmail(),
+						rq.getCustomer().getCusAddress(),
 						rq.getCustomer().getCusCity(),
 						rq.getCustomer().getCusDistrict(),
 						rq.getCustomer().getCusWard())) {
