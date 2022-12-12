@@ -89,7 +89,7 @@ public class CartController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResponseEntity<CartInsertResponse> update(@RequestBody CartUpdateRequest cart, HttpServletRequest httpServletRequest) throws Exception {
         int userId = 0;
         String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
@@ -116,7 +116,7 @@ public class CartController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResponseEntity<Boolean> delete(@RequestParam int id) throws Exception {
         cartService.delete(id);
         return ResponseEntity.ok(true);
