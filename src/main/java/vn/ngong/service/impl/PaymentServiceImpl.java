@@ -400,10 +400,20 @@ public class PaymentServiceImpl implements PaymentService {
 				cusKiotViet = customerService.addCusToKiotViet(customer);
 				if (cusKiotViet != null) {
 					customer.setCode(cusKiotViet.getData().getCode());
+					user.setCode(cusKiotViet.getData().getCode());
 				}
 			} else {
 				cusKiotViet = customerService.getDetailCus(cusReceive.getCode());
-				customer.setCode(cusReceive.getCode());
+				if (cusKiotViet == null || cusKiotViet.getData().getResponseStatus() != null) {
+					cusKiotViet = customerService.addCusToKiotViet(customer);
+					if (cusKiotViet != null) {
+						customer.setCode(cusKiotViet.getData().getCode());
+						user.setCode(cusKiotViet.getData().getCode());
+					}
+				} else {
+					customer.setCode(cusReceive.getCode());
+					user.setCode(cusReceive.getCode());
+				}
 			}
 			Customer addCustomer = customerService.add(customer);
 			log.info("--- End add customer");
