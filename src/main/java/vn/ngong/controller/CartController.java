@@ -29,7 +29,6 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping(value = "/carts")
-@CrossOrigin(origins = "*")
 public class CartController {
     @Autowired
     private CartService cartService;
@@ -90,7 +89,7 @@ public class CartController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
-    @RequestMapping(value = "", method = RequestMethod.PUT)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<CartInsertResponse> update(@RequestBody CartUpdateRequest cart, HttpServletRequest httpServletRequest) throws Exception {
         int userId = 0;
         String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
@@ -117,7 +116,7 @@ public class CartController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Thành công", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
     })
-    @RequestMapping(value = "", method = RequestMethod.DELETE)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<Boolean> delete(@RequestParam int id) throws Exception {
         cartService.delete(id);
         return ResponseEntity.ok(true);
