@@ -43,18 +43,4 @@ public class AppConfig {
 				.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 	}
-
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		final CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowedMethods(Arrays.asList("HEAD",
-				"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-//		configuration.setAllowCredentials(true);
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-//		configuration.setExposedHeaders(Arrays.asList("X-Auth-Token","Authorization","Access-Control-Allow-Origin","Access-Control-Allow-Credentials"));
-		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
 }
