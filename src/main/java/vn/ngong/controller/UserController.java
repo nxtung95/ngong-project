@@ -171,28 +171,24 @@ public class UserController {
 			@ApiResponse(responseCode = "500", description = "Lỗi server", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
 	})
 	@RequestMapping(value = "/user/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<RegisterResponse> update(@RequestBody RegisterRequest rq) throws Exception {
+	public ResponseEntity<RegisterResponse> update(@RequestBody RegisterRequest rq, HttpServletRequest httpServletRequest) throws Exception {
 		RegisterResponse res = RegisterResponse.builder()
 				.code("00")
 				.desc("Success")
 				.build();
-		if (ValidtionUtils.checkEmptyOrNull(rq.getPhone())) {
-			res.setCode("01");
-			res.setDesc("Số điện thoại bắt buộc có");
-			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
-		} else if (!ValidtionUtils.validPhoneNumber(rq.getPhone())) {
-			res.setCode("01");
-			res.setDesc("Số điện thoại phải là số có 10 hoặc 11 chữ số");
-			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+		int userId = 0;
+		String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
+		if (!ValidtionUtils.checkEmptyOrNull(token)) {
+			User user = authenticationUtil.getUserFromToken(token);
+			userId = user.getId();
 		}
 		try {
-			Optional<User> optUser = userService.findByPhone(rq.getPhone());
-			if (!optUser.isPresent()) {
+			User user = userService.findById(userId);
+			if (user == null) {
 				res.setCode("03");
 				res.setDesc("User không tồn tại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
-			User user = optUser.get();
 			if (!ValidtionUtils.checkEmptyOrNull(rq.getEmail())) {
 				if (!rq.getEmail().equalsIgnoreCase(user.getEmail())) {
 					boolean isExist = userService.checkExistByEmail(rq.getEmail(), user.getId());
@@ -204,7 +200,6 @@ public class UserController {
 				}
 			}
 			user.setName(rq.getName());
-			user.setPhone(rq.getPhone());
 			user.setEmail(rq.getEmail());
 			user.setAddress(rq.getAddress());
 			user.setDefaultPaymentId(rq.getDefaultPaymentId());
