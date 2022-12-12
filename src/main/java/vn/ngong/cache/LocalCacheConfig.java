@@ -21,11 +21,13 @@ import java.util.Map;
 @EnableScheduling
 public class LocalCacheConfig {
 	private List<City> cityList = new ArrayList<>();
+	private List<District> districtList = new ArrayList<>();
 	private List<PaymentMethod> paymentMethodList = new ArrayList<>();
 	private List<MenuDto> menuList = new ArrayList<>();
 	private Map<String, String> configMap = new HashMap<>();
 	private List<CityAgentCTV> cityAgentCTVList = new ArrayList<>();
 	private List<AgentCTV> agentCTVList = new ArrayList<>();
+	private List<Feedback> feedbackList = new ArrayList<>();
 
 	@Autowired
 	private CityRepository cityRepository;
@@ -41,6 +43,8 @@ public class LocalCacheConfig {
 	private CityAgentCTVRepository cityAgentCTVRepository;
 	@Autowired
 	private AgentCTVRepository agentCTVRepository;
+	@Autowired
+	private FeedbackRepository feedbackRepository;
 
 	public void loadAgentCTVList() {
 		log.info("--------Start agent ctv cache---------");
@@ -59,8 +63,8 @@ public class LocalCacheConfig {
 	public void loadCityDistrictWardList() {
 		log.info("--------Start load city district ward cache---------");
 		cityList = cityRepository.findAllByStatusOrderByOrderNumberAsc(1);
-//		wardList = wardRepository.findAllByStatusOrderByOrderNumberAsc(1);
-		log.info("--------End load city cache, size: --------- " + cityList.size());
+		districtList = districtRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		log.info("--------End load city, district cache, size: --------- " + cityList.size() + ", " + districtList.size());
 
 	}
 
@@ -90,6 +94,12 @@ public class LocalCacheConfig {
 
 	}
 
+	public void loadFeedback() {
+		log.info("--------Start feedback cache---------");
+		feedbackList = feedbackRepository.findAllByStatusOrderByOrderNumberAsc(1);
+		log.info("--------End load feedback cache, size: --------- " + feedbackList.size());
+	}
+
 	public String getConfig(String key, String defaultValue) {
 		String config;
 		if (configMap.containsKey(key)) {
@@ -101,7 +111,7 @@ public class LocalCacheConfig {
 		return config;
 	}
 
-	@Scheduled(cron = "0 0 0/1 * * ?")
+	@Scheduled(cron = "0 */15 * ? * *")
 	public void scheduleReloadCache() {
 		loadPaymentMethodList();
 		loadSystemParameterMap();
@@ -109,6 +119,7 @@ public class LocalCacheConfig {
 		loadCacheMenu();
 		loadCityAgentCTVList();
 		loadAgentCTVList();
+		loadFeedback();
 	}
 
 	public String getPaymentNameById(String defaultPaymentId) {

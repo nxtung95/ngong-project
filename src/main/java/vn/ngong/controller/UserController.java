@@ -24,6 +24,8 @@ import vn.ngong.response.LoginResponse;
 import vn.ngong.response.RegisterResponse;
 import vn.ngong.service.UserService;
 
+import java.util.Optional;
+
 @RestController
 @Slf4j
 public class UserController {
@@ -180,25 +182,37 @@ public class UserController {
 			return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			boolean isExist = userService.checkExistByEmail(rq.getEmail());
-			if (isExist) {
-				res.setCode("02");
-				res.setDesc("Email đã tồn tại");
+			Optional<User> optUser = userService.findByPhone(rq.getPhone());
+			if (!optUser.isPresent()) {
+				res.setCode("03");
+				res.setDesc("User không tồn tại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
 			}
-			User user = User.builder()
-					.name(rq.getName())
-					.phone(rq.getPhone())
-					.email(rq.getEmail())
-					.address(rq.getAddress())
-					.defaultPaymentId(rq.getDefaultPaymentId())
-					.build();
+			User user = optUser.get();
+			if (!ValidtionUtils.checkEmptyOrNull(rq.getEmail())) {
+				if (!rq.getEmail().equalsIgnoreCase(user.getEmail())) {
+					boolean isExist = userService.checkExistByEmail(rq.getEmail(), user.getId());
+					if (isExist) {
+						res.setCode("02");
+						res.setDesc("Email đã tồn tại");
+						return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+					}
+				}
+			}
+			user.setName(rq.getName());
+			user.setPhone(rq.getPhone());
+			user.setEmail(rq.getEmail());
+			user.setAddress(rq.getAddress());
+			user.setDefaultPaymentId(rq.getDefaultPaymentId());
+
 			boolean update = userService.update(user);
 			if (!update) {
 				res.setCode("03");
 				res.setDesc("Cập nhật thất bại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 			}
+			user.setPassword("******");
+			user.setPasswordPlainText("******");
 			res.setUser(user);
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (Exception e) {

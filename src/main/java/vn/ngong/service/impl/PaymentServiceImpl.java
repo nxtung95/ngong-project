@@ -100,8 +100,16 @@ public class PaymentServiceImpl implements PaymentService {
 				}
 			} else {
 				cusKiotViet = customerService.getDetailCus(cusReceive.getCode());
-				customer.setCode(cusReceive.getCode());
-				user.setCode(cusReceive.getCode());
+				if (cusKiotViet == null || cusKiotViet.getData().getResponseStatus() != null) {
+					cusKiotViet = customerService.addCusToKiotViet(customer);
+					if (cusKiotViet != null) {
+						customer.setCode(cusKiotViet.getData().getCode());
+						user.setCode(cusKiotViet.getData().getCode());
+					}
+				} else {
+					customer.setCode(cusReceive.getCode());
+					user.setCode(cusReceive.getCode());
+				}
 			}
 			Customer addCustomer = customerService.add(customer);
 			userService.update(user);
@@ -445,7 +453,7 @@ public class PaymentServiceImpl implements PaymentService {
 						amountDiscount = 0;
 						subGao = p.getSize() * quantity;
 						isBuyGao = 1;
-						note = ", đã thanh toán bằng sổ gạo";
+						note += ", đã thanh toán bằng sổ gạo";
 					}
 					OrderDetail orderDetail = OrderDetail.builder()
 							.orderId(addOrder.getId())
@@ -562,19 +570,19 @@ public class PaymentServiceImpl implements PaymentService {
 			log.info("--- end add so gao, add so gao history ---");
 
 			log.info("--- start add transaction_notify default ---");
-			Product firstProduct;
-			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
-				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
-			} else {
-				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
-			}
-			String image = firstProduct == null ? "" : firstProduct.getImage();
+//			Product firstProduct;
+//			if (rq.getProductList() != null && !rq.getProductList().isEmpty()) {
+//				firstProduct = productService.findById(rq.getProductList().get(0).getProductId());
+//			} else {
+//				firstProduct = productService.findById(rq.getSoGaoList().get(0).getProductId());
+//			}
+//			String image = firstProduct == null ? "" : firstProduct.getImage();
 			TransactionNotify transactionNotify = TransactionNotify.builder()
 					.tranxId(trans.getId())
 					.userId(user.getId())
 					.tranxCode(trans.getTranxCode())
 					.title("Yeah! Đã đặt hàng thành công")
-					.image(image)
+					.image("")
 					.content("Bạn đã đặt hàng thành công, đơn hàng của bạn: " + trans.getTranxCode() + ". Thông tin chi tiết, liên hệ: 0945348008")
 					.createdBy(user.getName())
 					.updatedBy(user.getName())

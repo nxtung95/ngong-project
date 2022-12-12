@@ -17,6 +17,8 @@ public interface UserService {
 
 	boolean checkExistByEmail(String mail);
 
+	boolean checkExistByEmail(String mail, int userId);
+
 	boolean update(User user);
 
 	Optional<User> findByPhone(String phone);

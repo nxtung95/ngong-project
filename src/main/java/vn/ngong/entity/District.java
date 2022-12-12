@@ -42,8 +42,8 @@ public class District implements Serializable {
 	@Column(name = "created_date")
 	private Timestamp createdDate;
 
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = Ward.class)
-	@JoinColumn(name = "district_code", referencedColumnName = "code", insertable = false, updatable = false)
-	@Where(clause = "status = 1")
-	private List<Ward> wardList;
+//	@OneToMany(fetch = FetchType.EAGER, targetEntity = Ward.class)
+//	@JoinColumn(name = "district_code", referencedColumnName = "code", insertable = false, updatable = false)
+//	@Where(clause = "status = 1")
+//	private List<Ward> wardList;
 }

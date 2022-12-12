@@ -21,9 +21,9 @@ import java.util.Map;
 public interface UtilityService {
 	List<City> getAllCity();
 
-//	List<District> getAllDistrictByCity(String cityCode);
-//
-//	List<Ward> getAllWardByDistrict(String districtCode);
+	List<District> getAllDistrictByCity(String cityCode);
+
+	List<Ward> getAllWardByDistrict(String districtCode);
 
 	String getValue(String key);
 
@@ -72,4 +72,6 @@ public interface UtilityService {
 	MuaODauDto getMuaODauContent();
 
 	FooterDto getFooterContent();
+
+	List<Feedback> getAllFeedback();
 }

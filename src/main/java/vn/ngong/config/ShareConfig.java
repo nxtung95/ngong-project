@@ -44,15 +44,15 @@ public class ShareConfig {
 	@Value("${amount.fix.remain.gao:54000}")
 	private long amountFixRemainGao;
 
-	@Value("${kiotviet.branch.id:328808}")
+	@Value("${kiotviet.branch.id:1289911}")
 	private int branchId;
 
-	@Value("${kiotviet.sold.id:683952}")
+	@Value("${kiotviet.sold.id:1417533}")
 	private int soldByid;
 
-	@Value("${kiotviet.cashier.id:710635}")
+	@Value("${kiotviet.cashier.id:1417533}")
 	private int cashierId;
 
-	@Value("${kiotviet.cus.group.id:174336}")
+	@Value("${kiotviet.cus.group.id:1230415}")
 	private int cusGroupId;
 }
