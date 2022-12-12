@@ -24,6 +24,7 @@ import vn.ngong.response.LoginResponse;
 import vn.ngong.response.RegisterResponse;
 import vn.ngong.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
@@ -38,6 +39,9 @@ public class UserController {
 
 	@Autowired
 	private LocalCacheConfig localCacheConfig;
+
+	@Autowired
+	private AuthenticationUtil authenticationUtil;
 
 	@RequestMapping(value = "/health", method = RequestMethod.GET)
 	public ResponseEntity<?> createAuthenticationToken() throws Exception {
@@ -211,6 +215,31 @@ public class UserController {
 				res.setDesc("Cập nhật thất bại");
 				return new ResponseEntity<>(res, HttpStatus.BAD_GATEWAY);
 			}
+			user.setPassword("******");
+			user.setPasswordPlainText("******");
+			res.setUser(user);
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@Operation(summary = "API lấy thông tin user", description = "")
+	@RequestMapping(value = "/user/info", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<RegisterResponse> info(HttpServletRequest httpServletRequest) throws Exception {
+		RegisterResponse res = RegisterResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		try {
+			int userId = 0;
+			String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
+			if (!ValidtionUtils.checkEmptyOrNull(token)) {
+				User user = authenticationUtil.getUserFromToken(token);
+				userId = user.getId();
+			}
+			User user = userService.findById(userId);
 			user.setPassword("******");
 			user.setPasswordPlainText("******");
 			res.setUser(user);
