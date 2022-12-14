@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.ngong.config.ShareConfig;
 import vn.ngong.dto.payment.*;
 import vn.ngong.entity.*;
+import vn.ngong.helper.AuthenticationUtil;
 import vn.ngong.helper.FormatUtil;
 import vn.ngong.helper.ValidtionUtils;
 import vn.ngong.repository.UserSoGaoRepository;
@@ -23,6 +24,7 @@ import vn.ngong.service.PaymentService;
 import vn.ngong.service.ProductService;
 import vn.ngong.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +45,13 @@ public class PaymentController {
 	private ShareConfig shareConfig;
 	@Autowired
 	private ProductService productService;
+	@Autowired
+	private AuthenticationUtil authenticationUtil;
 
 	@Operation(summary = "Thanh toán",
 			description = "API tính tổng tiền sản phẩm trong giỏ hàng")
 	@RequestMapping(value = "/amount", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CalculateAmountResponse> calculateAmount(@RequestBody CalculateAmountRequest rq) {
+	public ResponseEntity<CalculateAmountResponse> calculateAmount(@RequestBody CalculateAmountRequest rq, HttpServletRequest httpServletRequest) {
 		CalculateAmountResponse res = CalculateAmountResponse.builder()
 				.code("00")
 				.desc("Success")
@@ -74,7 +78,7 @@ public class PaymentController {
 				remindGao = convertRemindGaoToPayment(rq.getRemindGao());
 			}
 
-			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao);
+			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao, httpServletRequest);
 
 			if (paymentProductList != null && !paymentProductList.isEmpty()) {
 				res.setProductList(paymentProductList);
@@ -112,7 +116,8 @@ public class PaymentController {
 	}
 
 	private long[] calcAmount(List<TransProductDto> productList, List<AmountProductDto> paymentProductList,
-							  List<AmountProductDto> paymentGaoList, List<TransSoGaoDto> soGaoList, String phone, AmountProductDto remainGao) {
+							  List<AmountProductDto> paymentGaoList, List<TransSoGaoDto> soGaoList, String phone,
+							  AmountProductDto remainGao, HttpServletRequest httpServletRequest) {
 		long originAmount = 0;
 		long discountAmount = 0;
 		if (productList == null || !paymentService.isHaveRiceProduct(paymentProductList)) {
@@ -138,25 +143,42 @@ public class PaymentController {
 					discountAmount += paymentGaoList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
 				}
 			} else {
-				User user = optionalUser.get();
-				// Check số gạo trong sổ của user
-				List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(
-						user.getId(), 1, new Timestamp(System.currentTimeMillis()));
-				if (!userSoGaoList.isEmpty()) { // Có sổ gạo
-					// Cập nhật
-					for (AmountProductDto pv : paymentProductList) {
-						if (pv.getGaoFlag() == 1) {
-							pv.setPrice(0);
-							pv.setPriceDiscount(0);
+				int userId = 0;
+				String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
+				if (!ValidtionUtils.checkEmptyOrNull(token)) {
+					User user = authenticationUtil.getUserFromToken(token);
+					userId = user.getId();
+				}
+				if (userId > 0) {
+					User user = optionalUser.get();
+					// Check số gạo trong sổ của user
+					List<UserSoGao> userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(
+							user.getId(), 1, new Timestamp(System.currentTimeMillis()));
+					if (!userSoGaoList.isEmpty()) { // Có sổ gạo
+						// Cập nhật
+						for (AmountProductDto pv : paymentProductList) {
+							if (pv.getGaoFlag() == 1) {
+								pv.setPrice(0);
+								pv.setPriceDiscount(0);
+							}
 						}
 					}
-				}
-				originAmount += paymentProductList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
-				discountAmount += paymentProductList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
+					originAmount += paymentProductList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
+					discountAmount += paymentProductList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
 
-				if (soGaoList != null && !soGaoList.isEmpty()) {
-					originAmount += paymentGaoList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
-					discountAmount += paymentGaoList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
+					if (soGaoList != null && !soGaoList.isEmpty()) {
+						originAmount += paymentGaoList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
+						discountAmount += paymentGaoList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
+					}
+				} else {
+					if (paymentProductList != null) {
+						originAmount += paymentProductList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
+						discountAmount += paymentProductList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
+					}
+					if (paymentGaoList != null) {
+						originAmount += paymentGaoList.stream().mapToLong(p -> p.getPrice() * p.getQuantity()).sum();
+						discountAmount += paymentGaoList.stream().mapToLong(p -> p.getPriceDiscount() * p.getQuantity()).sum();
+					}
 				}
 			}
 		}
@@ -227,7 +249,7 @@ public class PaymentController {
 	@Operation(summary = "API thanh toán sản phẩm trong giỏ hàng",
 			description = "User đã đăng nhập: Đính kèm token vào header khi gọi API")
 	@RequestMapping(value = "", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<PaymentResponse> transaction(@RequestBody PaymentRequest rq) throws Exception {
+	public ResponseEntity<PaymentResponse> transaction(@RequestBody PaymentRequest rq, HttpServletRequest httpServletRequest) throws Exception {
 		PaymentResponse res = PaymentResponse.builder()
 				.code("00")
 				.desc("Success")
@@ -294,7 +316,7 @@ public class PaymentController {
 			if (rq.getRemindGao() != null) {
 				remindGao = convertRemindGaoToPayment(rq.getRemindGao());
 			}
-			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao);
+			long[] calculateAmount = calcAmount(productList, paymentProductList, paymentGaoList, soGaoList, rq.getCustomer().getCusPhone(), remindGao, httpServletRequest);
 
 			int shippingFee = rq.getShippingFee();
 			if (rq.getOriginAmount() != calculateAmount[0]) {
@@ -326,12 +348,18 @@ public class PaymentController {
 			} else {
 				Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 				List<UserSoGao> userSoGaoList = new ArrayList<>();
-				if (optionalUser.isPresent()) {
+				int userId = 0;
+				String token = authenticationUtil.extractTokenFromRequest(httpServletRequest);
+				if (!ValidtionUtils.checkEmptyOrNull(token)) {
+					User user = authenticationUtil.getUserFromToken(token);
+					userId = user.getId();
+				}
+				if (optionalUser.isPresent() && userId > 0) { // Tồn tại trong hệ thống và đã đăng nhập
 					userSoGaoList = userSoGaoRepository.findAllByUserIdAndStatusAndExpireDateAfterOrderByExpireDateAsc(
 							optionalUser.get().getId(), 1, currentDate);
 				}
 				if (userSoGaoList.isEmpty()) {
-					// User chưa có sổ gạo
+					// User chưa có sổ gạo hoặc user chưa đăng nhập
 					User user = optionalUser.isPresent() ? optionalUser.get() : userService.makeUserForPayment(rq);
 					transaction = paymentService.paymentWithNoRiceProduct(rq, user, paymentProductList, paymentGaoList);
 				} else {
