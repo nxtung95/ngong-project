@@ -164,6 +164,16 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public Product findByProductCode(String productCode) {
+		ProductVariant productVariant = productVariantRepository.findByCodeAndStatus(productCode, 1).orElse(null);
+		if (productVariant != null) {
+			Product product = productRepository.findById(productVariant.getProductId()).orElse(null);
+			return product;
+		}
+		return null;
+	}
+
+	@Override
 	public List<String> getBrandNames() {
 		return productRepository.getBrandnames();
 	}

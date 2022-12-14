@@ -164,7 +164,7 @@ public class OrderServiceImpl implements OrderService {
                 for (DataOrderResponse order : res.getData()) {
                     List<vn.ngong.kiotviet.obj.OrderDetail> orderDetails = order.getOrderDetails();
                     for (vn.ngong.kiotviet.obj.OrderDetail od : orderDetails) {
-                        Product p = productService.findById((int) od.getProductId());
+                        Product p = productService.findByProductCode(od.getProductCode());
                         String productImage = p != null ? p.getImage() : "";
                         od.setProductImage(productImage);
                     }

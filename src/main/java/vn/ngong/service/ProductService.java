@@ -24,6 +24,8 @@ public interface ProductService {
 
 	Product findById(int productId);
 
+	Product findByProductCode(String productCode);
+
 	List<String> getBrandNames();
 
 	List<ProductVariant> findAllProductByCode(List<String> productCodeList);
