@@ -1,6 +1,9 @@
 package vn.ngong.dto;
 
 import lombok.*;
+import vn.ngong.kiotviet.obj.Attribute;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +21,6 @@ public class CartDto {
     private int sale_prices;
     private double weight;
     private String images;
+    private List<ProductVariantDto> productVariants;
+    private List<Attribute> attributes;
 }
