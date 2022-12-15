@@ -12,4 +12,6 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 public class FindPostByMenuResponse extends BaseResponse {
 	private List<Post> postList;
+	private Integer totalPost;
+	private Post post;
 }

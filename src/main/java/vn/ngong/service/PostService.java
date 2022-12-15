@@ -14,4 +14,8 @@ public interface PostService {
 	List<Post> findLastTopPost(int size);
 
 	List<Post> findLastTopPostOrderByMonth(int size, int orderBy);
+
+	List<Post> findAllPostByMenu(String menuCode);
+
+	Post findById(int postId);
 }

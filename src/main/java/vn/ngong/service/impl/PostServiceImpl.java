@@ -168,4 +168,15 @@ public class PostServiceImpl implements PostService {
 		}
 		return returnListPost;
 	}
+
+	@Override
+	public List<Post> findAllPostByMenu(String menuCode) {
+		List<Post> postList = postRepository.findAllPostByMenuCode(menuCode);
+		return postList;
+	}
+
+	@Override
+	public Post findById(int postId) {
+		return postRepository.findPostById(postId);
+	}
 }

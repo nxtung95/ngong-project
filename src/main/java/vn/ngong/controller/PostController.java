@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.ngong.entity.Post;
 import vn.ngong.entity.ViewCountPost;
 import vn.ngong.request.UpdateViewCountPostRequest;
 import vn.ngong.response.*;
@@ -18,6 +19,7 @@ import vn.ngong.service.PostService;
 import vn.ngong.service.UtilityService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -61,7 +63,19 @@ public class PostController {
 		int pgIndex = Integer.parseInt(pageIndex);
 		int limit = Integer.parseInt(pageSize);
 		int offset = (pgIndex - 1) * limit;
+		List<Post> postList = postService.findAllPostByMenu(menuCode);
+		res.setTotalPost(postList.size());
 		res.setPostList(postService.findPostByMenu(menuCode, limit, offset));
+		return ResponseEntity.ok(res);
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<FindPostByMenuResponse> findPostById(@PathVariable int id) {
+		FindPostByMenuResponse res = FindPostByMenuResponse.builder()
+				.code("00")
+				.desc("Success")
+				.build();
+		res.setPost(postService.findById(id));
 		return ResponseEntity.ok(res);
 	}
 
