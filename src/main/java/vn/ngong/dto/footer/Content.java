@@ -1,5 +1,6 @@
 package vn.ngong.dto.footer;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 

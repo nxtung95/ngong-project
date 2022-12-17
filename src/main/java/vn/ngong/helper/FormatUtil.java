@@ -60,6 +60,11 @@ public class FormatUtil {
 		System.out.println(makeTranxId());
 	}
 
+	public static String formatTimestampDate(Timestamp timestamp, String pattern) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+		return formatter.format(timestamp.toLocalDateTime());
+	}
+
 	public static String formatPostDate(Timestamp postModified) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
 		return formatter.format(postModified.toLocalDateTime());
