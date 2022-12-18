@@ -42,7 +42,7 @@ public class ProductNativeRepository {
                     " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
-                    " SUM(IFNULL(D.quantity, 0))" +
+                    " SUM(IFNULL(D.quantity, 0)), p.attributes" +
 //                    " FROM transactions T " +
 //                    "INNER JOIN orders O ON O.Id = T.order_id " +
                     " FROM detail_orders D" +
@@ -97,6 +97,7 @@ public class ProductNativeRepository {
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
+                        .attributes(gson.fromJson((obj[17]).toString() == null ? "" : (obj[17]).toString(), new TypeToken<List<Attribute>>(){}.getType()))
                         .build());
             }
 
@@ -116,7 +117,7 @@ public class ProductNativeRepository {
                     " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
-                    " SUM(IFNULL(o.quantity, 0))" +
+                    " SUM(IFNULL(o.quantity, 0)), p.attributes" +
                     " FROM wp_products p " +
                     "INNER JOIN wp_product_variants v ON p.Id = v.product_id AND v.`status` = 1 " +
                     " INNER JOIN (SELECT product_id, MIN(id) id FROM wp_product_variants GROUP BY product_id) tmp ON p.id = tmp.product_id" +
@@ -167,6 +168,7 @@ public class ProductNativeRepository {
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
+                        .attributes(gson.fromJson((obj[17]).toString() == null ? "" : (obj[17]).toString(), new TypeToken<List<Attribute>>(){}.getType()))
                         .build());
             }
 
@@ -188,7 +190,7 @@ public class ProductNativeRepository {
                     " ELSE FORMAT(MAX(v.sale_prices), 0) END sale_prices," +
                     " CAST(MAX((v.price - v.sale_prices) * 100 / v.price) AS INT) sale_rate," +
                     " v2.id variant_id, v2.price variant_price, v2.sale_prices variant_sale_prices, v2.weight, v2.variants_detail, CAST(((v2.price - v2.sale_prices) * 100 / v.price) AS INT) variant_sale_rate," +
-                    " SUM(IFNULL(o.quantity, 0))" +
+                    " SUM(IFNULL(o.quantity, 0)), p.attributes" +
                     " FROM wp_products p" +
                     " INNER JOIN wp_product_variants v ON p.id = v.product_id" +
                     " INNER JOIN (SELECT product_id, MIN(id) id FROM wp_product_variants GROUP BY product_id) tmp ON p.id = tmp.product_id" +
@@ -250,6 +252,7 @@ public class ProductNativeRepository {
                         .saleRate(Integer.parseInt((obj[9]).toString()))
                         .productVariants(productVariantDtos)
                         .selledNumber(Integer.parseInt((obj[15]).toString()))
+                        .attributes(gson.fromJson((obj[17]).toString() == null ? "" : (obj[17]).toString(), new TypeToken<List<Attribute>>(){}.getType()))
                         .build());
             }
 

@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import vn.ngong.dto.ProductVariantDto;
+import vn.ngong.kiotviet.obj.Attribute;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -26,4 +27,5 @@ public class ProductFilterDetail {
     private String salePrice;
     private List<ProductVariantDto> productVariants;
     private int selledNumber;
+    private List<Attribute> attributes;
 }
