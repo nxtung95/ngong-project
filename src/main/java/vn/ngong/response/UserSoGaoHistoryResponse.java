@@ -1,10 +1,9 @@
 package vn.ngong.response;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import vn.ngong.dto.UserSoGaoHistoryDto;
+import vn.ngong.dto.sogao.ReturnUserSoGaoHistoryDto;
 
 import java.util.List;
 
@@ -12,5 +11,5 @@ import java.util.List;
 @Setter
 @SuperBuilder(toBuilder = true)
 public class UserSoGaoHistoryResponse extends BaseResponse {
-    private List<UserSoGaoHistoryDto> histories;
+    private List<ReturnUserSoGaoHistoryDto> histories;
 }

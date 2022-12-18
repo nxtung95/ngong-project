@@ -1,9 +1,9 @@
 package vn.ngong.service;
 
-import vn.ngong.dto.UserSoGaoHistoryDto;
+import vn.ngong.dto.sogao.ReturnUserSoGaoHistoryDto;
 
 import java.util.List;
 
 public interface UserSoGaoHistoryService {
-    List<UserSoGaoHistoryDto> list(int userId);
+    List<ReturnUserSoGaoHistoryDto> list(int userId);
 }
